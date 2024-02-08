@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "preversion": "npm run lint",
-    "prepublishOnly": "npm run lint && npm run build",
+    "prepublishOnly": "npm run build",
     "postversion": "git push --follow-tags",
     "prebuild": "rimraf dist",
     "build": "tsc",
@@ -40,7 +40,7 @@
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.42.0",
+    "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "jest": "^29.5.0",
