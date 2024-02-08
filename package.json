@@ -1,15 +1,21 @@
 {
-  "name": "@nominal-systems/dmi-engine-antech-v6-integration",
+  "name": "dmi-engine-antech-v6-integration",
   "version": "0.1.0-5",
   "description": "",
   "author": "",
   "license": "UNLICENSED",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "preversion": "npm run lint",
     "prepublishOnly": "npm run build",
     "postversion": "git push --follow-tags",
     "prebuild": "rimraf dist",
-    "build": "tsc",
+    "build": "nest build",
+    "build:package": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
