@@ -5,6 +5,9 @@
   "author": "",
   "license": "UNLICENSED",
   "scripts": {
+    "preversion": "npm run lint",
+    "prepublishOnly": "npm run lint && npm run build",
+    "postversion": "git push --follow-tags",
     "prebuild": "rimraf dist",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
