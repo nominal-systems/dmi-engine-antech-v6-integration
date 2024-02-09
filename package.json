@@ -4,10 +4,9 @@
   "description": "",
   "author": "",
   "license": "UNLICENSED",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist"
   ],
   "scripts": {
     "preversion": "npm run lint",
