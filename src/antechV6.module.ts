@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
+import { AntechV6Controller } from './antech-v6/antech-v6.controller';
 
 @Module({
   imports: [
@@ -14,5 +15,6 @@ import { BullModule } from '@nestjs/bull';
       { name: `antech-v6.orders` },
     ),
   ],
+  controllers: [AntechV6Controller],
 })
 export class AntechV6Module {}
