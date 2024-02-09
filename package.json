@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist/**/*"
   ],
   "scripts": {
     "preversion": "npm run lint",
