@@ -6,9 +6,6 @@
   "license": "UNLICENSED",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "files": [
-    "lib/**/*"
-  ],
   "scripts": {
     "preversion": "npm run lint",
     "prepublishOnly": "npm run lint && npm run build",
