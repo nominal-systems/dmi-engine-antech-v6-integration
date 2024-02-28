@@ -1,1 +1,1 @@
-export * from './antechV6.module';
+export * from './antechV6.module'

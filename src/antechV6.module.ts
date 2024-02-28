@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
-import { AntechV6Controller } from './antech-v6/antech-v6.controller';
+import { Module } from '@nestjs/common'
+import { BullModule } from '@nestjs/bull'
+import { AntechV6Controller } from './antech-v6/antech-v6.controller'
 
 @Module({
   imports: [

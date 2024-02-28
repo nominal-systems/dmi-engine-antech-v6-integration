@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller } from '@nestjs/common'
 
-@Controller('antech-v62')
+@Controller('antech-v6')
 export class AntechV6Controller {}

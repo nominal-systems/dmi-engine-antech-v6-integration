@@ -12,7 +12,7 @@
     "postversion": "git push --follow-tags",
     "prebuild": "rimraf lib",
     "build": "tsc",
-    "dev": "tsc --watch",
+    "dev": "tsc-watch --onSuccess \"yalc publish --no-scripts --push\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -54,8 +54,10 @@
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
+    "tsc-watch": "^6.0.4",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "yalc": "^1.0.0-pre.53"
   },
   "jest": {
     "moduleFileExtensions": [
