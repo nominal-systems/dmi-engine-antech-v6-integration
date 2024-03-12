@@ -1,9 +1,9 @@
 import { Process, Processor } from '@nestjs/bull'
 import { Job } from 'bull'
-import { AntechV6MessageData } from '../interfaces/antech-v6-message-data.interface'
+import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { Logger } from '@nestjs/common'
 import { PROVIDER_NAME } from '../constants/provider-name.constant'
-import { AntechV6Service } from '../services/antech-v6.service'
+import { AntechV6Service } from '../services/antechV6.service'
 
 @Processor(`${PROVIDER_NAME}.orders`)
 export class OrdersProcessor {

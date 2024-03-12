@@ -8,7 +8,7 @@ import {
   AntechV6Endpoints,
   AntechV6OrderStatus,
   AntechV6UserCredentials
-} from '../interfaces/antech-v6-api.interface'
+} from '../interfaces/antechV6-api.interface'
 
 @Injectable()
 export class AntechV6ApiService {

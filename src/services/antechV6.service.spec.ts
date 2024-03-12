@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing'
-import { AntechV6Service } from './antech-v6.service'
+import { AntechV6Service } from './antechV6.service'
 import { NullPayloadPayload } from '@nominal-systems/dmi-engine-common'
-import { AntechV6ApiService } from './antech-v6-api.service'
+import { AntechV6ApiService } from './antechV6-api.service'
 
 describe('AntechV6Service', () => {
   let service: AntechV6Service

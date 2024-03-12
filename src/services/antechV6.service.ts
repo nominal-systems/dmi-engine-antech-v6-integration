@@ -17,9 +17,9 @@ import {
   Sex,
   Species
 } from '@nominal-systems/dmi-engine-common'
-import { AntechV6MessageData } from '../interfaces/antech-v6-message-data.interface'
-import { AntechV6ApiService } from './antech-v6-api.service'
-import { AntechV6OrderStatus, AntechV6UserCredentials } from '../interfaces/antech-v6-api.interface'
+import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
+import { AntechV6ApiService } from './antechV6-api.service'
+import { AntechV6OrderStatus, AntechV6UserCredentials } from '../interfaces/antechV6-api.interface'
 
 @Injectable()
 export class AntechV6Service implements ProviderService<AntechV6MessageData> {
