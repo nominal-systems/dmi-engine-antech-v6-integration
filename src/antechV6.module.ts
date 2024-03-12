@@ -6,6 +6,8 @@ import { AntechV6ApiService } from './services/antech-v6-api.service'
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { ResultsProcessor } from './processors/results.processor'
+import { APP_INTERCEPTOR } from '@nestjs/core'
+import { AxiosInterceptor } from './interceptors/axios.interceptor'
 
 @Module({
   imports: [
@@ -18,7 +20,16 @@ import { ResultsProcessor } from './processors/results.processor'
       inject: [ConfigService]
     })
   ],
-  providers: [AntechV6Service, AntechV6ApiService, OrdersProcessor, ResultsProcessor],
+  providers: [
+    AntechV6Service,
+    AntechV6ApiService,
+    OrdersProcessor,
+    ResultsProcessor,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AxiosInterceptor
+    }
+  ],
   exports: [BullModule]
 })
 export class AntechV6Module {}
