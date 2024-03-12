@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antech-v6.service'
 import { NullPayloadPayload } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from './antech-v6-api.service'
-import { HttpService } from '@nestjs/axios'
 
 describe('AntechV6Service', () => {
   let service: AntechV6Service

@@ -10,7 +10,7 @@ export class ResultsProcessor {
 
   @Process()
   async fetchResults(job: Job<AntechV6MessageData>) {
-    const { payload, ...metadata } = job.data
+    const { payload } = job.data
     this.logger.debug(`Fetching results for integration ${payload.integrationId}`)
   }
 }
