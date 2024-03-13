@@ -8,6 +8,8 @@ import { Module } from '@nestjs/common'
 import { ResultsProcessor } from './processors/results.processor'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { AxiosInterceptor } from './interceptors/axios.interceptor'
+import { AntechV6Controller } from './controllers/antechV6.controller'
+import { AntechV6Mapper } from './providers/antechV6-mapper'
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { AxiosInterceptor } from './interceptors/axios.interceptor'
     })
   ],
   providers: [
+    AntechV6Mapper,
     AntechV6Service,
     AntechV6ApiService,
     OrdersProcessor,
@@ -30,6 +33,7 @@ import { AxiosInterceptor } from './interceptors/axios.interceptor'
       useClass: AxiosInterceptor
     }
   ],
+  controllers: [AntechV6Controller],
   exports: [BullModule]
 })
 export class AntechV6Module {}

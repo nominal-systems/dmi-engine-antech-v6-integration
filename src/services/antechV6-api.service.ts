@@ -7,6 +7,8 @@ import {
   AntechV6AccessToken,
   AntechV6Endpoints,
   AntechV6OrderStatus,
+  AntechV6PreOrder,
+  AntechV6PreOrderPlacement,
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
 
@@ -14,7 +16,7 @@ import {
 export class AntechV6ApiService {
   constructor(private readonly httpService: HttpService) {}
 
-  async get<T>(
+  private async get<T>(
     url: string,
     config: AxiosRequestConfig = {
       headers: {
@@ -35,7 +37,7 @@ export class AntechV6ApiService {
     return firstValueFrom(observable)
   }
 
-  async post<T>(
+  private async post<T>(
     url: string,
     data: any,
     config: AxiosRequestConfig = {
@@ -57,7 +59,7 @@ export class AntechV6ApiService {
     return firstValueFrom(observable)
   }
 
-  async authenticatedGet<T>(
+  private async authenticatedGet<T>(
     credentials: AntechV6UserCredentials,
     baseUrl: string,
     endpoint: AntechV6Endpoints,
@@ -72,7 +74,24 @@ export class AntechV6ApiService {
     })
   }
 
-  async authenticate(baseUrl: string, credentials: AntechV6UserCredentials): Promise<string> {
+  private async authenticatedPost<T>(
+    credentials: AntechV6UserCredentials,
+    baseUrl: string,
+    endpoint: AntechV6Endpoints,
+    data: any
+  ): Promise<T> {
+    const accessToken = await this.authenticate(baseUrl, credentials)
+    return await this.post<T>(`${baseUrl}${endpoint}`, data, {
+      params: {
+        accessToken
+      },
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+
+  private async authenticate(baseUrl: string, credentials: AntechV6UserCredentials): Promise<string> {
     const accessToken: AntechV6AccessToken = await this.post<AntechV6AccessToken>(
       `${baseUrl}${AntechV6Endpoints.LOGIN}`,
       credentials
@@ -85,5 +104,23 @@ export class AntechV6ApiService {
       serviceType: 'labOrder',
       ClinicID: credentials.ClinicID
     })
+  }
+
+  async placePreOrder(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+    preOrder: AntechV6PreOrder
+  ): Promise<AntechV6PreOrderPlacement & AntechV6AccessToken> {
+    const accessToken = await this.authenticate(baseUrl, credentials)
+    const preOrderPlacement: AntechV6PreOrderPlacement = await this.authenticatedPost<AntechV6PreOrderPlacement>(
+      credentials,
+      baseUrl,
+      AntechV6Endpoints.PLACE_PRE_ORDER,
+      preOrder
+    )
+    return {
+      ...preOrderPlacement,
+      Token: accessToken
+    }
   }
 }

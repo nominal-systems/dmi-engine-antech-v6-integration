@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antechV6.service'
 import { NullPayloadPayload } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from './antechV6-api.service'
+import { AntechV6Mapper } from '../providers/antechV6-mapper'
 
 describe('AntechV6Service', () => {
   let service: AntechV6Service
@@ -25,6 +26,7 @@ describe('AntechV6Service', () => {
     const module = await Test.createTestingModule({
       providers: [
         AntechV6Service,
+        AntechV6Mapper,
         {
           provide: AntechV6ApiService,
           useValue: antechV6ApiServiceMock

@@ -19,17 +19,36 @@ import {
 } from '@nominal-systems/dmi-engine-common'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { AntechV6ApiService } from './antechV6-api.service'
-import { AntechV6OrderStatus, AntechV6UserCredentials } from '../interfaces/antechV6-api.interface'
+import {
+  AntechV6AccessToken,
+  AntechV6OrderStatus,
+  AntechV6PreOrderPlacement,
+  AntechV6UserCredentials
+} from '../interfaces/antechV6-api.interface'
+import { AntechV6Mapper } from '../providers/antechV6-mapper'
 
 @Injectable()
 export class AntechV6Service implements ProviderService<AntechV6MessageData> {
-  constructor(private readonly antechV6Api: AntechV6ApiService) {}
+  constructor(
+    private readonly antechV6Api: AntechV6ApiService,
+    private readonly antechV6Mapper: AntechV6Mapper
+  ) {}
 
-  createOrder(payload: CreateOrderPayload, metadata: AntechV6MessageData): Promise<OrderCreatedResponse> {
-    console.log('createOrder()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+  async createOrder(payload: CreateOrderPayload, metadata: AntechV6MessageData): Promise<OrderCreatedResponse> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    const preOrder = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
+    const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken = await this.antechV6Api.placePreOrder(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      preOrder
+    )
+
+    return this.antechV6Mapper.mapAntechV6PreOrder(preOrder, preOrderPlacement, metadata)
   }
 
   async getBatchOrders(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<Order[]> {
