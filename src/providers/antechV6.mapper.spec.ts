@@ -1,7 +1,7 @@
 import { AntechV6Mapper } from './antechV6-mapper'
 import { Test } from '@nestjs/testing'
 import { CreateOrderPayload } from '@nominal-systems/dmi-engine-common'
-import { AntechV6PreOrder } from '../interfaces/antechV6-api.interface'
+import { AntechV6PetSex, AntechV6PreOrder } from '../interfaces/antechV6-api.interface'
 
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
@@ -103,7 +103,7 @@ describe('AntechV6Mapper', () => {
         DoctorLastName: 'Klein',
         PetID: 'GILBERT',
         PetName: 'Gilbert',
-        PetSex: 'U',
+        PetSex: AntechV6PetSex.UNKNOWN,
         PetAge: 1,
         PetAgeUnits: 'Y',
         SpeciesID: 41,

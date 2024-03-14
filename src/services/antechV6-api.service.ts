@@ -6,6 +6,7 @@ import {
   AntechV6OrderStatus,
   AntechV6PreOrder,
   AntechV6PreOrderPlacement,
+  AntechV6SpeciesAndBreeds,
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
 import { BaseApiService } from './base-api.service'
@@ -20,7 +21,7 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     baseUrl: string,
     endpoint: AntechV6Endpoints,
-    params: any
+    params?: any
   ): Promise<T> {
     const accessToken = await this.authenticate(baseUrl, credentials)
     return await this.get<T>(`${baseUrl}${endpoint}`, {
@@ -59,6 +60,12 @@ export class AntechV6ApiService extends BaseApiService {
   async getOrderStatus(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6OrderStatus> {
     return await this.doGet<AntechV6OrderStatus>(credentials, baseUrl, AntechV6Endpoints.GET_STATUS, {
       serviceType: 'labOrder',
+      ClinicID: credentials.ClinicID
+    })
+  }
+
+  async getSpeciesAndBreeds(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6SpeciesAndBreeds> {
+    return await this.doGet<AntechV6SpeciesAndBreeds>(credentials, baseUrl, AntechV6Endpoints.GET_SPECIES_AND_BREEDS, {
       ClinicID: credentials.ClinicID
     })
   }

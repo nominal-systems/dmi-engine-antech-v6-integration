@@ -18,8 +18,35 @@ describe('AntechV6Service', () => {
       uiBaseUrl: 'https://margaui-pims.marsvh.com'
     }
   }
+  const nullPayloadMock: NullPayloadPayload = null
   const antechV6ApiServiceMock = {
-    getOrderStatus: jest.fn()
+    getOrderStatus: jest.fn(),
+    getSpeciesAndBreeds: jest.fn(() => {
+      return {
+        value: {
+          data: [
+            {
+              id: 13,
+              name: 'Caprine',
+              breed: [
+                {
+                  id: 348,
+                  name: 'Goat',
+                  breedExtId: 'G',
+                  speciesExtId: 'CA'
+                },
+                {
+                  id: 602,
+                  name: 'Rocky Mountain Goat',
+                  breedExtId: 'RMG',
+                  speciesExtId: 'CA'
+                }
+              ]
+            }
+          ]
+        }
+      }
+    })
   }
 
   beforeEach(async () => {
@@ -52,6 +79,76 @@ describe('AntechV6Service', () => {
       })
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(orders).toEqual([])
+    })
+  })
+
+  describe('getSexes()', () => {
+    it('should return sex list', async () => {
+      expect(await service.getSexes(nullPayloadMock, metadataMock)).toEqual(
+        expect.objectContaining({
+          items: [
+            {
+              name: 'MALE',
+              code: 'M'
+            },
+            {
+              name: 'FEMALE',
+              code: 'F'
+            },
+            {
+              name: 'MALE_CASTRATED',
+              code: 'CM'
+            },
+            {
+              name: 'FEMALE_SPRAYED',
+              code: 'SF'
+            },
+            {
+              name: 'UNKNOWN',
+              code: 'U'
+            }
+          ],
+          hash: expect.any(String)
+        })
+      )
+    })
+  })
+
+  describe('getSpecies()', () => {
+    it('should return species list', async () => {
+      expect(await service.getSpecies(nullPayloadMock, metadataMock)).toEqual(
+        expect.objectContaining({
+          items: [
+            {
+              name: 'Caprine',
+              code: '13'
+            }
+          ],
+          hash: expect.any(String)
+        })
+      )
+    })
+  })
+
+  describe('getBreeds()', () => {
+    it('should return species list', async () => {
+      expect(await service.getBreeds(nullPayloadMock, metadataMock)).toEqual(
+        expect.objectContaining({
+          items: [
+            {
+              code: '348',
+              name: 'Goat',
+              species: '13'
+            },
+            {
+              code: '602',
+              name: 'Rocky Mountain Goat',
+              species: '13'
+            }
+          ],
+          hash: expect.any(String)
+        })
+      )
     })
   })
 })

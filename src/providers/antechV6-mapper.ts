@@ -14,6 +14,7 @@ import {
   AntechV6Client,
   AntechV6Doctor,
   AntechV6Pet,
+  AntechV6PetSex,
   AntechV6PreOrder,
   AntechV6PreOrderPlacement
 } from '../interfaces/antechV6-api.interface'
@@ -88,7 +89,7 @@ export class AntechV6Mapper {
       PetID: this.getIdFromIdentifier(PimsIdentifiers.PatientID, patient.identifier) || patient.id,
       PetName: patient.name,
       // TODO(gb): extract pet age
-      PetSex: 'U',
+      PetSex: AntechV6PetSex.UNKNOWN,
       PetAge: 1,
       PetAgeUnits: 'Y',
       // TODO(gb): extract pet weight

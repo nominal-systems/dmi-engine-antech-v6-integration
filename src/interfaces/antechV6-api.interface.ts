@@ -1,11 +1,8 @@
 export enum AntechV6Endpoints {
   LOGIN = '/Users/v6/Login',
   GET_STATUS = '/LabResults/v6/GetStatus',
+  GET_SPECIES_AND_BREEDS = '/Master/v6/GetSpeciesBreed',
   PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement'
-}
-
-export interface AntechV6OrderStatus {
-  LabOrders?: any
 }
 
 export interface AntechV6UserCredentials {
@@ -14,12 +11,36 @@ export interface AntechV6UserCredentials {
   ClinicID: string
 }
 
+export interface AntechV6OrderStatus {
+  LabOrders?: any
+}
+
 export interface AntechV6AccessToken {
   Token: string
 }
 
 export interface AntechV6PreOrderPlacement {
   Value: string
+}
+
+export interface AntechV6SpeciesAndBreeds {
+  value: {
+    data: AntechV6Species[]
+    message: string
+  }
+}
+
+export interface AntechV6Species {
+  id: number
+  name: string
+  breed: AntechV6Breed[]
+}
+
+export interface AntechV6Breed {
+  id: number
+  name: string
+  breedExtId: string
+  speciesExtId: string
 }
 
 export interface AntechV6PreOrder extends AntechV6Client, AntechV6Doctor, AntechV6Pet {
@@ -65,5 +86,12 @@ export interface AntechV6Pet {
   BreedID: number
 }
 
-export type AntechV6PetSex = 'M' | 'F' | 'CM' | 'SF' | 'U'
+export enum AntechV6PetSex {
+  MALE = 'M',
+  FEMALE = 'F',
+  MALE_CASTRATED = 'CM',
+  FEMALE_SPRAYED = 'SF',
+  UNKNOWN = 'U'
+}
+
 export type AntechV6PetAgeUnits = 'Y' | 'M' | 'W' | 'D'

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import {
   BatchResultsResponse,
   Breed,
+  calculateHash,
   CreateOrderPayload,
   Device,
   IdPayload,
@@ -22,7 +23,9 @@ import { AntechV6ApiService } from './antechV6-api.service'
 import {
   AntechV6AccessToken,
   AntechV6OrderStatus,
+  AntechV6PetSex,
   AntechV6PreOrderPlacement,
+  AntechV6SpeciesAndBreeds,
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
@@ -122,25 +125,68 @@ export class AntechV6Service implements ProviderService<AntechV6MessageData> {
     throw new Error('Method not implemented.')
   }
 
-  getSexes(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<ReferenceDataResponse<Sex>> {
-    console.log('getSexes()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getSexes(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<ReferenceDataResponse<Sex>> {
+    const items: Sex[] = Object.entries(AntechV6PetSex).map(([key, value]) => ({
+      name: key,
+      code: value
+    }))
+
+    return Promise.resolve({
+      items,
+      hash: calculateHash(items)
+    })
   }
 
-  getSpecies(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<ReferenceDataResponse<Species>> {
-    console.log('getSpecies()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getSpecies(
+    payload: NullPayloadPayload,
+    metadata: AntechV6MessageData
+  ): Promise<ReferenceDataResponse<Species>> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    const antechV6SpeciesAndBreeds: AntechV6SpeciesAndBreeds = await this.antechV6Api.getSpeciesAndBreeds(
+      metadata.providerConfiguration.baseUrl,
+      credentials
+    )
+    const items: Species[] = antechV6SpeciesAndBreeds.value.data.map((species) => ({
+      name: species.name,
+      code: String(species.id)
+    }))
+
+    return {
+      items,
+      hash: calculateHash(items)
+    }
   }
 
-  getBreeds(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<ReferenceDataResponse<Breed>> {
-    console.log('getBreeds()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+  async getBreeds(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<ReferenceDataResponse<Breed>> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    const antechV6SpeciesAndBreeds: AntechV6SpeciesAndBreeds = await this.antechV6Api.getSpeciesAndBreeds(
+      metadata.providerConfiguration.baseUrl,
+      credentials
+    )
+    const getBreeds = (data: AntechV6SpeciesAndBreeds): Breed[] => {
+      return data.value.data.flatMap((species) =>
+        species.breed.map((breed) => ({ code: String(breed.id), name: breed.name, species: String(species.id) }))
+      )
+    }
+
+    const items = getBreeds(antechV6SpeciesAndBreeds)
+
+    return {
+      items,
+      hash: calculateHash(items)
+    }
   }
 
   createRequisitionId(payload: NullPayloadPayload, metadata: AntechV6MessageData): string {
