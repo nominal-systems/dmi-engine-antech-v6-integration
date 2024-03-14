@@ -35,9 +35,31 @@ export class AxiosInterceptor implements NestInterceptor {
       },
       (error) => {
         // Log any response error
-        this.logger.error('HTTP Response error:', error)
+        const res: any = error.response
+        const url: string = `${res.request.protocol}//${res.request.host}${res.request.path}`
+        this.logger.warn(
+          `${res.request.method} ${url} -> ${res.status} ${res?.statusText} (${this.getErrorMessage(error)})`
+        )
         return Promise.reject(error)
       }
     )
+  }
+
+  private getErrorMessage(error: any): string {
+    let message = 'An error occurred while processing the request'
+
+    if (error.message !== undefined) {
+      message = error.message
+    }
+
+    if (error.response?.data !== undefined) {
+      message = error.response.data.title
+
+      if (error.response.data.errors !== undefined) {
+        message += ` ${JSON.stringify(error.response.data.errors, null, 0)}`
+      }
+    }
+
+    return message
   }
 }

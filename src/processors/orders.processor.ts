@@ -19,7 +19,7 @@ export class OrdersProcessor {
       const orders = await this.antechV6Service.getBatchOrders(payload, metadata)
       console.log(`fetchOrders()= ${JSON.stringify(orders, null, 2)}`) // TODO(gb): remove trace
     } catch (error) {
-      this.logger.error(`Error fetching orders for integration ${payload.integrationId}`, error.stack)
+      this.logger.error(`Error fetching orders for integration ${payload.integrationId}`)
     }
   }
 }

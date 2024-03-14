@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antechV6.service'
-import { NullPayloadPayload } from '@nominal-systems/dmi-engine-common'
+import { NullPayloadPayload, Order } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from './antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 
@@ -47,8 +47,11 @@ describe('AntechV6Service', () => {
     } as unknown as NullPayloadPayload
 
     it('should fetch orders', async () => {
-      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({ data: {} })
-      await service.getBatchOrders(payloadMock, metadataMock)
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: []
+      })
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+      expect(orders).toEqual([])
     })
   })
 })
