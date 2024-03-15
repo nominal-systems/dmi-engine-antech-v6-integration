@@ -1,7 +1,8 @@
 import { AntechV6Mapper } from './antechV6-mapper'
 import { Test } from '@nestjs/testing'
 import { CreateOrderPayload } from '@nominal-systems/dmi-engine-common'
-import { AntechV6PetSex, AntechV6PreOrder } from '../interfaces/antechV6-api.interface'
+import { AntechV6PetSex, AntechV6PreOrder, AntechV6TestGuide } from '../interfaces/antechV6-api.interface'
+import { ServiceType } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
@@ -111,6 +112,123 @@ describe('AntechV6Mapper', () => {
         OrderCodes: ['SA804', 'CAC655S']
       }
       expect(mapper.mapCreateOrderPayload(payload, metadataMock)).toEqual(expected)
+    })
+  })
+
+  describe('mapAntechV6TestGuide()', () => {
+    const testGuide: AntechV6TestGuide = {
+      TotalCount: 1086,
+      LabResults: [
+        {
+          CodeID: '11629',
+          ExtensionID: '550002',
+          Description: 'Accuplex',
+          MnemonicType: 'U',
+          Alias: 'ACCUPLEX',
+          Category: 'Infectious',
+          ClientFacingDescription:
+            'This is a canine vector-borne disease screening test for Heartworm (Ag), Lyme disease (includes screening for antibodies against two C6 peptides), E. canis, and A. phagocytophilum.',
+          StiboMnemonics: 'AC100\nCAC100\nAVR50721\nAX\nIDX72440\nIDX72441\nAVR11081',
+          Code: 'AC100',
+          ReportingTitle: 'Accuplex',
+          Schedule: '1-2 days',
+          LabID: 1,
+          SDFlag: 'Y',
+          AOLFlag: 'Y',
+          Price: 23.61,
+          IdexxCode: '2889',
+          FavoriteMnemonic: '',
+          FavDisplayName: '',
+          FavCustomID: 0,
+          OrderCount: 0,
+          ClinicID: '140039',
+          Container: '',
+          Specimen: '0.5 mL serum in red top or serum separator tube',
+          SubTestCodeIDList: '6715,6718,6724,6727,6733,6784,6787,6790',
+          SubTestCodeExtIDList: '5801,5802,5804,5805,5807,5832,5833,5834',
+          SubTestCodeList:
+            'Heartworm,Borrelia burgdorferi,E. Canis,Anaplasma phagocytophilum,Internal Use Only (HW Class),Instrument ID,BioCD Disc Type,BioCD Disc ID',
+          Status: 'Active',
+          HTEnabled: 'Y',
+          POC_Mnemonic: '',
+          AnalyzerID: '',
+          Common: 'Y',
+          POC_Flag: 'N',
+          AcceptableSpecies: 'Canine',
+          PreferredSpecimenRequirements: 'Serum',
+          AcceptableSpecimenRequirements: 'EDTA plasma',
+          RetentionStability: '7 days',
+          SpecimenDefinition:
+            'GV, GVG, L, LV, P, PO, R, RV, S, SS, SV, UNL, UNLV, UNR, UNRV, UNS, UNSS, UNW, UNYV, V, W, YV',
+          POC_Id: ''
+        },
+        {
+          CodeID: '52439',
+          ExtensionID: '533555',
+          Description: 'Adult Chem Lytes,CBC,O&P,Accuplex,SDMA',
+          MnemonicType: 'P',
+          Alias: '',
+          Category: 'CBC Chemistry Profiles',
+          ClientFacingDescription:
+            'Wellness chemistry with electrolytes, SDMA for glomerular filtration rate estimation (see T1035), complete blood count, Accuplex for vector-borne disease screening (see AC100), and fecal analysis using zinc sulfate with centrifugation/flotation for ova and parasite detection (T805).',
+          StiboMnemonics: 'AC535S',
+          Code: 'AC535S',
+          ReportingTitle: 'Adult Chem Lytes,CBC,O&P,Accuplex,SDMA',
+          Schedule: '1-2 days',
+          LabID: 1,
+          SDFlag: 'Y',
+          AOLFlag: 'Y',
+          Price: 105.67,
+          IdexxCode: '',
+          FavoriteMnemonic: '',
+          FavDisplayName: '',
+          FavCustomID: 0,
+          OrderCount: 0,
+          ClinicID: '140039',
+          Container: '',
+          Specimen: '1.0 mL serum, 1.0 mL whole blood, and 5.0 grams feces',
+          SubTestCodeIDList: '11629,12171,12288,12892,18926',
+          SubTestCodeExtIDList: '502334,502840,503075,540086,550002',
+          SubTestCodeList: 'AC100,SA665LYT,T1035,T330,T805',
+          Status: 'Active',
+          HTEnabled: '',
+          POC_Mnemonic: '',
+          AnalyzerID: '',
+          Common: 'N',
+          POC_Flag: 'N',
+          AcceptableSpecies: '',
+          PreferredSpecimenRequirements: '',
+          AcceptableSpecimenRequirements: '',
+          RetentionStability: '',
+          SpecimenDefinition: '',
+          POC_Id: ''
+        }
+      ]
+    }
+
+    it('should map the test guide to a Service list', () => {
+      expect(mapper.mapAntechV6TestGuide(testGuide)).toEqual([
+        {
+          code: 'AC100',
+          name: 'Accuplex',
+          description:
+            'This is a canine vector-borne disease screening test for Heartworm (Ag), Lyme disease (includes screening for antibodies against two C6 peptides), E. canis, and A. phagocytophilum.',
+          category: 'Infectious',
+          type: ServiceType.IN_HOUSE,
+          price: 23.61,
+          currency: 'USD'
+        },
+        {
+          code: 'AC535S',
+          name: 'Adult Chem Lytes,CBC,O&P,Accuplex,SDMA',
+          description:
+            'Wellness chemistry with electrolytes, SDMA for glomerular filtration rate estimation (see T1035), complete blood count, Accuplex for vector-borne disease screening (see AC100), and fecal analysis using zinc sulfate with centrifugation/flotation for ova and parasite detection (T805).',
+          category: 'CBC Chemistry Profiles',
+          type: ServiceType.IN_HOUSE,
+          price: 105.67,
+          currency: 'USD'
+        }
+      ])
     })
   })
 })

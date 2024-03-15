@@ -2,7 +2,8 @@ export enum AntechV6Endpoints {
   LOGIN = '/Users/v6/Login',
   GET_STATUS = '/LabResults/v6/GetStatus',
   GET_SPECIES_AND_BREEDS = '/Master/v6/GetSpeciesBreed',
-  PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement'
+  PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement',
+  GET_TEST_GUIDE = '/Tests/v6'
 }
 
 export interface AntechV6UserCredentials {
@@ -17,6 +18,9 @@ export interface AntechV6OrderStatus {
 
 export interface AntechV6AccessToken {
   Token: string
+  UserInfo?: {
+    ID: number
+  }
 }
 
 export interface AntechV6PreOrderPlacement {
@@ -41,6 +45,52 @@ export interface AntechV6Breed {
   name: string
   breedExtId: string
   speciesExtId: string
+}
+
+export interface AntechV6TestGuide {
+  TotalCount: number
+  LabResults: AntechV6Test[]
+}
+
+export interface AntechV6Test {
+  CodeID: string
+  ExtensionID: string
+  Description: string
+  MnemonicType: string
+  Alias: string
+  Category: string
+  ClientFacingDescription: string
+  StiboMnemonics: string
+  Code: string
+  ReportingTitle: string
+  Schedule: string
+  LabID: number
+  SDFlag: string
+  AOLFlag: string
+  Price: number
+  IdexxCode: string
+  FavoriteMnemonic: string
+  FavDisplayName: string
+  FavCustomID: number
+  OrderCount: number
+  ClinicID: string
+  Container: string
+  Specimen: string
+  SubTestCodeIDList: string
+  SubTestCodeExtIDList: string
+  SubTestCodeList: string
+  Status: string
+  HTEnabled: string
+  POC_Mnemonic: string
+  AnalyzerID: string
+  Common: string
+  POC_Flag: string
+  AcceptableSpecies: string
+  PreferredSpecimenRequirements: string
+  AcceptableSpecimenRequirements: string
+  RetentionStability: string
+  SpecimenDefinition: string
+  POC_Id: string
 }
 
 export interface AntechV6PreOrder extends AntechV6Client, AntechV6Doctor, AntechV6Pet {

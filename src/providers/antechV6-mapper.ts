@@ -7,6 +7,8 @@ import {
   OrderPatient,
   OrderStatus,
   PimsIdentifiers,
+  Service,
+  ServiceType,
   VeterinarianPayload
 } from '@nominal-systems/dmi-engine-common'
 import {
@@ -16,7 +18,9 @@ import {
   AntechV6Pet,
   AntechV6PetSex,
   AntechV6PreOrder,
-  AntechV6PreOrderPlacement
+  AntechV6PreOrderPlacement,
+  AntechV6Test,
+  AntechV6TestGuide
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 
@@ -45,6 +49,21 @@ export class AntechV6Mapper {
       status: OrderStatus.WAITING_FOR_INPUT,
       submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}&accessToken=${preOrderPlacement.Token}`
     }
+  }
+
+  mapAntechV6TestGuide(testGuide: AntechV6TestGuide): Service[] {
+    return testGuide.LabResults.map((test: AntechV6Test) => {
+      return {
+        code: test.Code,
+        name: test.ReportingTitle,
+        description: test.ClientFacingDescription,
+        category: test.Category,
+        type: ServiceType.IN_HOUSE,
+        price: test.Price,
+        currency: 'USD'
+        // TODO(gb): map labRequisitionInfo
+      }
+    })
   }
 
   private extractLabId(metadata: AntechV6MessageData): Pick<AntechV6PreOrder, 'LabID'> {

@@ -26,6 +26,7 @@ import {
   AntechV6PetSex,
   AntechV6PreOrderPlacement,
   AntechV6SpeciesAndBreeds,
+  AntechV6TestGuide,
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
@@ -61,12 +62,12 @@ export class AntechV6Service implements ProviderService<AntechV6MessageData> {
       ClinicID: metadata.integrationOptions.clinicId
     }
 
-    const status: AntechV6OrderStatus = await this.antechV6Api.getOrderStatus(
+    const orderStatus: AntechV6OrderStatus = await this.antechV6Api.getOrderStatus(
       metadata.providerConfiguration.baseUrl,
       credentials
     )
 
-    return status.LabOrders as unknown as Order[]
+    return orderStatus.LabOrders as unknown as Order[]
   }
 
   getBatchResults(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<BatchResultsResponse> {
@@ -104,11 +105,19 @@ export class AntechV6Service implements ProviderService<AntechV6MessageData> {
     throw new Error('Method not implemented.')
   }
 
-  getServices(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<Service[]> {
-    console.log('getServices()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+  async getServices(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<Service[]> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    const testGuide: AntechV6TestGuide = await this.antechV6Api.getTestGuide(
+      metadata.providerConfiguration.baseUrl,
+      credentials
+    )
+
+    return this.antechV6Mapper.mapAntechV6TestGuide(testGuide)
   }
 
   getServiceByCode(payload: ServiceCodePayload, metadata: AntechV6MessageData): Promise<Service> {

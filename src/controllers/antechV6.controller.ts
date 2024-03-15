@@ -2,12 +2,15 @@ import { Controller } from '@nestjs/common'
 import {
   ApiEvent,
   Breed,
+  Device,
   Operation,
   OrderCreatedResponse,
   ProviderOrderCreation,
   ProviderReferenceData,
+  ProviderServices,
   ReferenceDataResponse,
   Resource,
+  Service,
   Sex,
   Species
 } from '@nominal-systems/dmi-engine-common'
@@ -17,7 +20,7 @@ import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AntechV6Service } from '../services/antechV6.service'
 
 @Controller('engine/antech-v6')
-export class AntechV6Controller implements ProviderOrderCreation, ProviderReferenceData {
+export class AntechV6Controller implements ProviderOrderCreation, ProviderReferenceData, ProviderServices {
   constructor(private readonly antechV6Service: AntechV6Service) {}
 
   @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.Create}`)
@@ -42,5 +45,16 @@ export class AntechV6Controller implements ProviderOrderCreation, ProviderRefere
   public getBreeds(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Breed> | Breed[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getBreeds(payload, metadata)
+  }
+
+  @MessagePattern(`${PROVIDER_NAME}.${Resource.Devices}.${Operation.List}`)
+  public getDevices(): Promise<ReferenceDataResponse<Device> | Device[]> {
+    return Promise.resolve([])
+  }
+
+  @MessagePattern(`${PROVIDER_NAME}.${Resource.Services}.${Operation.List}`)
+  public getServices(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Service> | Service[]> {
+    const { payload, ...metadata } = msg.data
+    return this.antechV6Service.getServices(payload, metadata)
   }
 }
