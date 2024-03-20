@@ -92,16 +92,10 @@ export class AntechV6Service implements ProviderService<AntechV6MessageData> {
   }
 
   cancelOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
-    console.log('cancelOrder()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
     throw new Error('Method not implemented.')
   }
 
   cancelOrderTest(payload: OrderTestPayload, metadata: AntechV6MessageData): Promise<void> {
-    console.log('cancelOrderTest()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
     throw new Error('Method not implemented.')
   }
 

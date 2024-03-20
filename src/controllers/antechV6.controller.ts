@@ -6,6 +6,7 @@ import {
   Operation,
   OrderCreatedResponse,
   ProviderOrderCreation,
+  ProviderOrderUpdate,
   ProviderReferenceData,
   ProviderServices,
   ReferenceDataResponse,
@@ -20,13 +21,27 @@ import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AntechV6Service } from '../services/antechV6.service'
 
 @Controller('engine/antech-v6')
-export class AntechV6Controller implements ProviderOrderCreation, ProviderReferenceData, ProviderServices {
+export class AntechV6Controller
+  implements ProviderOrderCreation, ProviderOrderUpdate, ProviderReferenceData, ProviderServices
+{
   constructor(private readonly antechV6Service: AntechV6Service) {}
 
   @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.Create}`)
   public createOrder(msg: ApiEvent<AntechV6MessageData>): Promise<OrderCreatedResponse> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.createOrder(payload, metadata)
+  }
+
+  @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.Cancel}`)
+  public cancelOrder(msg: ApiEvent<AntechV6MessageData>): Promise<void> {
+    const { payload, ...metadata } = msg.data
+    return this.antechV6Service.cancelOrder(payload, metadata)
+  }
+
+  @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.TestsCancel}`)
+  public cancelOrderTest(msg: ApiEvent<AntechV6MessageData>): Promise<void> {
+    const { payload, ...metadata } = msg.data
+    return this.antechV6Service.cancelOrderTest(payload, metadata)
   }
 
   @MessagePattern(`${PROVIDER_NAME}.${Resource.Sexes}.${Operation.List}`)
