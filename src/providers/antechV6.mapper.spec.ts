@@ -1,8 +1,24 @@
 import { AntechV6Mapper } from './antechV6-mapper'
 import { Test } from '@nestjs/testing'
-import { CreateOrderPayload } from '@nominal-systems/dmi-engine-common'
-import { AntechV6PetSex, AntechV6PreOrder, AntechV6TestGuide } from '../interfaces/antechV6-api.interface'
-import { ServiceType } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
+import {
+  CreateOrderPayload,
+  FileUtils,
+  ReferenceRangeType,
+  Result,
+  ResultStatus,
+  TestResultItem,
+  TestResultItemInterpretationCode
+} from '@nominal-systems/dmi-engine-common'
+import {
+  AntechV6AbnormalFlag,
+  AntechV6PetSex,
+  AntechV6PreOrder,
+  AntechV6Result,
+  AntechV6TestGuide,
+  AntechV6UnitCodeResult
+} from '../interfaces/antechV6-api.interface'
+import { ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
+import * as path from 'path'
 
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
@@ -229,6 +245,175 @@ describe('AntechV6Mapper', () => {
           currency: 'USD'
         }
       ])
+    })
+  })
+
+  describe('mapAntechV6Result()', () => {
+    const allResultsResponse: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results.json')
+    )
+
+    it('should map Antech results to DMI results', () => {
+      const antechV6Result: AntechV6Result = allResultsResponse[0]
+      const result: Result = mapper.mapAntechV6Result(antechV6Result)
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: '279396659',
+          orderId: '140039-ABC1708966466',
+          accession: 'IREA00016889',
+          status: ResultStatus.COMPLETED,
+          testResults: expect.any(Array<TestResult>)
+        })
+      )
+      expect(result.testResults.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('mapAntechV6UnitCodeResult()', () => {
+    const allResultsResponse: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results.json')
+    )
+    it('should map Antech unit code results to DMI test results', () => {
+      const unitCodeResult: AntechV6UnitCodeResult = allResultsResponse[0].UnitCodeResults[0]
+      const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
+      expect(testResult).toEqual({
+        seq: 0,
+        code: '502020',
+        name: 'Alkaline Phosphatase',
+        items: expect.any(Array<TestResultItem>)
+      })
+      expect(testResult.items.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('mapAntechV6TestCodeResult()', () => {
+    it('should map numeric test code results', () => {
+      const testCodeResult = {
+        TestCodeID: '1533',
+        TestCodeResultID: '7533583972',
+        Result: '3.3',
+        Range: '2.5-3.9',
+        TestCodeExtID: '1016',
+        Test: 'ALBUMIN',
+        Unit: 'g/dL',
+        Min: '0',
+        Max: '8',
+        UnitCodeID: '800599069',
+        ReportComments: []
+      }
+      expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
+        seq: 0,
+        code: '1016',
+        name: 'ALBUMIN',
+        status: 'F',
+        valueQuantity: {
+          value: 3.3,
+          units: 'g/dL'
+        },
+        referenceRange: [
+          {
+            type: ReferenceRangeType.NORMAL,
+            text: '2.5-3.9',
+            low: 2.5,
+            high: 3.9
+          }
+        ]
+      })
+    })
+    it('should map numeric test code results with abnormal flags', () => {
+      const testCodeResult = {
+        TestCodeID: '1524',
+        TestCodeResultID: '7533583981',
+        AbnormalFlag: AntechV6AbnormalFlag.HIGH,
+        Result: '128',
+        Range: '6-102',
+        TestCodeExtID: '1010',
+        Test: 'Alk Phosphatase',
+        Unit: 'IU/L',
+        Min: '2',
+        Max: '1000',
+        UnitCodeID: '800599071',
+        ReportComments: []
+      }
+      expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
+        seq: 0,
+        code: '1010',
+        name: 'Alk Phosphatase',
+        status: 'F',
+        valueQuantity: {
+          value: 128,
+          units: 'IU/L'
+        },
+        interpretation: {
+          code: TestResultItemInterpretationCode.HIGH,
+          text: 'H'
+        },
+        referenceRange: [
+          {
+            type: ReferenceRangeType.NORMAL,
+            text: '6-102',
+            low: 6,
+            high: 102
+          }
+        ]
+      })
+    })
+    it('should map non-numeric test code results', () => {
+      const testCodeResult = {
+        TestCodeID: '17206',
+        TestCodeResultID: '7533583970',
+        AbnormalFlag: AntechV6AbnormalFlag.POSITIVE,
+        Result: 'POSITIVE',
+        TestCodeExtID: '9981',
+        Test: 'Renal Tech Prediction',
+        Comments:
+          "This patient's RenalTech status indicates that it will develop chronic\nkidney disease within the next 24 months with greater than 95%\naccuracy.\n \nSuggested Follow-Up:\nWithin the next 3 months, and every 3-6 months thereafter, perform a\ncomplete evaluation of kidney function to evaluate the patient's\nprogression toward developing chronic kidney disease. It is\nrecommended that a minimum database including a chemistry panel, CBC,\nand urinalysis are performed.\n \nAdditional diagnostic testing and imaging should also be considered to\ninvestigate for comorbidities and underlying conditions that may\ncontribute to the development of chronic kidney disease, including\nhyperthyroidism, diabetes mellitus, cardiomyopathy, and systemic\nhypertension.\n \nThe International Renal Interest Society (IRIS) has guidelines for the\ndiagnosis, staging, and treatment of chronic kidney disease.\n \nVisit the website http://iris-kidney.com/ for more details.\n \nFor more information, please see: https://antechdiagnostics.com/RenalT\nech",
+        UnitCodeID: '800599067',
+        ReportComments: []
+      }
+      expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
+        seq: 0,
+        code: '9981',
+        name: 'Renal Tech Prediction',
+        status: 'F',
+        valueString: 'POSITIVE',
+        interpretation: {
+          code: TestResultItemInterpretationCode.POSITIVE,
+          text: 'P'
+        },
+        notes:
+          "This patient's RenalTech status indicates that it will develop chronic\nkidney disease within the next 24 months with greater than 95%\naccuracy.\n \nSuggested Follow-Up:\nWithin the next 3 months, and every 3-6 months thereafter, perform a\ncomplete evaluation of kidney function to evaluate the patient's\nprogression toward developing chronic kidney disease. It is\nrecommended that a minimum database including a chemistry panel, CBC,\nand urinalysis are performed.\n \nAdditional diagnostic testing and imaging should also be considered to\ninvestigate for comorbidities and underlying conditions that may\ncontribute to the development of chronic kidney disease, including\nhyperthyroidism, diabetes mellitus, cardiomyopathy, and systemic\nhypertension.\n \nThe International Renal Interest Society (IRIS) has guidelines for the\ndiagnosis, staging, and treatment of chronic kidney disease.\n \nVisit the website http://iris-kidney.com/ for more details.\n \nFor more information, please see: https://antechdiagnostics.com/RenalT\nech"
+      })
+    })
+    it('should map non-finite reference ranges', () => {
+      const testCodeResult = {
+        TestCodeID: '17733',
+        TestCodeResultID: '7533583926',
+        Result: '13.8',
+        Range: '<15.0',
+        TestCodeExtID: '3575',
+        Test: 'SDMA',
+        Unit: 'UG/dL',
+        UnitCodeID: '800599065',
+        ReportComments: []
+      }
+      expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
+        seq: 0,
+        code: '3575',
+        name: 'SDMA',
+        status: 'F',
+        valueQuantity: {
+          value: 13.8,
+          units: 'UG/dL'
+        },
+        referenceRange: [
+          {
+            type: ReferenceRangeType.NORMAL,
+            text: '<15.0',
+            high: 15
+          }
+        ]
+      })
     })
   })
 })

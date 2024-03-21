@@ -145,3 +145,111 @@ export enum AntechV6PetSex {
 }
 
 export type AntechV6PetAgeUnits = 'Y' | 'M' | 'W' | 'D'
+
+export interface AntechV6Clinic {
+  ClinicID?: number
+  LabId?: number
+  AccountNumber?: string
+  ClinicExtId?: string
+  Name?: string
+  Phone?: string
+  Fax?: string
+  FaxVersion?: string
+  Status?: string
+  CultureCode?: string
+  HTEnabled?: string
+  HasUsers?: boolean
+}
+
+export interface AntechV6Result {
+  ID: number
+  Clinic?: AntechV6Clinic
+  LabAccessionID: string
+  ClinicAccessionID: string
+  ReportedDateTime?: string
+  LatestAccessionUpdate?: string
+  CorrectedTestCount?: number
+  ReceivedDateTime?: string
+  ProfileDisplay?: string
+  TestDescription?: string
+  OrderStatus?: string
+  Corrected?: string
+  PendingTestCount?: number
+  TotalTestCount?: number
+  ViewedDateTime?: string
+  ReleasedDateTime?: string
+  PrintedDateTime?: string
+  DownloadDateTime?: string
+  UnitCodeResults: AntechV6UnitCodeResult[]
+  Doctor?: {
+    Id?: string
+    Name?: string
+  }
+  Pet?: {
+    Id?: string
+    Name?: string
+  }
+  Client?: {
+    Id?: string
+    FirstName?: string
+    LastName?: string
+  }
+}
+
+export interface AntechV6UnitCodeResult {
+  UnitCodeResultID?: string
+  UnitCodeID?: number
+  ProfileExtID?: string
+  UnitCodeExtID: string
+  ReleasedDateTime?: string
+  CreatedTimeStamp?: string
+  ReleasedDateTimeStr?: string
+  ViewedDateTime?: string
+  ResultStatus?: AntechV6ResultStatus
+  OrderControlStatus?: string
+  Comments?: string
+  UnitCodeDisplayName: string
+  ProfileDisplayName: string
+  UnitCodeType?: string
+  UCType?: string
+  TestCodeResults: AntechV6TestCodeResult[]
+  Category?: string
+  AccessionResultID?: number
+}
+
+export interface AntechV6TestCodeResult {
+  TestCodeExtID: string
+  Test: string
+  TestCodeID?: string
+  TestCodeResultID?: string
+  AbnormalFlag?: AntechV6AbnormalFlag
+  ResultStatus?: string
+  Result: string
+  ResultFileURL?: string
+  Range?: string
+  Unit?: string
+  HtmlDisplay?: string
+  Comments?: string
+  Min?: string
+  Max?: string
+  TestType?: string
+  AbsExtID?: string
+  TCTrendExtID?: string
+  TxtDspStr?: string
+  UnitCodeID?: string
+  ReportComments?: string[]
+}
+
+export enum AntechV6ResultStatus {
+  IN_PROGRESS = 'I',
+  PARTIAL = 'P',
+  FINAL = 'F',
+  UPDATED_CORRECTED = 'C'
+}
+
+export enum AntechV6AbnormalFlag {
+  HIGH = 'H',
+  LOW = 'L',
+  ABNORMAL = '*',
+  POSITIVE = 'P'
+}
