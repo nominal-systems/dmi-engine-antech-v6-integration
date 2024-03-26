@@ -28,7 +28,9 @@ export class AntechV6ApiService extends BaseApiService {
     const accessToken = await this.authenticate(baseUrl, credentials)
     return await this.get<T>(`${baseUrl}${endpoint}`, {
       params: {
-        ...params,
+        ...params
+      },
+      headers: {
         accessToken
       }
     })
@@ -42,11 +44,9 @@ export class AntechV6ApiService extends BaseApiService {
   ): Promise<T> {
     const accessToken = await this.authenticate(baseUrl, credentials)
     return await this.post<T>(`${baseUrl}${endpoint}`, data, {
-      params: {
-        accessToken
-      },
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        accessToken
       }
     })
   }
@@ -67,7 +67,15 @@ export class AntechV6ApiService extends BaseApiService {
   }
 
   async getAllResults(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6Result[]> {
-    return await this.doGet<AntechV6Result[]>(credentials, baseUrl, AntechV6Endpoints.GET_ALL_RESULTS)
+    const accessToken = await this.authenticate(baseUrl, credentials)
+
+    // The Get All Results endpoint still expects the `accessToken` as a query param, but it should be changed to a
+    // header parameter in the future.
+    return await this.get<AntechV6Result[]>(`${baseUrl}${AntechV6Endpoints.GET_ALL_RESULTS}`, {
+      params: {
+        accessToken
+      }
+    })
   }
 
   async getSpeciesAndBreeds(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6SpeciesAndBreeds> {
