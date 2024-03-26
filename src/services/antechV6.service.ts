@@ -25,6 +25,7 @@ import {
   AntechV6OrderStatus,
   AntechV6PetSex,
   AntechV6PreOrderPlacement,
+  AntechV6Result,
   AntechV6SpeciesAndBreeds,
   AntechV6TestGuide,
   AntechV6UserCredentials
@@ -70,33 +71,52 @@ export class AntechV6Service implements ProviderService<AntechV6MessageData> {
     return orderStatus.LabOrders as unknown as Order[]
   }
 
-  getBatchResults(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<BatchResultsResponse> {
-    console.log('getBatchResults()') // TODO(gb): remove trace
-    console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+  async getBatchResults(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<BatchResultsResponse> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    const allResults: AntechV6Result[] = await this.antechV6Api.getAllResults(
+      metadata.providerConfiguration.baseUrl,
+      credentials
+    )
+
+    const batchResultsResponse: BatchResultsResponse = {
+      results: allResults.map((result) => this.antechV6Mapper.mapAntechV6Result(result))
+    }
+
+    if (batchResultsResponse.results.length > 0) {
+      const labAccessionIds = batchResultsResponse.results
+        .map((result) => result.accession)
+        .filter((acc): acc is string => acc !== undefined)
+      await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, labAccessionIds)
+    }
+
+    return batchResultsResponse
   }
 
   getOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<Order> {
     console.log('getOrder()') // TODO(gb): remove trace
     console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
     console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+    throw new Error('getOrder() not implemented.')
   }
 
   getOrderResult(payload: IdPayload, metadata: AntechV6MessageData): Promise<Result> {
     console.log('getOrderResult()') // TODO(gb): remove trace
     console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
     console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
-    throw new Error('Method not implemented.')
+    throw new Error('getOrderResult() not implemented.')
   }
 
   cancelOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
-    throw new Error('Method not implemented.')
+    throw new Error('Antech V6 API does not support cancelling orders.')
   }
 
   cancelOrderTest(payload: OrderTestPayload, metadata: AntechV6MessageData): Promise<void> {
-    throw new Error('Method not implemented.')
+    throw new Error('Antech V6 API does not support cancelling individual tests.')
   }
 
   async getServices(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<Service[]> {

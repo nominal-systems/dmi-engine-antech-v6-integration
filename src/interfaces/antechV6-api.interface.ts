@@ -1,6 +1,7 @@
 export enum AntechV6Endpoints {
   LOGIN = '/Users/v6/Login',
   GET_STATUS = '/LabResults/v6/GetStatus',
+  GET_ALL_RESULTS = '/LabResults/v6/GetAllResults',
   GET_SPECIES_AND_BREEDS = '/Master/v6/GetSpeciesBreed',
   PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement',
   GET_TEST_GUIDE = '/Tests/v6'

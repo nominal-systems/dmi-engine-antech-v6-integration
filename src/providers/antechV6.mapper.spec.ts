@@ -250,7 +250,7 @@ describe('AntechV6Mapper', () => {
 
   describe('mapAntechV6Result()', () => {
     const allResultsResponse: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results.json')
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_01.json')
     )
 
     it('should map Antech results to DMI results', () => {
@@ -271,7 +271,7 @@ describe('AntechV6Mapper', () => {
 
   describe('mapAntechV6UnitCodeResult()', () => {
     const allResultsResponse: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results.json')
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_01.json')
     )
     it('should map Antech unit code results to DMI test results', () => {
       const unitCodeResult: AntechV6UnitCodeResult = allResultsResponse[0].UnitCodeResults[0]

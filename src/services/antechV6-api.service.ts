@@ -6,6 +6,7 @@ import {
   AntechV6OrderStatus,
   AntechV6PreOrder,
   AntechV6PreOrderPlacement,
+  AntechV6Result,
   AntechV6SpeciesAndBreeds,
   AntechV6TestGuide,
   AntechV6UserCredentials
@@ -65,6 +66,10 @@ export class AntechV6ApiService extends BaseApiService {
     })
   }
 
+  async getAllResults(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6Result[]> {
+    return await this.doGet<AntechV6Result[]>(credentials, baseUrl, AntechV6Endpoints.GET_ALL_RESULTS)
+  }
+
   async getSpeciesAndBreeds(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6SpeciesAndBreeds> {
     return await this.doGet<AntechV6SpeciesAndBreeds>(credentials, baseUrl, AntechV6Endpoints.GET_SPECIES_AND_BREEDS, {
       ClinicID: credentials.ClinicID
@@ -102,5 +107,23 @@ export class AntechV6ApiService extends BaseApiService {
       ...preOrderPlacement,
       Token: accessToken
     }
+  }
+
+  async acknowledgeResults(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+    labAccessionIds: string[] = []
+  ): Promise<void> {
+    console.log(`Acknowledge results: ${labAccessionIds.join(', ')}`) // TODO(gb): remove trace
+    // TODO(gb): acknowledge results
+  }
+
+  async acknowledgeOrders(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+    clinicAccessionIds: string[] = []
+  ): Promise<void> {
+    console.log(`Acknowledge orders: ${clinicAccessionIds.join(', ')}`) // TODO(gb): remove trace
+    // TODO(gb): acknowledge orders
   }
 }
