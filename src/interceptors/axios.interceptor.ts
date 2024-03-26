@@ -52,10 +52,11 @@ export class AxiosInterceptor implements NestInterceptor {
       message = error.message
     }
 
-    if (error.response?.data !== undefined) {
-      message = error.response.data.title
-
-      if (error.response.data.errors !== undefined) {
+    if (error.response !== undefined && error.response.data !== undefined) {
+      if (error.response.data.value !== undefined && error.response.data.value.Message !== undefined) {
+        message = error.response.data.value.Message
+      } else if (error.response.data.title !== undefined && error.response.data.errors !== undefined) {
+        message = error.response.data.title
         message += ` ${JSON.stringify(error.response.data.errors, null, 0)}`
       }
     }

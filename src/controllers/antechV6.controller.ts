@@ -1,7 +1,8 @@
-import { Controller } from '@nestjs/common'
+import { Controller, Logger } from '@nestjs/common'
 import {
   ApiEvent,
   Breed,
+  CreateOrderPayload,
   Device,
   Operation,
   OrderCreatedResponse,
@@ -24,12 +25,16 @@ import { AntechV6Service } from '../services/antechV6.service'
 export class AntechV6Controller
   implements ProviderOrderCreation, ProviderOrderUpdate, ProviderReferenceData, ProviderServices
 {
+  private readonly logger = new Logger(AntechV6Controller.name)
+
   constructor(private readonly antechV6Service: AntechV6Service) {}
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.Create}`)
-  public createOrder(msg: ApiEvent<AntechV6MessageData>): Promise<OrderCreatedResponse> {
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Orders}/${Operation.Create}`)
+  public async createOrder(msg: ApiEvent<AntechV6MessageData>): Promise<OrderCreatedResponse> {
     const { payload, ...metadata } = msg.data
-    return this.antechV6Service.createOrder(payload, metadata)
+    const orderCreatedResponse = await this.antechV6Service.createOrder(<CreateOrderPayload>payload, metadata)
+    this.logger.log(`Antech V6 pre-order placed. Finalize it at: ${orderCreatedResponse.submissionUri}`)
+    return orderCreatedResponse
   }
 
   @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.Cancel}`)

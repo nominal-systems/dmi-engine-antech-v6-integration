@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { AntechV6Module } from './antechV6.module'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
 import { ConfigService } from '@nestjs/config'
+import { ValidationPipe } from '@nestjs/common'
 
 async function bootstrap() {
   const app = await NestFactory.create(AntechV6Module)
@@ -16,6 +17,7 @@ async function bootstrap() {
     },
     { inheritAppConfig: true }
   )
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
   await app.startAllMicroservices()
 }
 
