@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common'
 import {
+  BaseProviderService,
   BatchResultsResponse,
   Breed,
   calculateHash,
   CreateOrderPayload,
   Device,
   IdPayload,
+  IdsPayload,
   NullPayloadPayload,
   Order,
   OrderCreatedResponse,
   OrderTestPayload,
-  ProviderService,
   ReferenceDataResponse,
   Result,
   Service,
@@ -33,11 +34,13 @@ import {
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 
 @Injectable()
-export class AntechV6Service implements ProviderService<AntechV6MessageData> {
+export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
   constructor(
     private readonly antechV6Api: AntechV6ApiService,
     private readonly antechV6Mapper: AntechV6Mapper
-  ) {}
+  ) {
+    super()
+  }
 
   async createOrder(payload: CreateOrderPayload, metadata: AntechV6MessageData): Promise<OrderCreatedResponse> {
     const credentials: AntechV6UserCredentials = {
@@ -83,18 +86,9 @@ export class AntechV6Service implements ProviderService<AntechV6MessageData> {
       credentials
     )
 
-    const batchResultsResponse: BatchResultsResponse = {
+    return {
       results: allResults.map((result) => this.antechV6Mapper.mapAntechV6Result(result))
     }
-
-    if (batchResultsResponse.results.length > 0) {
-      const labAccessionIds = batchResultsResponse.results
-        .map((result) => result.accession)
-        .filter((acc): acc is string => acc !== undefined)
-      await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, labAccessionIds)
-    }
-
-    return batchResultsResponse
   }
 
   getOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<Order> {
@@ -210,6 +204,46 @@ export class AntechV6Service implements ProviderService<AntechV6MessageData> {
       items,
       hash: calculateHash(items)
     }
+  }
+
+  async acknowledgeOrders(payload: IdsPayload, metadata: AntechV6MessageData): Promise<void> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    await this.antechV6Api.acknowledgeOrders(metadata.providerConfiguration.baseUrl, credentials, payload.ids)
+  }
+
+  async acknowledgeOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    await this.antechV6Api.acknowledgeOrders(metadata.providerConfiguration.baseUrl, credentials, [payload.id])
+  }
+
+  async acknowledgeResults(payload: IdsPayload, metadata: AntechV6MessageData): Promise<void> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, payload.ids)
+  }
+
+  async acknowledgeResult(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, [payload.id])
   }
 
   createRequisitionId(payload: NullPayloadPayload, metadata: AntechV6MessageData): string {

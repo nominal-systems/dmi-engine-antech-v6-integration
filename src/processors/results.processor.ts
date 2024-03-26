@@ -21,6 +21,12 @@ export class ResultsProcessor {
         this.logger.log(
           `Fetched ${batchResults.results.length} result${batchResults.results.length > 1 ? 's' : ''} for integration ${payload.integrationId}`
         )
+
+        const labAccessionIds = batchResults.results
+          .map((result) => result.accession)
+          .filter((acc): acc is string => acc !== undefined)
+
+        await this.antechV6Service.acknowledgeResults({ ids: labAccessionIds }, metadata)
       }
 
       // TODO(gb): notify the API

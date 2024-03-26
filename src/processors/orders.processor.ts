@@ -17,6 +17,18 @@ export class OrdersProcessor {
     this.logger.debug(`Fetching orders for integration ${payload.integrationId}`)
     try {
       const orders = await this.antechV6Service.getBatchOrders(payload, metadata)
+
+      if (orders.length > 0) {
+        this.logger.log(
+          `Fetched ${orders.length} order${orders.length > 1 ? 's' : ''} for integration ${payload.integrationId}`
+        )
+
+        const clinicAccessionIds = orders
+          .map((order) => order.externalId)
+          .filter((accId): accId is string => accId !== undefined)
+
+        await this.antechV6Service.acknowledgeOrders({ ids: clinicAccessionIds }, metadata)
+      }
     } catch (error) {
       this.logger.error(`Error fetching orders for integration ${payload.integrationId}`)
     }
