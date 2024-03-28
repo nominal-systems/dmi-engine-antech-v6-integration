@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import {
+  Client,
   ClientPayload,
   CreateOrderPayload,
   Identifier,
   isNullOrUndefinedOrEmpty,
   isNumber,
+  Order,
   OrderCreatedResponse,
   OrderPatient,
   OrderStatus,
@@ -23,6 +25,8 @@ import {
   AntechV6AccessToken,
   AntechV6Client,
   AntechV6Doctor,
+  AntechV6LabOrderStatus,
+  AntechV6LabResultStatus,
   AntechV6Pet,
   AntechV6PetSex,
   AntechV6PreOrder,
@@ -60,6 +64,47 @@ export class AntechV6Mapper {
       externalId: preOrderPlacement.Value,
       status: OrderStatus.WAITING_FOR_INPUT,
       submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}&accessToken=${preOrderPlacement.Token}`
+    }
+  }
+
+  mapAntechV6OrderStatus(
+    orderStatus: AntechV6LabOrderStatus
+  ): Pick<Order, 'externalId' | 'status' | 'tests' | 'editable'> {
+    return {
+      externalId: orderStatus.ClinicAccessionID,
+      status: this.mapOrderStatus(orderStatus.OrderStatus),
+      tests: orderStatus.LabTests.map((test) => {
+        return {
+          code: test.Mnemonic
+        }
+      }),
+      editable: false
+    }
+  }
+
+  mapAntechV6ResultStatus(resultStatus: AntechV6LabResultStatus): Pick<Order, 'patient' | 'client' | 'veterinarian'> {
+    const extractIdentifier = (
+      obj: AntechV6LabResultStatus,
+      key: string,
+      system: string
+    ): { identifier?: Identifier[] } => {
+      return obj[key] ? { identifier: [{ system, value: obj[key] }] } : {}
+    }
+    return {
+      patient: {
+        name: resultStatus.PetName,
+        sex: AntechV6PetSex.UNKNOWN,
+        species: String(resultStatus.SpeciesID),
+        breed: String(resultStatus.BreedID),
+        ...extractIdentifier(resultStatus, 'PetID', PimsIdentifiers.PatientID)
+      },
+      client: {
+        ...this.parseClientName(resultStatus.ClientName),
+        ...extractIdentifier(resultStatus, 'ClientID', PimsIdentifiers.ClientID)
+      },
+      veterinarian: {
+        ...this.parseDoctorName(resultStatus.DoctorName)
+      }
     }
   }
 
@@ -290,5 +335,32 @@ export class AntechV6Mapper {
     }
 
     return {}
+  }
+
+  private mapOrderStatus(orderStatus: number): OrderStatus {
+    switch (orderStatus) {
+      case 1:
+        return OrderStatus.SUBMITTED
+      case 2:
+        return OrderStatus.PARTIAL
+      default:
+        return OrderStatus.SUBMITTED
+    }
+  }
+
+  private parseClientName(clientName: string): Pick<Client, 'firstName' | 'lastName'> {
+    const parts = clientName.split(' ')
+    return {
+      firstName: parts[1],
+      lastName: parts[0]
+    }
+  }
+
+  private parseDoctorName(doctorName: string): Pick<VeterinarianPayload, 'firstName' | 'lastName'> {
+    const parts = doctorName.split(', ')
+    return {
+      firstName: parts[1],
+      lastName: parts[0]
+    }
   }
 }

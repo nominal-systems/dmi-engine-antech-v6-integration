@@ -1,0 +1,22 @@
+{
+  "LabResults": [
+    {
+      "ClinicAccessionID": "SHIUBBT1054",
+      "LabAccessionID": "IREA00025940",
+      "PetID": "AXAXAXA",
+      "ClientID": "d32f0184-f13a-40a6-816d-a0d3a0cfce69",
+      "DoctorName": "Christiansen, Gregorio",
+      "PetName": "Barbara",
+      "ClientName": "Bayer Trace",
+      "SpeciesID": 41,
+      "BreedID": 370,
+      "OrderDate": "2024-03-27T06:42:58",
+      "CreatedDate": "2024-03-27T00:00:00",
+      "CodeID": 12687,
+      "Mnemonic": "SA804",
+      "DisplayName": "Chemistry Panel w/SDMA",
+      "LabTests": []
+    }
+  ],
+  "LabOrders": []
+}

@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antechV6.service'
-import { NullPayloadPayload, Order } from '@nominal-systems/dmi-engine-common'
+import { NullPayloadPayload, Order, OrderStatus, PimsIdentifiers } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from './antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 
@@ -21,6 +21,7 @@ describe('AntechV6Service', () => {
   const nullPayloadMock: NullPayloadPayload = null
   const antechV6ApiServiceMock = {
     getOrderStatus: jest.fn(),
+    getResultStatus: jest.fn(),
     getSpeciesAndBreeds: jest.fn(() => {
       return {
         value: {
@@ -78,7 +79,97 @@ describe('AntechV6Service', () => {
         LabOrders: []
       })
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+      expect(antechV6ApiServiceMock.getOrderStatus).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getResultStatus).not.toHaveBeenCalled()
       expect(orders).toEqual([])
+    })
+
+    it('should map order from order/report status', async () => {
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabResults: [],
+        LabOrders: [
+          {
+            ClinicAccessionID: 'SHIUBBT1054',
+            OrderDate: '2024-03-27T06:42:58',
+            CreatedDate: '2024-03-27T06:42:58',
+            OrderStatus: 7,
+            LabAccessionID: 'IREA00025940',
+            LabTests: [
+              {
+                CodeType: 'U',
+                CodeID: 12687,
+                Mnemonic: 'SA804',
+                DisplayName: 'Chemistry Panel w/SDMA',
+                Price: 49.51
+              }
+            ],
+            AddOnTests: []
+          }
+        ]
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
+        LabResults: [
+          {
+            ClinicAccessionID: 'SHIUBBT1054',
+            LabAccessionID: 'IREA00025940',
+            PetID: 'AXAXAXA',
+            ClientID: 'd32f0184-f13a-40a6-816d-a0d3a0cfce69',
+            DoctorName: 'Christiansen, Gregorio',
+            PetName: 'Barbara',
+            ClientName: 'Bayer Trace',
+            SpeciesID: 41,
+            BreedID: 370,
+            OrderDate: '2024-03-27T06:42:58',
+            CreatedDate: '2024-03-27T00:00:00',
+            CodeID: 12687,
+            Mnemonic: 'SA804',
+            DisplayName: 'Chemistry Panel w/SDMA',
+            LabTests: []
+          }
+        ],
+        LabOrders: []
+      })
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+      expect(antechV6ApiServiceMock.getOrderStatus).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getResultStatus).toHaveBeenCalledWith(expect.any(String), expect.any(Object), {
+        ClinicAccessionID: 'SHIUBBT1054'
+      })
+      expect(orders.length).toEqual(1)
+      expect(orders[0]).toEqual({
+        externalId: 'SHIUBBT1054',
+        status: OrderStatus.SUBMITTED,
+        patient: expect.any(Object),
+        client: expect.any(Object),
+        veterinarian: expect.any(Object),
+        tests: [{ code: 'SA804' }],
+        editable: false
+      })
+      expect(orders[0].patient).toEqual({
+        name: 'Barbara',
+        sex: 'U',
+        species: '41',
+        breed: '370',
+        identifier: [
+          {
+            system: PimsIdentifiers.PatientID,
+            value: 'AXAXAXA'
+          }
+        ]
+      })
+      expect(orders[0].client).toEqual({
+        firstName: 'Trace',
+        lastName: 'Bayer',
+        identifier: [
+          {
+            system: PimsIdentifiers.ClientID,
+            value: 'd32f0184-f13a-40a6-816d-a0d3a0cfce69'
+          }
+        ]
+      })
+      expect(orders[0].veterinarian).toEqual({
+        firstName: 'Gregorio',
+        lastName: 'Christiansen'
+      })
     })
   })
 

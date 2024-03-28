@@ -1,0 +1,22 @@
+{
+  "LabResults": [],
+  "LabOrders": [
+    {
+      "ClinicAccessionID": "SHIUBBT1054",
+      "OrderDate": "2024-03-27T06:42:58",
+      "CreatedDate": "2024-03-27T06:42:58",
+      "OrderStatus": 7,
+      "LabAccessionID": "IREA00025940",
+      "LabTests": [
+        {
+          "CodeType": "U",
+          "CodeID": 12687,
+          "Mnemonic": "SA804",
+          "DisplayName": "Chemistry Panel w/SDMA",
+          "Price": 49.51
+        }
+      ],
+      "AddOnTests": []
+    }
+  ]
+}

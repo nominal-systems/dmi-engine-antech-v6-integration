@@ -3,10 +3,11 @@ import { HttpService } from '@nestjs/axios'
 import {
   AntechV6AccessToken,
   AntechV6Endpoints,
-  AntechV6OrderStatus,
+  AntechV6OrderStatusResponse,
   AntechV6PreOrder,
   AntechV6PreOrderPlacement,
   AntechV6Result,
+  AntechV6ResultStatusResponse,
   AntechV6SpeciesAndBreeds,
   AntechV6TestGuide,
   AntechV6UserCredentials
@@ -59,10 +60,26 @@ export class AntechV6ApiService extends BaseApiService {
     return accessToken.Token
   }
 
-  async getOrderStatus(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6OrderStatus> {
-    return await this.doGet<AntechV6OrderStatus>(credentials, baseUrl, AntechV6Endpoints.GET_STATUS, {
+  async getOrderStatus(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6OrderStatusResponse> {
+    return await this.doGet<AntechV6OrderStatusResponse>(credentials, baseUrl, AntechV6Endpoints.GET_STATUS, {
       serviceType: 'labOrder',
-      ClinicID: credentials.ClinicID
+      ClinicID: credentials.ClinicID,
+      overrideAck: true
+    })
+  }
+
+  async getResultStatus(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+    query: {
+      ClinicAccessionID?: string
+    } = {}
+  ): Promise<AntechV6ResultStatusResponse> {
+    return await this.doGet<AntechV6ResultStatusResponse>(credentials, baseUrl, AntechV6Endpoints.GET_STATUS, {
+      serviceType: 'labResult',
+      ClinicID: credentials.ClinicID,
+      overrideAck: true,
+      ...query
     })
   }
 

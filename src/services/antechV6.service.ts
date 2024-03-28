@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   BaseProviderService,
   BatchResultsResponse,
@@ -8,6 +8,7 @@ import {
   Device,
   IdPayload,
   IdsPayload,
+  mergePicks,
   NullPayloadPayload,
   Order,
   OrderCreatedResponse,
@@ -23,7 +24,8 @@ import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interfa
 import { AntechV6ApiService } from './antechV6-api.service'
 import {
   AntechV6AccessToken,
-  AntechV6OrderStatus,
+  AntechV6LabResultStatus,
+  AntechV6OrderStatusResponse,
   AntechV6PetSex,
   AntechV6PreOrderPlacement,
   AntechV6Result,
@@ -35,6 +37,8 @@ import { AntechV6Mapper } from '../providers/antechV6-mapper'
 
 @Injectable()
 export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
+  private readonly logger = new Logger(AntechV6Service.name)
+
   constructor(
     private readonly antechV6Api: AntechV6ApiService,
     private readonly antechV6Mapper: AntechV6Mapper
@@ -50,6 +54,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     }
 
     const preOrder = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
+    console.log(`preOrder= ${JSON.stringify(preOrder, null, 2)}`) // TODO(gb): remove trace
     const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken = await this.antechV6Api.placePreOrder(
       metadata.providerConfiguration.baseUrl,
       credentials,
@@ -66,12 +71,35 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       ClinicID: metadata.integrationOptions.clinicId
     }
 
-    const orderStatus: AntechV6OrderStatus = await this.antechV6Api.getOrderStatus(
+    const orders: Order[] = []
+    const orderStatusResponse: AntechV6OrderStatusResponse = await this.antechV6Api.getOrderStatus(
       metadata.providerConfiguration.baseUrl,
       credentials
     )
 
-    return orderStatus.LabOrders as unknown as Order[]
+    for (const orderStatus of orderStatusResponse.LabOrders) {
+      const resultStatusResponse = await this.antechV6Api.getResultStatus(
+        metadata.providerConfiguration.baseUrl,
+        credentials,
+        {
+          ClinicAccessionID: orderStatus.ClinicAccessionID
+        }
+      )
+
+      if (resultStatusResponse.LabResults.length === 1) {
+        const resultStatus: AntechV6LabResultStatus = resultStatusResponse.LabResults[0]
+        orders.push(
+          mergePicks(
+            this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus),
+            this.antechV6Mapper.mapAntechV6ResultStatus(resultStatus)
+          )
+        )
+      } else {
+        this.logger.warn(`Couldn't find result status for order ${orderStatus.ClinicAccessionID}`)
+      }
+    }
+
+    return orders
   }
 
   async getBatchResults(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<BatchResultsResponse> {

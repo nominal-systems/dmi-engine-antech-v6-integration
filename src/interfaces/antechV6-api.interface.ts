@@ -13,8 +13,59 @@ export interface AntechV6UserCredentials {
   ClinicID: string
 }
 
-export interface AntechV6OrderStatus {
-  LabOrders?: any
+export interface AntechV6OrderStatusResponse {
+  LabOrders: AntechV6LabOrderStatus[]
+}
+
+export interface AntechV6ResultStatusResponse {
+  LabResults: AntechV6LabResultStatus[]
+}
+
+export interface AntechV6LabOrderStatus {
+  ClinicAccessionID: string
+  OrderDate: string
+  CreatedDate: string
+  OrderStatus: 1 | 2
+  LabAccessionID: string
+  LabTests: AntechV6LabTest[]
+  AddOnTests: AntechV6AddOnTest[]
+}
+
+export interface AntechV6LabTest {
+  CodeType: string
+  CodeID: number
+  Mnemonic: string
+  DisplayName: string
+  Price: number
+}
+
+export interface AntechV6AddOnTest {
+  AddOnCodeID: string
+  AddOnOrderCode: string
+  AddOnCodeName: string
+  AddOnDate: string
+  Price: number
+}
+
+export interface AntechV6LabResultStatus {
+  ClinicAccessionID: string
+  LabAccessionID: string
+  LatestResultReceivedDate: string
+  ResultStatus: AntechV6LabResultStatus
+  PetID: string
+  PetName: string
+  SpeciesID: number
+  BreedID: number
+  ClientID: string
+  ClientName: string
+  DoctorName: string
+  OrderDate: string
+  CreatedDate: string
+  CodeID: number
+  Mnemonic: string
+  DisplayName: string
+  CodeType: string
+  LabTests: AntechV6LabTest[]
 }
 
 export interface AntechV6AccessToken {
@@ -206,7 +257,7 @@ export interface AntechV6UnitCodeResult {
   CreatedTimeStamp?: string
   ReleasedDateTimeStr?: string
   ViewedDateTime?: string
-  ResultStatus?: AntechV6ResultStatus
+  ResultStatus?: AntechV6ResultStatusResponse
   OrderControlStatus?: string
   Comments?: string
   UnitCodeDisplayName: string
