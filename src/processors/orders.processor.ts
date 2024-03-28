@@ -27,7 +27,10 @@ export class OrdersProcessor {
           .map((order) => order.externalId)
           .filter((accId): accId is string => accId !== undefined)
 
+        // TODO(gb): notify the API
+
         await this.antechV6Service.acknowledgeOrders({ ids: clinicAccessionIds }, metadata)
+        this.logger.log(`Acknowledged orders ${clinicAccessionIds.join(',')} for integration ${payload.integrationId}`)
       }
     } catch (error) {
       this.logger.error(`Error fetching orders for integration ${payload.integrationId}`)

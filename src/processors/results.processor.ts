@@ -26,7 +26,10 @@ export class ResultsProcessor {
           .map((result) => result.accession)
           .filter((acc): acc is string => acc !== undefined)
 
+        // TODO(gb): notify the API
+
         await this.antechV6Service.acknowledgeResults({ ids: labAccessionIds }, metadata)
+        this.logger.log(`Acknowledged results ${labAccessionIds.join(',')} for integration ${payload.integrationId}`)
       }
 
       // TODO(gb): notify the API

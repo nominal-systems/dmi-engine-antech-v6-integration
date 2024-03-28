@@ -60,11 +60,15 @@ export class AntechV6ApiService extends BaseApiService {
     return accessToken.Token
   }
 
-  async getOrderStatus(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6OrderStatusResponse> {
+  async getOrderStatus(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+    overrideAck = true
+  ): Promise<AntechV6OrderStatusResponse> {
     return await this.doGet<AntechV6OrderStatusResponse>(credentials, baseUrl, AntechV6Endpoints.GET_STATUS, {
       serviceType: 'labOrder',
       ClinicID: credentials.ClinicID,
-      overrideAck: true
+      overrideAck
     })
   }
 
@@ -139,8 +143,11 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     labAccessionIds: string[] = []
   ): Promise<void> {
-    console.log(`Acknowledge results: ${labAccessionIds.join(', ')}`) // TODO(gb): remove trace
-    // TODO(gb): acknowledge results
+    await this.doPost(credentials, baseUrl, AntechV6Endpoints.ACKNOWLEDGE_STATUS, {
+      serviceType: 'labResult',
+      clinicId: credentials.ClinicID,
+      labAccessionsIds: labAccessionIds
+    })
   }
 
   async acknowledgeOrders(
@@ -148,7 +155,10 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     clinicAccessionIds: string[] = []
   ): Promise<void> {
-    console.log(`Acknowledge orders: ${clinicAccessionIds.join(', ')}`) // TODO(gb): remove trace
-    // TODO(gb): acknowledge orders
+    await this.doPost(credentials, baseUrl, AntechV6Endpoints.ACKNOWLEDGE_STATUS, {
+      serviceType: 'labOrder',
+      clinicId: credentials.ClinicID,
+      clinicAccessionIds: clinicAccessionIds
+    })
   }
 }

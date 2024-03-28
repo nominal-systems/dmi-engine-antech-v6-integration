@@ -54,7 +54,6 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     }
 
     const preOrder = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
-    console.log(`preOrder= ${JSON.stringify(preOrder, null, 2)}`) // TODO(gb): remove trace
     const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken = await this.antechV6Api.placePreOrder(
       metadata.providerConfiguration.baseUrl,
       credentials,
@@ -74,7 +73,8 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     const orders: Order[] = []
     const orderStatusResponse: AntechV6OrderStatusResponse = await this.antechV6Api.getOrderStatus(
       metadata.providerConfiguration.baseUrl,
-      credentials
+      credentials,
+      false
     )
 
     for (const orderStatus of orderStatusResponse.LabOrders) {

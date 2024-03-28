@@ -3,8 +3,9 @@ export enum AntechV6Endpoints {
   GET_STATUS = '/LabResults/v6/GetStatus',
   GET_ALL_RESULTS = '/LabResults/v6/GetAllResults',
   GET_SPECIES_AND_BREEDS = '/Master/v6/GetSpeciesBreed',
+  GET_TEST_GUIDE = '/Tests/v6',
   PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement',
-  GET_TEST_GUIDE = '/Tests/v6'
+  ACKNOWLEDGE_STATUS = '/LabResults/v6/AckStatus'
 }
 
 export interface AntechV6UserCredentials {
