@@ -39,6 +39,7 @@ import {
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
+import { extractPetAge } from '../common/utils/mapper-utils'
 
 @Injectable()
 export class AntechV6Mapper {
@@ -200,10 +201,9 @@ export class AntechV6Mapper {
       PetName: patient.name,
       // TODO(gb): map pet sex
       PetSex: AntechV6PetSex.UNKNOWN,
-      // TODO(gb): extract pet age
-      PetAge: 1,
-      PetAgeUnits: 'Y',
-      // TODO(gb): extract pet weight
+      ...extractPetAge(patient.birthdate),
+      PetWeight: patient.weightMeasurement,
+      PetWeightUnits: patient.weightUnits,
       // TODO(gb): extract pet species/breed
       SpeciesID: 41,
       BreedID: 370
