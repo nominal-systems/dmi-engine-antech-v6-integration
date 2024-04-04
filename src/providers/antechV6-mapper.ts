@@ -39,7 +39,9 @@ import {
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
-import { extractPetAge } from '../common/utils/mapper-utils'
+import { extractPetAge, mapPatientSex } from '../common/utils/mapper-utils'
+import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
+import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
 
 @Injectable()
 export class AntechV6Mapper {
@@ -199,14 +201,12 @@ export class AntechV6Mapper {
     return {
       PetID: this.getIdFromIdentifier(PimsIdentifiers.PatientID, patient.identifier) || patient.id,
       PetName: patient.name,
-      // TODO(gb): map pet sex
-      PetSex: AntechV6PetSex.UNKNOWN,
+      PetSex: mapPatientSex(patient.sex),
       ...extractPetAge(patient.birthdate),
       PetWeight: patient.weightMeasurement,
       PetWeightUnits: patient.weightUnits,
-      // TODO(gb): extract pet species/breed
-      SpeciesID: 41,
-      BreedID: 370
+      SpeciesID: isNumber(patient.species) ? parseInt(patient.species) : DEFAULT_PET_SPECIES,
+      BreedID: patient.breed !== undefined && isNumber(patient.breed) ? parseInt(patient.breed) : DEFAULT_PET_BREED
     }
   }
 

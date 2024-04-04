@@ -49,19 +49,19 @@ export class AntechV6Controller
     return this.antechV6Service.cancelOrderTest(payload, metadata)
   }
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Sexes}.${Operation.List}`)
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Sexes}/${Operation.List}`)
   public getSexes(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Sex> | Sex[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getSexes(payload, metadata)
   }
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Species}.${Operation.List}`)
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Species}/${Operation.List}`)
   public getSpecies(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Species> | Species[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getSpecies(payload, metadata)
   }
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Breeds}.${Operation.List}`)
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Breeds}/${Operation.List}`)
   public getBreeds(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Breed> | Breed[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getBreeds(payload, metadata)
