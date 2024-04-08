@@ -19,6 +19,7 @@ import {
 } from '../interfaces/antechV6-api.interface'
 import { ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 import * as path from 'path'
+import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
@@ -123,7 +124,7 @@ describe('AntechV6Mapper', () => {
         PetSex: AntechV6PetSex.UNKNOWN,
         PetAge: 1,
         PetAgeUnits: 'Y',
-        SpeciesID: 41,
+        SpeciesID: DEFAULT_PET_SPECIES,
         BreedID: 370,
         OrderCodes: ['SA804', 'CAC655S']
       }
@@ -305,7 +306,7 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: '1016',
         name: 'ALBUMIN',
-        status: 'F',
+        status: 'DONE',
         valueQuantity: {
           value: 3.3,
           units: 'g/dL'
@@ -339,7 +340,7 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: '1010',
         name: 'Alk Phosphatase',
-        status: 'F',
+        status: 'DONE',
         valueQuantity: {
           value: 128,
           units: 'IU/L'
@@ -375,7 +376,7 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: '9981',
         name: 'Renal Tech Prediction',
-        status: 'F',
+        status: 'DONE',
         valueString: 'POSITIVE',
         interpretation: {
           code: TestResultItemInterpretationCode.POSITIVE,
@@ -401,7 +402,7 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: '3575',
         name: 'SDMA',
-        status: 'F',
+        status: 'DONE',
         valueQuantity: {
           value: 13.8,
           units: 'UG/dL'

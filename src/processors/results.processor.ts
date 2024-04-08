@@ -5,7 +5,6 @@ import { Job } from 'bull'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { AntechV6Service } from '../services/antechV6.service'
 import { ClientProxy } from '@nestjs/microservices'
-import { FileUtils } from '@nominal-systems/dmi-engine-common'
 
 @Processor(`${PROVIDER_NAME}.results`)
 export class ResultsProcessor {
@@ -44,8 +43,6 @@ export class ResultsProcessor {
         await this.antechV6Service.acknowledgeResults({ ids: labAccessionIds }, metadata)
         this.logger.log(`Acknowledged results ${labAccessionIds.join(',')} for integration ${payload.integrationId}`)
       }
-
-      // TODO(gb): notify the API
     } catch (error) {
       this.logger.error(`Error fetching results for integration ${payload.integrationId}: ${error.message}`)
     }

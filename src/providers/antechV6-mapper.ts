@@ -52,7 +52,6 @@ import { PIMS_ID } from '../constants/pims-id'
 @Injectable()
 export class AntechV6Mapper {
   mapCreateOrderPayload(payload: CreateOrderPayload, metadata: AntechV6MessageData): AntechV6PreOrder {
-    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
     return {
       ...this.extractLabId(metadata),
       ...this.extractClinicId(metadata),
@@ -214,8 +213,7 @@ export class AntechV6Mapper {
       PetName: patient.name,
       PetSex: mapPatientSex(patient.sex),
       ...extractPetAge(patient.birthdate),
-      PetWeight: patient.weightMeasurement,
-      PetWeightUnits: patient.weightUnits,
+      ...this.extractPetWeight(patient),
       SpeciesID: isNumber(patient.species) ? parseInt(patient.species) : DEFAULT_PET_SPECIES,
       BreedID: patient.breed !== undefined && isNumber(patient.breed) ? parseInt(patient.breed) : DEFAULT_PET_BREED
     }
@@ -372,6 +370,17 @@ export class AntechV6Mapper {
     return {
       firstName: parts[1],
       lastName: parts[0]
+    }
+  }
+
+  private extractPetWeight(patient: OrderPatient): Pick<AntechV6Pet, 'PetWeight' | 'PetWeightUnits'> {
+    if (!isNullOrUndefinedOrEmpty(patient.weightMeasurement) && !isNullOrUndefinedOrEmpty(patient.weightUnits)) {
+      return {
+        PetWeight: patient.weightMeasurement,
+        PetWeightUnits: patient.weightUnits
+      }
+    } else {
+      return {}
     }
   }
 }

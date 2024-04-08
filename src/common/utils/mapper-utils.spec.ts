@@ -1,5 +1,6 @@
 import { extractPetAge } from './mapper-utils'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
+import * as moment from 'moment'
 
 describe('MapperUtils', () => {
   describe('extractPetAge()', () => {
@@ -20,23 +21,28 @@ describe('MapperUtils', () => {
     })
 
     it('should return default age when birthdate is in the future', () => {
-      expect(extractPetAge('2025-01-01')).toEqual(DEFAULT_PET_AGE)
+      const futureDate = moment().add(1, 'day').format('YYYY-MM-DD')
+      expect(extractPetAge(futureDate)).toEqual(DEFAULT_PET_AGE)
     })
 
     it('should calculate pet age in years', () => {
-      expect(extractPetAge('2011-05-08')).toEqual({ PetAge: 12, PetAgeUnits: 'Y' })
+      const birthdate = moment().subtract(12, 'years').format('YYYY-MM-DD')
+      expect(extractPetAge(birthdate)).toEqual({ PetAge: 12, PetAgeUnits: 'Y' })
     })
 
     it('should calculate pet age in months', () => {
-      expect(extractPetAge('2024-01-01')).toEqual({ PetAge: 3, PetAgeUnits: 'M' })
+      const birthdate = moment().subtract(3, 'months').format('YYYY-MM-DD')
+      expect(extractPetAge(birthdate)).toEqual({ PetAge: 3, PetAgeUnits: 'M' })
     })
 
     it('should calculate the pet age in weeks', () => {
-      expect(extractPetAge('2024-03-19')).toEqual({ PetAge: 2, PetAgeUnits: 'W' })
+      const birthdate = moment().subtract(2, 'weeks').format('YYYY-MM-DD')
+      expect(extractPetAge(birthdate)).toEqual({ PetAge: 2, PetAgeUnits: 'W' })
     })
 
     it('should calculate the pet age in days', () => {
-      expect(extractPetAge('2024-04-01')).toEqual({ PetAge: 2, PetAgeUnits: 'D' })
+      const birthdate = moment().subtract(2, 'days').format('YYYY-MM-DD')
+      expect(extractPetAge(birthdate)).toEqual({ PetAge: 2, PetAgeUnits: 'D' })
     })
   })
 })

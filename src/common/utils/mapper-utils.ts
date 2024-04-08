@@ -45,10 +45,8 @@ export function mapPatientSex(sex: string): AntechV6PetSex {
 
 export function mapTestCodeResultStatus(status?: string): TestResultItemStatus {
   switch (status) {
-    case 'F':
-      return TestResultItemStatus.DONE
     default:
-      return TestResultItemStatus.PENDING
+      return TestResultItemStatus.DONE
   }
 }
 
