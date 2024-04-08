@@ -17,10 +17,11 @@ jobs:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
       - run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
   build:
     name: Create Release
     needs: publish-ghp
