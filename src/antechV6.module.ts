@@ -10,16 +10,30 @@ import { APP_INTERCEPTOR } from '@nestjs/core'
 import { AxiosInterceptor } from './interceptors/axios.interceptor'
 import { AntechV6Controller } from './controllers/antechV6.controller'
 import { AntechV6Mapper } from './providers/antechV6-mapper'
+import { ClientsModule, Transport } from '@nestjs/microservices'
 
 @Module({
   imports: [
     HttpModule,
+    ClientsModule.registerAsync([
+      {
+        name: 'API_SERVICE',
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: async (configService: ConfigService) => ({
+          transport: Transport.MQTT,
+          options: {
+            ...configService.get('mqtt')
+          }
+        })
+      }
+    ]),
     BullModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         redis: configService.get('redis')
-      }),
-      inject: [ConfigService]
+      })
     })
   ],
   providers: [

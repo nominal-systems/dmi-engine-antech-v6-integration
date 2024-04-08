@@ -1,5 +1,5 @@
 import { AntechV6Pet, AntechV6PetSex } from '../../interfaces/antechV6-api.interface'
-import { isNullOrUndefinedOrEmpty } from '@nominal-systems/dmi-engine-common'
+import { isNullOrUndefinedOrEmpty, TestResultItemStatus } from '@nominal-systems/dmi-engine-common'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
 
@@ -41,4 +41,28 @@ export function mapPatientSex(sex: string): AntechV6PetSex {
     default:
       return AntechV6PetSex.UNKNOWN
   }
+}
+
+export function mapTestCodeResultStatus(status?: string): TestResultItemStatus {
+  switch (status) {
+    case 'F':
+      return TestResultItemStatus.DONE
+    default:
+      return TestResultItemStatus.PENDING
+  }
+}
+
+export function generateClinicAccessionId(clinicId: string, pimsId: string): string {
+  // Calculate the maximum allowed length for the seq part
+  const maxSeqLength = 20 - clinicId.length - pimsId.length - 2 // 2 hyphens
+  if (maxSeqLength <= 0) {
+    throw new Error('clinicId and pimsId are too long')
+  }
+
+  // Compute the seq part
+  const currentTime = new Date().getTime()
+  const seq = currentTime % Math.pow(10, maxSeqLength)
+  const seqStr = seq.toString().slice(0, maxSeqLength)
+
+  return `${clinicId}-${pimsId}-${seqStr}`
 }

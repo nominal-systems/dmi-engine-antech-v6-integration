@@ -39,17 +39,24 @@ import {
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
-import { extractPetAge, mapPatientSex } from '../common/utils/mapper-utils'
+import {
+  extractPetAge,
+  generateClinicAccessionId,
+  mapPatientSex,
+  mapTestCodeResultStatus
+} from '../common/utils/mapper-utils'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
+import { PIMS_ID } from '../constants/pims-id'
 
 @Injectable()
 export class AntechV6Mapper {
   mapCreateOrderPayload(payload: CreateOrderPayload, metadata: AntechV6MessageData): AntechV6PreOrder {
+    console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
     return {
       ...this.extractLabId(metadata),
       ...this.extractClinicId(metadata),
-      ...this.extractClinicAccessionId(payload),
+      ...this.extractClinicAccessionId(payload, metadata.integrationOptions.clinicId),
       ...this.extractClient(payload.client),
       ...this.extractDoctor(payload.veterinarian),
       ...this.extractPet(payload.patient),
@@ -64,7 +71,7 @@ export class AntechV6Mapper {
   ): OrderCreatedResponse {
     return {
       requisitionId: preOrder.ClinicAccessionID,
-      externalId: preOrderPlacement.Value,
+      externalId: preOrder.ClinicAccessionID,
       status: OrderStatus.WAITING_FOR_INPUT,
       submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}&accessToken=${preOrderPlacement.Token}`
     }
@@ -151,8 +158,7 @@ export class AntechV6Mapper {
       seq: index,
       code: testCodeResult.TestCodeExtID,
       name: testCodeResult.Test,
-      // TODO(gb): map TestCodeResult status
-      status: 'F',
+      status: mapTestCodeResultStatus(testCodeResult.ResultStatus),
       ...this.extractTestResultValueX(testCodeResult),
       ...this.extractTestResultInterpretation(testCodeResult),
       ...this.extractTestResultReferenceRange(testCodeResult),
@@ -172,9 +178,14 @@ export class AntechV6Mapper {
     }
   }
 
-  private extractClinicAccessionId(payload: CreateOrderPayload): Pick<AntechV6PreOrder, 'ClinicAccessionID'> {
+  private extractClinicAccessionId(
+    payload: CreateOrderPayload,
+    clinicId: string
+  ): Pick<AntechV6PreOrder, 'ClinicAccessionID'> {
     return {
-      ClinicAccessionID: payload.requisitionId
+      ClinicAccessionID: !isNullOrUndefinedOrEmpty(payload.requisitionId)
+        ? payload.requisitionId
+        : generateClinicAccessionId(clinicId, PIMS_ID)
     }
   }
 

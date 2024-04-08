@@ -1,15 +1,19 @@
 import { Process, Processor } from '@nestjs/bull'
 import { Job } from 'bull'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
-import { Logger } from '@nestjs/common'
+import { Inject, Logger } from '@nestjs/common'
 import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AntechV6Service } from '../services/antechV6.service'
+import { ClientProxy } from '@nestjs/microservices'
 
 @Processor(`${PROVIDER_NAME}.orders`)
 export class OrdersProcessor {
   private readonly logger = new Logger(OrdersProcessor.name)
 
-  constructor(private readonly antechV6Service: AntechV6Service) {}
+  constructor(
+    private readonly antechV6Service: AntechV6Service,
+    @Inject('API_SERVICE') private readonly apiClient: ClientProxy
+  ) {}
 
   @Process()
   async fetchOrders(job: Job<AntechV6MessageData>) {
@@ -27,7 +31,10 @@ export class OrdersProcessor {
           .map((order) => order.externalId)
           .filter((accId): accId is string => accId !== undefined)
 
-        // TODO(gb): notify the API
+        this.apiClient.emit('external_orders', {
+          integrationId: payload.integrationId,
+          orders
+        })
 
         await this.antechV6Service.acknowledgeOrders({ ids: clinicAccessionIds }, metadata)
         this.logger.log(`Acknowledged orders ${clinicAccessionIds.join(',')} for integration ${payload.integrationId}`)

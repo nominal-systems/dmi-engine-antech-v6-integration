@@ -1,15 +1,20 @@
-import { Logger } from '@nestjs/common'
+import { Inject, Logger } from '@nestjs/common'
 import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { Process, Processor } from '@nestjs/bull'
 import { Job } from 'bull'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { AntechV6Service } from '../services/antechV6.service'
+import { ClientProxy } from '@nestjs/microservices'
+import { FileUtils } from '@nominal-systems/dmi-engine-common'
 
 @Processor(`${PROVIDER_NAME}.results`)
 export class ResultsProcessor {
   private readonly logger = new Logger(ResultsProcessor.name)
 
-  constructor(private readonly antechV6Service: AntechV6Service) {}
+  constructor(
+    private readonly antechV6Service: AntechV6Service,
+    @Inject('API_SERVICE') private readonly apiClient: ClientProxy
+  ) {}
 
   @Process()
   async fetchResults(job: Job<AntechV6MessageData>) {
@@ -26,7 +31,15 @@ export class ResultsProcessor {
           .map((result) => result.accession)
           .filter((acc): acc is string => acc !== undefined)
 
-        // TODO(gb): notify the API
+        this.apiClient.emit('external_order_results', {
+          integrationId: payload.integrationId,
+          results: batchResults.results
+        })
+
+        this.apiClient.emit('external_results', {
+          integrationId: payload.integrationId,
+          results: batchResults.results
+        })
 
         await this.antechV6Service.acknowledgeResults({ ids: labAccessionIds }, metadata)
         this.logger.log(`Acknowledged results ${labAccessionIds.join(',')} for integration ${payload.integrationId}`)
