@@ -7,10 +7,10 @@ import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { ResultsProcessor } from './processors/results.processor'
 import { APP_INTERCEPTOR } from '@nestjs/core'
-import { AxiosInterceptor } from './interceptors/axios.interceptor'
 import { AntechV6Controller } from './controllers/antechV6.controller'
 import { AntechV6Mapper } from './providers/antechV6-mapper'
 import { ClientsModule, Transport } from '@nestjs/microservices'
+import { AntechV6ApiInterceptor } from './interceptors/antechV6-api.interceptor'
 
 @Module({
   imports: [
@@ -44,7 +44,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices'
     ResultsProcessor,
     {
       provide: APP_INTERCEPTOR,
-      useClass: AxiosInterceptor
+      useClass: AntechV6ApiInterceptor
     }
   ],
   controllers: [AntechV6Controller],
