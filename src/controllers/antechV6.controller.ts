@@ -37,13 +37,13 @@ export class AntechV6Controller
     return orderCreatedResponse
   }
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.Cancel}`)
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Orders}/${Operation.Cancel}`)
   public cancelOrder(msg: ApiEvent<AntechV6MessageData>): Promise<void> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.cancelOrder(payload, metadata)
   }
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Orders}.${Operation.TestsCancel}`)
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Orders}/${Operation.TestsCancel}`)
   public cancelOrderTest(msg: ApiEvent<AntechV6MessageData>): Promise<void> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.cancelOrderTest(payload, metadata)
@@ -67,12 +67,12 @@ export class AntechV6Controller
     return this.antechV6Service.getBreeds(payload, metadata)
   }
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Devices}.${Operation.List}`)
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Devices}/${Operation.List}`)
   public getDevices(): Promise<ReferenceDataResponse<Device> | Device[]> {
     return Promise.resolve([])
   }
 
-  @MessagePattern(`${PROVIDER_NAME}.${Resource.Services}.${Operation.List}`)
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Services}/${Operation.List}`)
   public getServices(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Service> | Service[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getServices(payload, metadata)

@@ -4,7 +4,11 @@ import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AxiosResponse } from 'axios'
 import { AntechV6Endpoints } from '../interfaces/antechV6-api.interface'
 
-const EXCLUDED_ENDPOINTS = [AntechV6Endpoints.LOGIN]
+const EXCLUDED_ENDPOINTS = [
+  AntechV6Endpoints.LOGIN,
+  AntechV6Endpoints.GET_TEST_GUIDE,
+  AntechV6Endpoints.GET_SPECIES_AND_BREEDS
+]
 
 export class AntechV6ApiInterceptor extends AxiosInterceptor {
   constructor(httpService: HttpService, client) {
@@ -41,6 +45,11 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
   }
 
   public debug(url: string, body: any, response: AxiosResponse): boolean {
+    // TODO(gb): remove when access token caching is implemented: https://github.com/nominal-systems/dmi-engine-antech-v6-integration/issues/2
+    if (url.includes(AntechV6Endpoints.LOGIN)) {
+      return false
+    }
+
     return true
   }
 }
