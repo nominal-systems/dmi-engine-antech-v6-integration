@@ -32,7 +32,8 @@ describe('AntechV6Mapper', () => {
     },
     providerConfiguration: {
       baseUrl: 'https://margaapi-pims.marsvh.com',
-      uiBaseUrl: 'https://margaui-pims.marsvh.com'
+      uiBaseUrl: 'https://margaui-pims.marsvh.com',
+      PimsIdentifier: 'PIMS'
     }
   }
 

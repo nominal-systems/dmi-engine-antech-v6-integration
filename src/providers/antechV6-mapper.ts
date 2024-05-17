@@ -47,15 +47,17 @@ import {
 } from '../common/utils/mapper-utils'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
-import { PIMS_ID } from '../constants/pims-id'
 
 @Injectable()
 export class AntechV6Mapper {
   mapCreateOrderPayload(payload: CreateOrderPayload, metadata: AntechV6MessageData): AntechV6PreOrder {
+    const clinicId: string = metadata.integrationOptions.clinicId
+    const pimsId: string = metadata.providerConfiguration.PimsIdentifier
+
     return {
       ...this.extractLabId(metadata),
       ...this.extractClinicId(metadata),
-      ...this.extractClinicAccessionId(payload, metadata.integrationOptions.clinicId),
+      ...this.extractClinicAccessionId(payload, clinicId, pimsId),
       ...this.extractClient(payload.client),
       ...this.extractDoctor(payload.veterinarian),
       ...this.extractPet(payload.patient),
@@ -179,12 +181,13 @@ export class AntechV6Mapper {
 
   private extractClinicAccessionId(
     payload: CreateOrderPayload,
-    clinicId: string
+    clinicId: string,
+    pimsId: string
   ): Pick<AntechV6PreOrder, 'ClinicAccessionID'> {
     return {
       ClinicAccessionID: !isNullOrUndefinedOrEmpty(payload.requisitionId)
         ? payload.requisitionId
-        : generateClinicAccessionId(clinicId, PIMS_ID)
+        : generateClinicAccessionId(clinicId, pimsId)
     }
   }
 

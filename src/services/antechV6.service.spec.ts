@@ -15,7 +15,8 @@ describe('AntechV6Service', () => {
     },
     providerConfiguration: {
       baseUrl: 'https://margaapi-pims.marsvh.com',
-      uiBaseUrl: 'https://margaui-pims.marsvh.com'
+      uiBaseUrl: 'https://margaui-pims.marsvh.com',
+      PimsIdentifier: 'PIMS'
     }
   }
   const nullPayloadMock: NullPayloadPayload = null

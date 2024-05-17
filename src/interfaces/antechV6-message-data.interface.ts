@@ -7,7 +7,8 @@ export interface AntechV6MessageData<Payload = any> extends IMetadata {
 
 export interface AntechV6ProviderConfiguration {
   baseUrl: string
-  uiBaseUrl: string
+  uiBaseUrl: string,
+  PimsIdentifier: string
 }
 
 export interface AntechV6IntegrationOptions {
