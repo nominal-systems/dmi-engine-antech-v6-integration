@@ -1,8 +1,8 @@
 import { AxiosInterceptor } from '@nominal-systems/dmi-engine-common'
-import { HttpService } from '@nestjs/axios'
 import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AxiosResponse } from 'axios'
 import { AntechV6Endpoints } from '../interfaces/antechV6-api.interface'
+import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 
 const EXCLUDED_ENDPOINTS = [
   AntechV6Endpoints.LOGIN,
@@ -11,7 +11,7 @@ const EXCLUDED_ENDPOINTS = [
 ]
 
 export class AntechV6ApiInterceptor extends AxiosInterceptor {
-  constructor(httpService: HttpService, client) {
+  constructor(httpService: AntechV6ApiHttpService, client) {
     super(httpService, client)
     this.provider = PROVIDER_NAME
   }

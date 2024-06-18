@@ -3,18 +3,15 @@ import { AntechV6OrdersProcessor } from './processors/antechV6-orders.processor'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { AntechV6Service } from './services/antechV6.service'
 import { AntechV6ApiService } from './services/antechV6-api.service'
-import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { AntechV6ResultsProcessor } from './processors/antechV6-results.processor'
 import { AntechV6Controller } from './controllers/antechV6.controller'
 import { AntechV6Mapper } from './providers/antechV6-mapper'
 import { ClientsModule, Transport } from '@nestjs/microservices'
-import { APP_INTERCEPTOR } from '@nestjs/core'
-import { AntechV6ApiInterceptor } from './interceptors/antechV6-api.interceptor'
+import { AntechV6ApiModule } from './antech-v6-api/antech-v6-api.module'
 
 @Module({
   imports: [
-    HttpModule,
     ClientsModule.registerAsync([
       {
         name: 'API_SERVICE',
@@ -34,19 +31,10 @@ import { AntechV6ApiInterceptor } from './interceptors/antechV6-api.interceptor'
       useFactory: (configService: ConfigService) => ({
         redis: configService.get('redis')
       })
-    })
+    }),
+    AntechV6ApiModule
   ],
-  providers: [
-    AntechV6Mapper,
-    AntechV6Service,
-    AntechV6ApiService,
-    AntechV6OrdersProcessor,
-    AntechV6ResultsProcessor,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: AntechV6ApiInterceptor
-    }
-  ],
+  providers: [AntechV6Mapper, AntechV6Service, AntechV6ApiService, AntechV6OrdersProcessor, AntechV6ResultsProcessor],
   controllers: [AntechV6Controller],
   exports: [BullModule]
 })
