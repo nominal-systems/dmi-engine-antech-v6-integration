@@ -7,8 +7,8 @@ import { AntechV6Service } from '../services/antechV6.service'
 import { ClientProxy } from '@nestjs/microservices'
 
 @Processor(`${PROVIDER_NAME}.orders`)
-export class OrdersProcessor {
-  private readonly logger = new Logger(OrdersProcessor.name)
+export class AntechV6OrdersProcessor {
+  private readonly logger = new Logger(AntechV6OrdersProcessor.name)
 
   constructor(
     private readonly antechV6Service: AntechV6Service,
