@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { AntechV6ApiService } from './antechV6-api.service'
-import { HttpService } from '@nestjs/axios'
+import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 
 describe('AntechV6ApiService', () => {
   let service: AntechV6ApiService
@@ -10,7 +10,7 @@ describe('AntechV6ApiService', () => {
       providers: [
         AntechV6ApiService,
         {
-          provide: HttpService,
+          provide: AntechV6ApiHttpService,
           useValue: {}
         }
       ]

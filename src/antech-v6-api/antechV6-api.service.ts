@@ -13,7 +13,7 @@ import {
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
 import { BaseApiService } from '@nominal-systems/dmi-engine-common'
-import { AntechV6ApiHttpService } from '../antech-v6-api/antechV6-api-http.service'
+import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 
 @Injectable()
 export class AntechV6ApiService extends BaseApiService {
