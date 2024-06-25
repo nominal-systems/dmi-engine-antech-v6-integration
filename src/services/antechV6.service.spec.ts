@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antechV6.service'
 import { NullPayloadPayload, Order, OrderStatus, PimsIdentifiers } from '@nominal-systems/dmi-engine-common'
-import { AntechV6ApiService } from '../antech-v6-api/antechV6-api.service'
+import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 
 describe('AntechV6Service', () => {

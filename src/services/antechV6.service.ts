@@ -21,7 +21,7 @@ import {
   Species
 } from '@nominal-systems/dmi-engine-common'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
-import { AntechV6ApiService } from '../antech-v6-api/antechV6-api.service'
+import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import {
   AntechV6AccessToken,
   AntechV6LabResultStatus,
