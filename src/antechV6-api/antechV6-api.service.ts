@@ -14,6 +14,7 @@ import {
 } from '../interfaces/antechV6-api.interface'
 import { BaseApiService } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
+import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
 
 @Injectable()
 export class AntechV6ApiService extends BaseApiService {
@@ -118,16 +119,20 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     preOrder: AntechV6PreOrder
   ): Promise<AntechV6PreOrderPlacement & AntechV6AccessToken> {
-    const accessToken = await this.authenticate(baseUrl, credentials)
-    const preOrderPlacement: AntechV6PreOrderPlacement = await this.doPost<AntechV6PreOrderPlacement>(
-      credentials,
-      baseUrl,
-      AntechV6Endpoints.PLACE_PRE_ORDER,
-      preOrder
-    )
-    return {
-      ...preOrderPlacement,
-      Token: accessToken
+    try {
+      const accessToken = await this.authenticate(baseUrl, credentials)
+      const preOrderPlacement: AntechV6PreOrderPlacement = await this.doPost<AntechV6PreOrderPlacement>(
+        credentials,
+        baseUrl,
+        AntechV6Endpoints.PLACE_PRE_ORDER,
+        preOrder
+      )
+      return {
+        ...preOrderPlacement,
+        Token: accessToken
+      }
+    } catch (error) {
+      throw new AntechV6ApiException('Failed to place pre-order', error.status, error)
     }
   }
 

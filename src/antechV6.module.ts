@@ -9,6 +9,8 @@ import { AntechV6Controller } from './controllers/antechV6.controller'
 import { AntechV6Mapper } from './providers/antechV6-mapper'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { AntechV6ApiModule } from './antechV6-api/antech-v6-api.module'
+import { APP_FILTER } from '@nestjs/core'
+import { RpcExceptionFilter } from './filters/rcp-exception.filter'
 
 @Module({
   imports: [
@@ -34,7 +36,17 @@ import { AntechV6ApiModule } from './antechV6-api/antech-v6-api.module'
     }),
     AntechV6ApiModule
   ],
-  providers: [AntechV6Mapper, AntechV6Service, AntechV6ApiService, AntechV6OrdersProcessor, AntechV6ResultsProcessor],
+  providers: [
+    AntechV6Mapper,
+    AntechV6Service,
+    AntechV6ApiService,
+    AntechV6OrdersProcessor,
+    AntechV6ResultsProcessor,
+    {
+      provide: APP_FILTER,
+      useClass: RpcExceptionFilter
+    }
+  ],
   controllers: [AntechV6Controller],
   exports: [BullModule]
 })
