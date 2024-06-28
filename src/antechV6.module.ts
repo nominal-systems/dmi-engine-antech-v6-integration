@@ -3,7 +3,7 @@ import { AntechV6OrdersProcessor } from './processors/antechV6-orders.processor'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { AntechV6Service } from './services/antechV6.service'
 import { AntechV6ApiService } from './antechV6-api/antechV6-api.service'
-import { Module } from '@nestjs/common'
+import { DynamicModule, Module } from '@nestjs/common'
 import { AntechV6ResultsProcessor } from './processors/antechV6-results.processor'
 import { AntechV6Controller } from './controllers/antechV6.controller'
 import { AntechV6Mapper } from './providers/antechV6-mapper'
@@ -50,4 +50,10 @@ import { RpcExceptionFilter } from './filters/rcp-exception.filter'
   controllers: [AntechV6Controller],
   exports: [BullModule]
 })
-export class AntechV6Module {}
+export class AntechV6Module {
+  static register(): DynamicModule {
+    return {
+      module: AntechV6Module
+    }
+  }
+}
