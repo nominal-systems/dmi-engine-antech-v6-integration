@@ -26,10 +26,18 @@ export interface AntechV6LabOrderStatus {
   ClinicAccessionID: string
   OrderDate: string
   CreatedDate: string
-  OrderStatus: 1 | 2
+  OrderStatus: AntechV6OrderStatus
   LabAccessionID: string
   LabTests: AntechV6LabTest[]
   AddOnTests: AntechV6AddOnTest[]
+}
+
+export enum AntechV6OrderStatus {
+  'Draft',
+  'Expired',
+  'Canceled',
+  'Submitted',
+  'Received'
 }
 
 export interface AntechV6LabTest {

@@ -5,7 +5,7 @@
       "ClinicAccessionID": "SHIUBBT1054",
       "OrderDate": "2024-03-27T06:42:58",
       "CreatedDate": "2024-03-27T06:42:58",
-      "OrderStatus": 7,
+      "OrderStatus": "Submitted",
       "LabAccessionID": "IREA00025940",
       "LabTests": [
         {

@@ -27,6 +27,7 @@ import {
   AntechV6Doctor,
   AntechV6LabOrderStatus,
   AntechV6LabResultStatus,
+  AntechV6OrderStatus,
   AntechV6Pet,
   AntechV6PetSex,
   AntechV6PreOrder,
@@ -349,12 +350,17 @@ export class AntechV6Mapper {
     return {}
   }
 
-  private mapOrderStatus(orderStatus: number): OrderStatus {
+  private mapOrderStatus(orderStatus: AntechV6OrderStatus): OrderStatus {
     switch (orderStatus) {
-      case 1:
+      case AntechV6OrderStatus.Draft:
+        return OrderStatus.ACCEPTED
+      case AntechV6OrderStatus.Submitted:
         return OrderStatus.SUBMITTED
-      case 2:
+      case AntechV6OrderStatus.Received:
         return OrderStatus.PARTIAL
+      case AntechV6OrderStatus.Expired:
+      case AntechV6OrderStatus.Canceled:
+        return OrderStatus.CANCELLED
       default:
         return OrderStatus.SUBMITTED
     }
