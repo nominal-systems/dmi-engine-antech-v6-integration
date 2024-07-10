@@ -94,8 +94,11 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
             this.antechV6Mapper.mapAntechV6ResultStatus(resultStatus)
           )
         )
-      } else {
+      } else if (resultStatusResponse.LabResults.length === 0) {
         this.logger.warn(`Couldn't find result status for order ${orderStatus.ClinicAccessionID}`)
+        orders.push({
+          ...this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus)
+        } as unknown as Order)
       }
     }
 
