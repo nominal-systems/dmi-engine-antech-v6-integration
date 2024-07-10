@@ -2,6 +2,7 @@ import { AntechV6Pet, AntechV6PetSex } from '../../interfaces/antechV6-api.inter
 import { isNullOrUndefinedOrEmpty, TestResultItemStatus } from '@nominal-systems/dmi-engine-common'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
+import { AntechV6ApiException } from '../exceptions/antechV6-api.exception'
 
 export function extractPetAge(birthdate?: string): Pick<AntechV6Pet, 'PetAge' | 'PetAgeUnits'> {
   if (isNullOrUndefinedOrEmpty(birthdate)) {
@@ -51,10 +52,30 @@ export function mapTestCodeResultStatus(status?: string): TestResultItemStatus {
 }
 
 export function generateClinicAccessionId(clinicId: string, pimsId: string): string {
+  if (clinicId === undefined) {
+    throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
+      message: 'clinicId is not set in the integration options'
+    })
+  }
+
+  if (pimsId === undefined) {
+    throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
+      message: 'pimsId is not set in the provider configuration'
+    })
+  }
+
+  if (pimsId.length < 3 || pimsId.length > 4) {
+    throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
+      message: 'pimsId incorrect length: it must be 3-4 characters long'
+    })
+  }
+
   // Calculate the maximum allowed length for the seq part
   const maxSeqLength = 20 - clinicId.length - pimsId.length - 2 // 2 hyphens
   if (maxSeqLength <= 0) {
-    throw new Error('clinicId and pimsId are too long')
+    throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
+      message: 'clinicId and/or pimsId are too long'
+    })
   }
 
   // Compute the seq part
