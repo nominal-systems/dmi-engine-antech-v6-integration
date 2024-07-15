@@ -295,6 +295,10 @@ export class AntechV6Mapper {
         return TestResultItemInterpretationCode.HIGH
       case 'P':
         return TestResultItemInterpretationCode.POSITIVE
+      case 'L':
+        return TestResultItemInterpretationCode.LOW
+      case '*':
+        return TestResultItemInterpretationCode.ABNORMAL
       default:
         return TestResultItemInterpretationCode.NORMAL
     }

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { HttpService } from '@nestjs/axios'
 import {
   AntechV6AccessToken,
   AntechV6Endpoints,
