@@ -147,16 +147,22 @@ export class AntechV6Mapper {
   }
 
   mapAntechV6UnitCodeResult(unitCodeResult: AntechV6UnitCodeResult, index: number): TestResult {
+    const testResultItems: TestResultItem[] = unitCodeResult.TestCodeResults?.map((testCodeResult, idx) =>
+      this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.Category)
+    )
     return {
       seq: index,
       code: unitCodeResult.UnitCodeExtID,
       name: unitCodeResult.UnitCodeDisplayName,
-      items: unitCodeResult.TestCodeResults?.map(this.mapAntechV6TestCodeResult, this)
+      items: testResultItems?.sort((a, b) => {
+        return a.seq !== undefined && b.seq !== undefined ? a.seq - b.seq : -1
+      })
     }
   }
 
-  mapAntechV6TestCodeResult(testCodeResult: AntechV6TestCodeResult, index: number): TestResultItem {
+  mapAntechV6TestCodeResult(testCodeResult: AntechV6TestCodeResult, index: number, orderCode?: string): TestResultItem {
     return {
+      // TODO(gb): if test is Heska CBC then apply special sorting
       seq: index,
       code: testCodeResult.TestCodeExtID,
       name: testCodeResult.Test,

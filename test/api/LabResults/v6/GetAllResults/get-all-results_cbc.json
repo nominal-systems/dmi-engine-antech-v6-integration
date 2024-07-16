@@ -1,0 +1,307 @@
+[
+  {
+    "ID": 296077959,
+    "Clinic": {
+      "ClinicID": 144867,
+      "LabId": 1,
+      "ClinicExtId": "RESULT_NOT_STATED",
+      "HasUsers": false
+    },
+    "LabAccessionID": "HESKA0005735",
+    "ClinicAccessionID": "144867-VOY-730116114",
+    "LatestAccessionUpdate": "2024-07-11T17:20:00",
+    "CorrectedTestCount": 0,
+    "ReceivedDateTime": "2024-07-11T13:36:00",
+    "ProfileDisplay": "",
+    "TestDescription": " CBC",
+    "OrderStatus": "Final",
+    "Corrected": "",
+    "PendingTestCount": 0,
+    "TotalTestCount": 1,
+    "ViewedDateTime": "2024-07-12T10:21:32",
+    "ReleasedDateTime": "2024-07-11T20:46:20",
+    "UnitCodeResults": [
+      {
+        "UnitCodeResultID": "848802997",
+        "UnitCodeID": 23014,
+        "ProfileExtID": "",
+        "UnitCodeExtID": "591100",
+        "ReleasedDateTime": "2024-07-11T20:46:20",
+        "ViewedDateTime": "2024-07-12T10:21:32",
+        "ResultStatus": "F",
+        "OrderControlStatus": "F",
+        "OrderCode": "HHEM-1",
+        "UnitCodeDisplayName": "CBC",
+        "ProfileDisplayName": "",
+        "UnitCodeType": "",
+        "AnalyzerName": "Element HT5",
+        "UCType": "",
+        "TestCodeResults": [
+          {
+            "TestCodeID": "25601",
+            "TestCodeResultID": "8241916060",
+            "Result": "6.13",
+            "Range": "4.00-16.53",
+            "TestCodeExtID": "51100",
+            "Test": "WBC",
+            "Unit": "10^3/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25602",
+            "TestCodeResultID": "8241916062",
+            "Result": "1.20",
+            "Range": "0.83-4.91",
+            "TestCodeExtID": "51101",
+            "Test": "LYM",
+            "Unit": "10^3/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25603",
+            "TestCodeResultID": "8241916063",
+            "AbnormalFlag": "L",
+            "Result": "0.04",
+            "Range": "0.14-1.02",
+            "TestCodeExtID": "51102",
+            "Test": "MONO",
+            "Unit": "10^3/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25605",
+            "TestCodeResultID": "8241916105",
+            "Result": "19.5",
+            "TestCodeExtID": "51104",
+            "Test": "LYM %",
+            "Unit": "%",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25606",
+            "TestCodeResultID": "8241916106",
+            "Result": "0.7",
+            "TestCodeExtID": "51105",
+            "Test": "MONO %",
+            "Unit": "%",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25629",
+            "TestCodeResultID": "8241916109",
+            "AbnormalFlag": "L",
+            "Result": "2.97",
+            "Range": "5.82-8.90",
+            "TestCodeExtID": "51107",
+            "Test": "RBC",
+            "Unit": "10^6/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25630",
+            "TestCodeResultID": "8241916110",
+            "AbnormalFlag": "L",
+            "Result": "9.0",
+            "Range": "13.2-22.0",
+            "TestCodeExtID": "51108",
+            "Test": "HGB",
+            "Unit": "g/dL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25631",
+            "TestCodeResultID": "8241916111",
+            "AbnormalFlag": "L",
+            "Result": "28.9",
+            "Range": "36.9-60.0",
+            "TestCodeExtID": "51109",
+            "Test": "HCT",
+            "Unit": "%",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25632",
+            "TestCodeResultID": "8241916112",
+            "AbnormalFlag": "H",
+            "Result": "97.4",
+            "Range": "60.0-76.0",
+            "TestCodeExtID": "51110",
+            "Test": "MCV",
+            "Unit": "fL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25635",
+            "TestCodeResultID": "8241916113",
+            "AbnormalFlag": "H",
+            "Result": "30.2",
+            "Range": "21.0-28.2",
+            "TestCodeExtID": "51113",
+            "Test": "MCH",
+            "Unit": "pg",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25636",
+            "TestCodeResultID": "8241916114",
+            "AbnormalFlag": "L",
+            "Result": "31.0",
+            "Range": "33.4-39.2",
+            "TestCodeExtID": "51114",
+            "Test": "MCHC",
+            "Unit": "g/dL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25637",
+            "TestCodeResultID": "8241916116",
+            "Result": "263",
+            "Range": "126-660",
+            "TestCodeExtID": "51115",
+            "Test": "PLT",
+            "Unit": "10^3/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25640",
+            "TestCodeResultID": "8241916117",
+            "Result": "11.5",
+            "Range": "8.0-14.1",
+            "TestCodeExtID": "51118",
+            "Test": "MPV",
+            "Unit": "fL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25679",
+            "TestCodeResultID": "8241916118",
+            "TestCodeExtID": "51123",
+            "Test": "RBC Histogram",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25682",
+            "TestCodeResultID": "8241916061",
+            "AbnormalFlag": "L",
+            "Result": "2.84",
+            "Range": "2.88-11.72",
+            "TestCodeExtID": "51126",
+            "Test": "NEU",
+            "Unit": "10^3/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25683",
+            "TestCodeResultID": "8241916064",
+            "Result": "1.28",
+            "Range": "0.04-1.62",
+            "TestCodeExtID": "51127",
+            "Test": "EOS",
+            "Unit": "10^3/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25684",
+            "TestCodeResultID": "8241916103",
+            "AbnormalFlag": "H",
+            "Result": "0.77",
+            "Range": "0.00-0.12",
+            "TestCodeExtID": "51128",
+            "Test": "BAS",
+            "Unit": "10^3/uL",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25685",
+            "TestCodeResultID": "8241916104",
+            "Result": "46.3",
+            "TestCodeExtID": "51129",
+            "Test": "NEU %",
+            "Unit": "%",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25686",
+            "TestCodeResultID": "8241916107",
+            "Result": "20.9",
+            "TestCodeExtID": "51130",
+            "Test": "EOS %",
+            "Unit": "%",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25687",
+            "TestCodeResultID": "8241916108",
+            "Result": "12.6",
+            "TestCodeExtID": "51131",
+            "Test": "BAS%",
+            "Unit": "%",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25688",
+            "TestCodeResultID": "8241916115",
+            "Result": "16.1",
+            "Range": "12.2-16.4",
+            "TestCodeExtID": "51132",
+            "Test": "RDW%",
+            "Unit": "%",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25690",
+            "TestCodeResultID": "8241916119",
+            "TestCodeExtID": "51134",
+            "Test": "WBC Scattergram",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          },
+          {
+            "TestCodeID": "25680",
+            "TestCodeResultID": "8241916121",
+            "TestCodeExtID": "51124",
+            "Test": "PLT Histogram",
+            "UnitCodeID": "848802997",
+            "ReportComments": []
+          }
+        ],
+        "Category": "Heska Hematology",
+        "AccessionResultID": 296077959
+      }
+    ],
+    "Doctor": {
+      "Id": "",
+      "Name": "Larson, Eli"
+    },
+    "Pet": {
+      "Id": "",
+      "Name": "Samantha"
+    },
+    "Client": {
+      "Id": "",
+      "FirstName": "",
+      "LastName": ""
+    }
+  }
+]

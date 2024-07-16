@@ -275,6 +275,9 @@ describe('AntechV6Mapper', () => {
     const allResultsResponse: any = FileUtils.loadFile(
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_01.json')
     )
+    const cbcResultsResponse: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_cbc.json')
+    )
     it('should map Antech unit code results to DMI test results', () => {
       const unitCodeResult: AntechV6UnitCodeResult = allResultsResponse[0].UnitCodeResults[0]
       const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
@@ -285,6 +288,30 @@ describe('AntechV6Mapper', () => {
         items: expect.any(Array<TestResultItem>)
       })
       expect(testResult.items.length).toBeGreaterThan(0)
+    })
+
+    it('should sort unit code results in the order they are received', () => {
+      for (const resultResponse of allResultsResponse) {
+        for (const unitCodeResult of resultResponse.UnitCodeResults) {
+          const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
+          expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
+          for (const [idx, item] of testResult.items.entries()) {
+            const indexInResponse = unitCodeResult.TestCodeResults.findIndex((r) => r.TestCodeExtID === item.code)
+            expect(item.seq).toBe(indexInResponse)
+            expect(idx).toBe(indexInResponse)
+          }
+        }
+      }
+    })
+
+    it('should sort Heska CBC unit code results in a specific order', () => {
+      for (const resultResponse of cbcResultsResponse) {
+        for (const unitCodeResult of resultResponse.UnitCodeResults) {
+          const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
+          expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
+          // TODO(gb): test that seq matches special sorting for Heska CBC
+        }
+      }
     })
   })
 
