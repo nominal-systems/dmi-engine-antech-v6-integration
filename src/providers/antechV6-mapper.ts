@@ -41,6 +41,7 @@ import {
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 import {
+  applyTestResultSequencing,
   extractPetAge,
   generateClinicAccessionId,
   mapPatientSex,
@@ -48,6 +49,7 @@ import {
 } from '../common/utils/mapper-utils'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
+import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
 
 @Injectable()
 export class AntechV6Mapper {
@@ -148,7 +150,7 @@ export class AntechV6Mapper {
 
   mapAntechV6UnitCodeResult(unitCodeResult: AntechV6UnitCodeResult, index: number): TestResult {
     const testResultItems: TestResultItem[] = unitCodeResult.TestCodeResults?.map((testCodeResult, idx) =>
-      this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.Category)
+      this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.OrderCode)
     )
     return {
       seq: index,
@@ -161,9 +163,12 @@ export class AntechV6Mapper {
   }
 
   mapAntechV6TestCodeResult(testCodeResult: AntechV6TestCodeResult, index: number, orderCode?: string): TestResultItem {
+    let seq = index
+    if (orderCode !== undefined && Object.keys(TEST_RESULT_SEQUENCING_MAP).includes(orderCode)) {
+      seq = applyTestResultSequencing(testCodeResult.Test, TEST_RESULT_SEQUENCING_MAP[orderCode])
+    }
     return {
-      // TODO(gb): if test is Heska CBC then apply special sorting
-      seq: index,
+      seq,
       code: testCodeResult.TestCodeExtID,
       name: testCodeResult.Test,
       status: mapTestCodeResultStatus(testCodeResult.ResultStatus),

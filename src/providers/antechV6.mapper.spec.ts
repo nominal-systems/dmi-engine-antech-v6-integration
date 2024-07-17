@@ -20,6 +20,7 @@ import {
 import { ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 import * as path from 'path'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
+import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
 
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
@@ -309,7 +310,11 @@ describe('AntechV6Mapper', () => {
         for (const unitCodeResult of resultResponse.UnitCodeResults) {
           const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
           expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
-          // TODO(gb): test that seq matches special sorting for Heska CBC
+          for (const [idx, item] of testResult.items.entries()) {
+            const indexInResponse = TEST_RESULT_SEQUENCING_MAP[unitCodeResult.OrderCode].indexOf(item.name)
+            expect(item.seq).toBe(indexInResponse)
+            expect(idx).toBe(indexInResponse)
+          }
         }
       }
     })

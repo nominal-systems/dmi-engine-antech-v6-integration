@@ -85,3 +85,7 @@ export function generateClinicAccessionId(clinicId: string, pimsId: string): str
 
   return `${clinicId}-${pimsId}-${seqStr}`
 }
+
+export function applyTestResultSequencing(testCode: string, sequence: string[]): number {
+  return sequence.indexOf(testCode)
+}

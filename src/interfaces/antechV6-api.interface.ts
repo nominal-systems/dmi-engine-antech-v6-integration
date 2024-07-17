@@ -268,6 +268,7 @@ export interface AntechV6UnitCodeResult {
   ViewedDateTime?: string
   ResultStatus?: AntechV6ResultStatusResponse
   OrderControlStatus?: string
+  OrderCode?: string
   Comments?: string
   UnitCodeDisplayName: string
   ProfileDisplayName: string
