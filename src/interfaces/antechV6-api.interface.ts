@@ -2,6 +2,7 @@ export enum AntechV6Endpoints {
   LOGIN = '/Users/v6/Login',
   GET_STATUS = '/LabResults/v6/GetStatus',
   GET_ALL_RESULTS = '/LabResults/v6/GetAllResults',
+  GET_ALL_ORPHAN_RESULTS = '/LabResults/v6/OrphanResults',
   GET_SPECIES_AND_BREEDS = '/Master/v6/GetSpeciesBreed',
   GET_TEST_GUIDE = '/Tests/v6',
   PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement',
@@ -244,7 +245,8 @@ export interface AntechV6Result {
   UnitCodeResults: AntechV6UnitCodeResult[]
   Doctor?: {
     Id?: string
-    Name?: string
+    FirstName?: string
+    LastName?: string
   }
   Pet?: {
     Id?: string

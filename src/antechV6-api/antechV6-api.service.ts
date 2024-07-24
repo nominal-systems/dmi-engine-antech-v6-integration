@@ -92,6 +92,10 @@ export class AntechV6ApiService extends BaseApiService {
     return await this.doGet<AntechV6Result[]>(credentials, baseUrl, AntechV6Endpoints.GET_ALL_RESULTS)
   }
 
+  async getOrphanResults(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6Result[]> {
+    return await this.doGet<AntechV6Result[]>(credentials, baseUrl, AntechV6Endpoints.GET_ALL_ORPHAN_RESULTS)
+  }
+
   async getSpeciesAndBreeds(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6SpeciesAndBreeds> {
     return await this.doGet<AntechV6SpeciesAndBreeds>(credentials, baseUrl, AntechV6Endpoints.GET_SPECIES_AND_BREEDS, {
       ClinicID: credentials.ClinicID
