@@ -28,6 +28,7 @@ import {
   AntechV6OrderStatusResponse,
   AntechV6PetSex,
   AntechV6PreOrderPlacement,
+  AntechV6Result,
   AntechV6SpeciesAndBreeds,
   AntechV6TestGuide,
   AntechV6UserCredentials
@@ -111,13 +112,13 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       ClinicID: metadata.integrationOptions.clinicId
     }
 
-    const [allResults, orphanResults] = await Promise.all([
-      this.antechV6Api.getAllResults(metadata.providerConfiguration.baseUrl, credentials),
-      this.antechV6Api.getOrphanResults(metadata.providerConfiguration.baseUrl, credentials)
-    ])
+    const allResults: AntechV6Result[] = await this.antechV6Api.getAllResults(
+      metadata.providerConfiguration.baseUrl,
+      credentials
+    )
 
     return {
-      results: [...allResults, ...orphanResults].map((result) => this.antechV6Mapper.mapAntechV6Result(result))
+      results: allResults.map((result) => this.antechV6Mapper.mapAntechV6Result(result))
     }
   }
 
