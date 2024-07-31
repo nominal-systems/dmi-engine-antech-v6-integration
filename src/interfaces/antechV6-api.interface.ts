@@ -38,7 +38,9 @@ export enum AntechV6OrderStatus {
   'Expired',
   'Canceled',
   'Submitted',
-  'Received'
+  'Received',
+  'Partial',
+  'Final'
 }
 
 export interface AntechV6LabTest {
@@ -234,7 +236,7 @@ export interface AntechV6Result {
   ReceivedDateTime?: string
   ProfileDisplay?: string
   TestDescription?: string
-  OrderStatus?: string
+  OrderStatus: AntechV6OrderStatus
   Corrected?: string
   PendingTestCount?: number
   TotalTestCount?: number
@@ -243,15 +245,15 @@ export interface AntechV6Result {
   PrintedDateTime?: string
   DownloadDateTime?: string
   UnitCodeResults: AntechV6UnitCodeResult[]
-  Doctor?: {
+  Doctor: {
     Id?: string
     Name?: string
   }
-  Pet?: {
+  Pet: {
     Id?: string
     Name?: string
   }
-  Client?: {
+  Client: {
     Id?: string
     FirstName?: string
     LastName?: string
@@ -269,7 +271,7 @@ export interface AntechV6UnitCodeResult {
   ViewedDateTime?: string
   ResultStatus?: AntechV6ResultStatusResponse
   OrderControlStatus?: string
-  OrderCode?: string
+  OrderCode: string
   Comments?: string
   UnitCodeDisplayName: string
   ProfileDisplayName: string

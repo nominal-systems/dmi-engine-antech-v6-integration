@@ -1,5 +1,12 @@
-import { AntechV6Pet, AntechV6PetSex } from '../../interfaces/antechV6-api.interface'
-import { isNullOrUndefinedOrEmpty, TestResultItemStatus } from '@nominal-systems/dmi-engine-common'
+import { AntechV6Pet, AntechV6PetSex, AntechV6Result } from '../../interfaces/antechV6-api.interface'
+import {
+  Client,
+  isNullOrUndefinedOrEmpty,
+  Patient,
+  Test,
+  TestResultItemStatus,
+  Veterinarian
+} from '@nominal-systems/dmi-engine-common'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
 import { AntechV6ApiException } from '../exceptions/antechV6-api.exception'
@@ -88,4 +95,35 @@ export function generateClinicAccessionId(clinicId: string, pimsId: string): str
 
 export function applyTestResultSequencing(testCode: string, sequence: string[]): number {
   return sequence.indexOf(testCode)
+}
+
+export function isOrphanResult(result: AntechV6Result): boolean {
+  return isNullOrUndefinedOrEmpty(result.ClinicAccessionID)
+}
+
+export function extractPatientFromResult(result: AntechV6Result): Patient {
+  return {
+    name: result.Pet.Name || '',
+    sex: 'UNKNOWN',
+    species: 'UNKNOWN'
+  }
+}
+
+export function extractClientFromResult(result: AntechV6Result): Client {
+  return {
+    firstName: result.Client.FirstName || '',
+    lastName: result.Client.LastName || ''
+  }
+}
+
+export function extractVeterinarianFromResult(result: AntechV6Result): Veterinarian {
+  return {
+    firstName: result.Doctor.Name || ''
+  }
+}
+
+export function extractOrderTestCodesFromResult(result: AntechV6Result): Test[] {
+  return result.UnitCodeResults.map((unitCodeResult) => {
+    return { code: unitCodeResult.OrderCode }
+  })
 }

@@ -11,6 +11,7 @@ import {
 } from '@nominal-systems/dmi-engine-common'
 import {
   AntechV6AbnormalFlag,
+  AntechV6OrderStatus,
   AntechV6PetSex,
   AntechV6PreOrder,
   AntechV6Result,
@@ -269,6 +270,45 @@ describe('AntechV6Mapper', () => {
         })
       )
       expect(result.testResults.length).toBeGreaterThan(0)
+    })
+
+    it('should map orphan results', () => {
+      const orphanResult: AntechV6Result = {
+        ID: 1324,
+        LabAccessionID: 'XXXXX',
+        ClinicAccessionID: '',
+        OrderStatus: AntechV6OrderStatus.Final,
+        UnitCodeResults: [],
+        Pet: {
+          Id: '',
+          Name: 'Bruce'
+        },
+        Client: {
+          Id: '',
+          FirstName: '',
+          LastName: ''
+        },
+        Doctor: {
+          Id: '',
+          Name: 'Not Stated'
+        }
+      }
+      const result: Result = mapper.mapAntechV6Result(orphanResult)
+      expect(result).toHaveProperty('order')
+      expect(result.order).toEqual(
+        expect.objectContaining({
+          externalId: 'XXXXX',
+          status: 'COMPLETED',
+          patient: expect.any(Object),
+          client: expect.any(Object),
+          veterinarian: expect.any(Object)
+        })
+      )
+
+      const external_results = {
+        integrationId: 'integrationId',
+        results: [result]
+      }
     })
   })
 

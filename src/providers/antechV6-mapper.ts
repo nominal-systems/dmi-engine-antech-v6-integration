@@ -42,8 +42,13 @@ import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interfa
 import { TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 import {
   applyTestResultSequencing,
+  extractClientFromResult,
+  extractOrderTestCodesFromResult,
+  extractPatientFromResult,
   extractPetAge,
+  extractVeterinarianFromResult,
   generateClinicAccessionId,
+  isOrphanResult,
   mapPatientSex,
   mapTestCodeResultStatus
 } from '../common/utils/mapper-utils'
@@ -139,13 +144,19 @@ export class AntechV6Mapper {
   }
 
   mapAntechV6Result(result: AntechV6Result): Result {
-    return {
+    const mappedResult: Result = {
       id: String(result.ID),
       orderId: result.ClinicAccessionID,
       accession: result.LabAccessionID,
       status: this.extractResultStatus(result),
       testResults: this.extractTestResults(result.UnitCodeResults)
     }
+
+    if (isOrphanResult(result)) {
+      mappedResult.order = this.extractOrderFromResult(result)
+    }
+
+    return mappedResult
   }
 
   mapAntechV6UnitCodeResult(unitCodeResult: AntechV6UnitCodeResult, index: number): TestResult {
@@ -372,7 +383,10 @@ export class AntechV6Mapper {
       case AntechV6OrderStatus.Submitted:
         return OrderStatus.SUBMITTED
       case AntechV6OrderStatus.Received:
+      case AntechV6OrderStatus.Partial:
         return OrderStatus.PARTIAL
+      case AntechV6OrderStatus.Final:
+        return OrderStatus.COMPLETED
       case AntechV6OrderStatus.Expired:
       case AntechV6OrderStatus.Canceled:
         return OrderStatus.CANCELLED
@@ -405,6 +419,17 @@ export class AntechV6Mapper {
       }
     } else {
       return {}
+    }
+  }
+
+  private extractOrderFromResult(result: AntechV6Result): Order {
+    return {
+      externalId: result.LabAccessionID,
+      status: this.mapOrderStatus(result.OrderStatus),
+      patient: extractPatientFromResult(result),
+      client: extractClientFromResult(result),
+      veterinarian: extractVeterinarianFromResult(result),
+      tests: extractOrderTestCodesFromResult(result)
     }
   }
 }
