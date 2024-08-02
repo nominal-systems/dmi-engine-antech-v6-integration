@@ -310,6 +310,23 @@ describe('AntechV6Mapper', () => {
         results: [result]
       }
     })
+
+    it('should filter out In Progress results', () => {
+      const orphanResultsInProgressResponse: any = FileUtils.loadFile(
+        path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/orphan01_in-progress.json')
+      )
+      const orphanResultsFinalResponse: any = FileUtils.loadFile(
+        path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/orphan01_final.json')
+      )
+
+      const orphanResultInProgress: AntechV6Result = orphanResultsInProgressResponse[0]
+      const resultInProgress: Result = mapper.mapAntechV6Result(orphanResultInProgress)
+      // TODO(gb): assert that results are filtered
+
+      const orphanResultFinal: AntechV6Result = orphanResultsFinalResponse[0]
+      const resultFinal: Result = mapper.mapAntechV6Result(orphanResultFinal)
+      // TODO(gb): assert that results are not filtered
+    })
   })
 
   describe('mapAntechV6UnitCodeResult()', () => {
