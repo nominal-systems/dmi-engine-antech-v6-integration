@@ -117,8 +117,16 @@ export function extractClientFromResult(result: AntechV6Result): Client {
 }
 
 export function extractVeterinarianFromResult(result: AntechV6Result): Veterinarian {
-  return {
-    firstName: result.Doctor.Name || ''
+  const parts: any = result.Doctor.Name?.split(', ')
+  if (parts.length === 2) {
+    return {
+      firstName: parts[1],
+      lastName: parts[0]
+    }
+  } else {
+    return {
+      firstName: result.Doctor.Name || ''
+    }
   }
 }
 
