@@ -1,0 +1,76 @@
+[
+  {
+  "Client": {
+    "Id": "HUW18Z6",
+    "FirstName": "Angela",
+    "LastName": "Hewett"
+  },
+  "Clinic": {
+    "ClinicID": 39405,
+    "LabId": 1,
+    "ClinicExtId": "13183",
+    "HasUsers": false
+  },
+  "ClinicAccessionID": "39405-VOY-3844429413",
+  "Corrected": "",
+  "CorrectedTestCount": 0,
+  "Doctor": {
+    "Id": "",
+    "FirstName": "",
+    "LastName": ""
+  },
+  "ID": 298033448,
+  "LabAccessionID": "DLEA00007496",
+  "LatestAccessionUpdate": "2024-08-19T11:25:00",
+  "OrderStatus": "Final",
+  "PendingTestCount": 0,
+  "Pet": {
+    "Id": "2147307727",
+    "Name": "Monkey"
+  },
+  "ProfileDisplay": "",
+  "ReceivedDateTime": "2024-08-17T23:47:00",
+  "ReleasedDateTime": "2024-08-19T11:19:00",
+  "TestDescription": " Banfield Ova and Parasite",
+  "TotalTestCount": 1,
+  "ViewedDateTime": "0001-01-01T00:00:00",
+  "UnitCodeResults": [
+    {
+      "UnitCodeResultID": "854557280",
+      "UnitCodeID": 19736,
+      "ProfileExtID": "",
+      "UnitCodeExtID": "524038",
+      "ReleasedDateTime": "2024-08-19T11:19:00",
+      "ViewedDateTime": "0001-01-01T00:00:00",
+      "ResultStatus": "F",
+      "OrderControlStatus": "RE",
+      "OrderCode": "BANT805",
+      "UnitCodeDisplayName": "Banfield Ova and Parasite",
+      "ProfileDisplayName": "",
+      "UnitCodeType": "OP",
+      "AnalyzerName": "",
+      "UCType": "",
+      "TestCodeResults": [
+        {
+          "TestCodeID": "6121",
+          "TestCodeResultID": "8328890816",
+          "AbnormalFlag": "",
+          "Result": "NONE SEEN",
+          "Range": "",
+          "TestCodeExtID": "2340",
+          "Test": "Ova & Parasite",
+          "Unit": "",
+          "Comments": "",
+          "Min": "",
+          "Max": "",
+          "TestType": "",
+          "UnitCodeID": "854557280",
+          "Displayorder": ""
+        }
+      ],
+      "Category": "",
+      "AccessionResultID": 298033448
+    }
+  ]
+  }
+]

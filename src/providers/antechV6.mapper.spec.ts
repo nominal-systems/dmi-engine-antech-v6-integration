@@ -316,11 +316,16 @@ describe('AntechV6Mapper', () => {
     const allResultsResponse: any = FileUtils.loadFile(
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_01.json')
     )
+
+    const allResultsResponseNew: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_03.json')
+    ) 
+
     const cbcResultsResponse: any = FileUtils.loadFile(
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_cbc.json')
     )
-    it('should map Antech unit code results to DMI test results', () => {
-      const unitCodeResult: AntechV6UnitCodeResult = allResultsResponse[0].UnitCodeResults[0]
+    it('should map Antech order code results to DMI test results', () => {
+      const unitCodeResult: AntechV6UnitCodeResult = allResultsResponseNew[0].UnitCodeResults[0]
       const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
       expect(testResult).toEqual({
         seq: 0,
@@ -329,6 +334,17 @@ describe('AntechV6Mapper', () => {
         items: expect.any(Array<TestResultItem>)
       })
       expect(testResult.items.length).toBeGreaterThan(0)
+    })
+
+    it('should map Antech unit code to DMI test results when they come without order code', () => {
+      const unitCodeResult: AntechV6UnitCodeResult = allResultsResponse[0].UnitCodeResults[0]
+      const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
+      expect(testResult).toEqual({
+        seq: 0,
+        code: '502020',
+        name: 'Alkaline Phosphatase',
+        items: expect.any(Array<TestResultItem>)
+      })
     })
 
     it('should sort unit code results in the order they are received', () => {

@@ -165,7 +165,7 @@ export class AntechV6Mapper {
     )
     return {
       seq: index,
-      code: unitCodeResult.OrderCode,
+      code: unitCodeResult.OrderCode ? unitCodeResult.OrderCode : unitCodeResult.UnitCodeExtID,
       name: unitCodeResult.UnitCodeDisplayName,
       items: testResultItems?.sort((a, b) => {
         return a.seq !== undefined && b.seq !== undefined ? a.seq - b.seq : -1
