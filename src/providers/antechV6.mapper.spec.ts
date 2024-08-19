@@ -324,8 +324,8 @@ describe('AntechV6Mapper', () => {
       const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
       expect(testResult).toEqual({
         seq: 0,
-        code: '502020',
-        name: 'Alkaline Phosphatase',
+        code: 'BANT805',
+        name: 'Banfield Ova and Parasite',
         items: expect.any(Array<TestResultItem>)
       })
       expect(testResult.items.length).toBeGreaterThan(0)
