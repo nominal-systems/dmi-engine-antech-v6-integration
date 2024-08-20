@@ -319,7 +319,7 @@ describe('AntechV6Mapper', () => {
 
     const allResultsResponseNew: any = FileUtils.loadFile(
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_03.json')
-    ) 
+    )
 
     const cbcResultsResponse: any = FileUtils.loadFile(
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_cbc.json')
