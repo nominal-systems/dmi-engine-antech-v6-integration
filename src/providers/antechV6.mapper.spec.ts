@@ -304,11 +304,39 @@ describe('AntechV6Mapper', () => {
           veterinarian: expect.any(Object)
         })
       )
+    })
 
-      const external_results = {
-        integrationId: 'integrationId',
-        results: [result]
+    it('should parse Doctor names correctly', () => {
+      const orphanResult: AntechV6Result = {
+        ID: 1324,
+        LabAccessionID: 'XXXXX',
+        ClinicAccessionID: '',
+        OrderStatus: AntechV6OrderStatus.Final,
+        UnitCodeResults: [],
+        Pet: {
+          Id: '',
+          Name: 'Bruce'
+        },
+        Client: {
+          Id: '',
+          FirstName: '',
+          LastName: ''
+        },
+        Doctor: {
+          Id: '',
+          Name: 'Doe, John'
+        }
       }
+      const result: Result = mapper.mapAntechV6Result(orphanResult)
+      expect(result).toHaveProperty('order')
+      expect(result.order).toEqual(
+        expect.objectContaining({
+          veterinarian: {
+            firstName: 'John',
+            lastName: 'Doe'
+          }
+        })
+      )
     })
   })
 
