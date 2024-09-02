@@ -247,7 +247,8 @@ export interface AntechV6Result {
   UnitCodeResults: AntechV6UnitCodeResult[]
   Doctor: {
     Id?: string
-    Name?: string
+    FirstName?: string
+    LastName?: string
   }
   Pet: {
     Id?: string

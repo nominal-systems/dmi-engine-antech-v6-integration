@@ -290,7 +290,7 @@ describe('AntechV6Mapper', () => {
         },
         Doctor: {
           Id: '',
-          Name: 'Not Stated'
+          FirstName: 'Not Stated'
         }
       }
       const result: Result = mapper.mapAntechV6Result(orphanResult)
@@ -324,7 +324,8 @@ describe('AntechV6Mapper', () => {
         },
         Doctor: {
           Id: '',
-          Name: 'Doe, John'
+          LastName: 'Doe',
+          FirstName: 'John'
         }
       }
       const result: Result = mapper.mapAntechV6Result(orphanResult)
