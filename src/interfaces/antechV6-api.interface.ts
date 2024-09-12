@@ -39,6 +39,7 @@ export enum AntechV6OrderStatus {
   'Canceled',
   'Submitted',
   'Received',
+  'Resulted',
   'Partial',
   'Final'
 }

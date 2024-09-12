@@ -291,8 +291,6 @@ export class AntechV6Mapper {
         valueString: testCodeResult.Result || ''
       }
     }
-
-    return {}
   }
 
   private extractTestResultInterpretation(
@@ -385,6 +383,7 @@ export class AntechV6Mapper {
       case AntechV6OrderStatus.Received:
       case AntechV6OrderStatus.Partial:
         return OrderStatus.PARTIAL
+      case AntechV6OrderStatus.Resulted:
       case AntechV6OrderStatus.Final:
         return OrderStatus.COMPLETED
       case AntechV6OrderStatus.Expired:

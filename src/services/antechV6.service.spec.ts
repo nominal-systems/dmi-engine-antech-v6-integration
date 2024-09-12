@@ -3,6 +3,7 @@ import { AntechV6Service } from './antechV6.service'
 import { NullPayloadPayload, Order, OrderStatus, PimsIdentifiers } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
+import { AntechV6OrderStatus } from '../interfaces/antechV6-api.interface'
 
 describe('AntechV6Service', () => {
   let service: AntechV6Service
@@ -93,7 +94,7 @@ describe('AntechV6Service', () => {
             ClinicAccessionID: 'SHIUBBT1054',
             OrderDate: '2024-03-27T06:42:58',
             CreatedDate: '2024-03-27T06:42:58',
-            OrderStatus: 7,
+            OrderStatus: AntechV6OrderStatus.Submitted,
             LabAccessionID: 'IREA00025940',
             LabTests: [
               {
