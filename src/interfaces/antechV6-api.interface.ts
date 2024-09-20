@@ -64,14 +64,15 @@ export interface AntechV6LabResultStatus {
   ClinicAccessionID: string
   LabAccessionID: string
   LatestResultReceivedDate: string
-  ResultStatus: AntechV6LabResultStatus
-  PetID: string
-  PetName: string
+  ResultStatus: AntechV6ResultStatus
+  Pet: {
+    Id: string
+    Name: string
+  }
   SpeciesID: number
   BreedID: number
-  ClientID: string
-  ClientName: string
-  DoctorName: string
+  Client: PersonDetails
+  Doctor: PersonDetails
   OrderDate: string
   CreatedDate: string
   CodeID: number
@@ -246,20 +247,12 @@ export interface AntechV6Result {
   PrintedDateTime?: string
   DownloadDateTime?: string
   UnitCodeResults: AntechV6UnitCodeResult[]
-  Doctor: {
-    Id?: string
-    FirstName?: string
-    LastName?: string
-  }
+  Doctor: PersonDetails
   Pet: {
     Id?: string
     Name?: string
   }
-  Client: {
-    Id?: string
-    FirstName?: string
-    LastName?: string
-  }
+  Client: PersonDetails
 }
 
 export interface AntechV6UnitCodeResult {
@@ -305,6 +298,12 @@ export interface AntechV6TestCodeResult {
   TxtDspStr?: string
   UnitCodeID?: string
   ReportComments?: string[]
+}
+
+export interface PersonDetails {
+  Id: string
+  FirstName?: string
+  LastName?: string
 }
 
 export enum AntechV6ResultStatus {

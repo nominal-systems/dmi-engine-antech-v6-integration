@@ -36,7 +36,8 @@ import {
   AntechV6Test,
   AntechV6TestCodeResult,
   AntechV6TestGuide,
-  AntechV6UnitCodeResult
+  AntechV6UnitCodeResult,
+  PersonDetails
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
@@ -102,27 +103,23 @@ export class AntechV6Mapper {
   }
 
   mapAntechV6ResultStatus(resultStatus: AntechV6LabResultStatus): Pick<Order, 'patient' | 'client' | 'veterinarian'> {
-    const extractIdentifier = (
-      obj: AntechV6LabResultStatus,
-      key: string,
-      system: string
-    ): { identifier?: Identifier[] } => {
-      return obj[key] ? { identifier: [{ system, value: obj[key] }] } : {}
+    const extractIdentifier = (obj: PersonDetails, system: string): { identifier?: Identifier[] } => {
+      return obj.Id ? { identifier: [{ system, value: obj.Id }] } : {}
     }
     return {
       patient: {
-        name: resultStatus.PetName,
+        name: resultStatus.Pet.Name,
         sex: AntechV6PetSex.UNKNOWN,
         species: String(resultStatus.SpeciesID),
         breed: String(resultStatus.BreedID),
-        ...extractIdentifier(resultStatus, 'PetID', PimsIdentifiers.PatientID)
+        ...extractIdentifier(resultStatus.Pet, PimsIdentifiers.PatientID)
       },
       client: {
-        ...this.parseClientName(resultStatus.ClientName),
-        ...extractIdentifier(resultStatus, 'ClientID', PimsIdentifiers.ClientID)
+        ...this.extractClientName(resultStatus.Client),
+        ...extractIdentifier(resultStatus.Client, PimsIdentifiers.ClientID)
       },
       veterinarian: {
-        ...this.parseDoctorName(resultStatus.DoctorName)
+        ...this.extractVeterinarianName(resultStatus.Doctor)
       }
     }
   }
@@ -394,19 +391,17 @@ export class AntechV6Mapper {
     }
   }
 
-  private parseClientName(clientName: string): Pick<Client, 'firstName' | 'lastName'> {
-    const parts = clientName.split(' ')
+  private extractClientName(client: PersonDetails): Pick<Client, 'firstName' | 'lastName'> {
     return {
-      firstName: parts[1],
-      lastName: parts[0]
+      firstName: client.FirstName || '',
+      lastName: client.LastName || ''
     }
   }
 
-  private parseDoctorName(doctorName: string): Pick<VeterinarianPayload, 'firstName' | 'lastName'> {
-    const parts = doctorName.split(', ')
+  private extractVeterinarianName(doctor: PersonDetails): Pick<VeterinarianPayload, 'firstName' | 'lastName'> {
     return {
-      firstName: parts[1],
-      lastName: parts[0]
+      firstName: doctor.FirstName || '',
+      lastName: doctor.LastName || ''
     }
   }
 

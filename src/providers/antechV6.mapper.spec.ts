@@ -11,6 +11,7 @@ import {
 } from '@nominal-systems/dmi-engine-common'
 import {
   AntechV6AbnormalFlag,
+  AntechV6LabResultStatus,
   AntechV6OrderStatus,
   AntechV6PetSex,
   AntechV6PreOrder,
@@ -533,6 +534,92 @@ describe('AntechV6Mapper', () => {
           }
         ]
       })
+    })
+  })
+
+  describe('mapAntechV6ResultStatus()', () => {
+    it('should map pet/client/doctor correctly', () => {
+      expect(
+        mapper.mapAntechV6ResultStatus({
+          Pet: {
+            Id: '2147305531',
+            Name: 'JOJO'
+          },
+          Client: {
+            Id: 'BAC0LWT',
+            FirstName: 'Joy',
+            LastName: 'Hua'
+          },
+          Doctor: {
+            Id: '',
+            FirstName: 'foo',
+            LastName: 'bar'
+          },
+          SpeciesID: 42,
+          BreedID: 650
+        } as unknown as AntechV6LabResultStatus)
+      ).toEqual(
+        expect.objectContaining({
+          patient: expect.objectContaining({
+            name: 'JOJO'
+          }),
+          client: expect.objectContaining({
+            firstName: 'Joy',
+            lastName: 'Hua'
+          }),
+          veterinarian: expect.objectContaining({
+            firstName: 'foo',
+            lastName: 'bar'
+          })
+        })
+      )
+
+      expect(
+        mapper.mapAntechV6ResultStatus({
+          Pet: {
+            Id: '2147301908',
+            Name: 'PETRIE PETEY'
+          },
+          Client: {
+            Id: 'BAC0213',
+            FirstName: 'Lynda',
+            LastName: 'Hutchinson-Hinderer'
+          },
+          Doctor: {
+            Id: '',
+            FirstName: '',
+            LastName: ''
+          },
+          SpeciesID: 41,
+          BreedID: 650
+        } as unknown as AntechV6LabResultStatus)
+      ).toEqual(
+        expect.objectContaining({
+          patient: expect.objectContaining({
+            name: 'PETRIE PETEY',
+            identifier: [
+              {
+                system: 'pims:patient:id',
+                value: '2147301908'
+              }
+            ]
+          }),
+          client: expect.objectContaining({
+            firstName: 'Lynda',
+            lastName: 'Hutchinson-Hinderer',
+            identifier: [
+              {
+                system: 'pims:client:id',
+                value: 'BAC0213'
+              }
+            ]
+          }),
+          veterinarian: expect.objectContaining({
+            firstName: '',
+            lastName: ''
+          })
+        })
+      )
     })
   })
 })

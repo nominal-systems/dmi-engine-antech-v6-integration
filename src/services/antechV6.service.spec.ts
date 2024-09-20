@@ -114,11 +114,19 @@ describe('AntechV6Service', () => {
           {
             ClinicAccessionID: 'SHIUBBT1054',
             LabAccessionID: 'IREA00025940',
-            PetID: 'AXAXAXA',
-            ClientID: 'd32f0184-f13a-40a6-816d-a0d3a0cfce69',
-            DoctorName: 'Christiansen, Gregorio',
-            PetName: 'Barbara',
-            ClientName: 'Bayer Trace',
+            Pet: {
+              Id: 'AXAXAXA',
+              Name: 'Barbara'
+            },
+            Client: {
+              Id: 'd32f0184-f13a-40a6-816d-a0d3a0cfce69',
+              FirstName: 'Trace',
+              LastName: 'Bayer'
+            },
+            Doctor: {
+              FirstName: 'Gregorio',
+              LastName: 'Christiansen'
+            },
             SpeciesID: 41,
             BreedID: 370,
             OrderDate: '2024-03-27T06:42:58',
