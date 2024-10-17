@@ -76,7 +76,7 @@ describe('AntechV6Mapper', () => {
       client: {
         id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
         firstName: 'Marcellus',
-        lastName: 'Kerluke',
+        lastName: 'EktesabiKhajooeikermani',
         isStaff: false
       },
       veterinarian: {
@@ -119,7 +119,7 @@ describe('AntechV6Mapper', () => {
         ClinicAccessionID: 'VCHOSJW1',
         ClientID: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
         ClientFirstName: 'Marcellus',
-        ClientLastName: 'Kerluke',
+        ClientLastName: 'EktesabiKhajooeikerm',
         DoctorID: '99',
         DoctorFirstName: 'Neva',
         DoctorLastName: 'Klein',
