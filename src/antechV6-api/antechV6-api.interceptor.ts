@@ -1,4 +1,4 @@
-import { AxiosInterceptor } from '@nominal-systems/dmi-engine-common'
+import { AxiosInterceptor, isNullOrUndefinedOrEmpty, ProviderRawData } from '@nominal-systems/dmi-engine-common'
 import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AxiosResponse } from 'axios'
 import { AntechV6Endpoints } from '../interfaces/antechV6-api.interface'
@@ -51,5 +51,34 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
     }
 
     return true
+  }
+
+  public extract(url: string, body: any, response: AxiosResponse): ProviderRawData {
+    const data = super.extract(url, body, response)
+
+    // Accession ID
+    let accessionIds: string[] = []
+    if (url.includes(AntechV6Endpoints.PLACE_PRE_ORDER)) {
+      const jsonData: any = JSON.parse(response.config.data)
+      const clinicAccessionId: any = jsonData['ClinicAccessionID']
+      if (!isNullOrUndefinedOrEmpty(clinicAccessionId)) {
+        accessionIds = [clinicAccessionId]
+      }
+    } else if (url.includes(AntechV6Endpoints.GET_STATUS)) {
+      accessionIds = [
+        ...body.LabOrders.map((order) => order.ClinicAccessionID),
+        ...body.LabResults.map((result) => result.ClinicAccessionID)
+      ]
+    } else if (url.includes(AntechV6Endpoints.ACKNOWLEDGE_STATUS)) {
+      const jsonData: any = JSON.parse(response.config.data)
+      accessionIds = jsonData['clinicAccessionIds']
+    } else if (url.includes(AntechV6Endpoints.GET_ALL_RESULTS)) {
+      accessionIds = data.body.map((result) => result.ClinicAccessionID)
+    }
+    if (accessionIds.length > 0) {
+      data.accessionIds = accessionIds
+    }
+
+    return data
   }
 }
