@@ -76,7 +76,7 @@ describe('AntechV6Mapper', () => {
       client: {
         id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
         firstName: 'Marcellus',
-        lastName: 'EktesabiKhajooeikermani',
+        lastName: 'Kerluke',
         isStaff: false
       },
       veterinarian: {
@@ -119,7 +119,7 @@ describe('AntechV6Mapper', () => {
         ClinicAccessionID: 'VCHOSJW1',
         ClientID: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
         ClientFirstName: 'Marcellus',
-        ClientLastName: 'EktesabiKhajooeikerm',
+        ClientLastName: 'Kerluke',
         DoctorID: '99',
         DoctorFirstName: 'Neva',
         DoctorLastName: 'Klein',
@@ -135,6 +135,24 @@ describe('AntechV6Mapper', () => {
       expect(mapper.mapCreateOrderPayload(payload, metadataMock)).toEqual(expected)
     })
   })
+
+  describe('extractClient()', () => {
+    it('should extract ClientName and truncate if its too long', () => {
+      const clientPayload = {
+        id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+        firstName: 'Ashkan',
+        lastName: 'EktesabiKhajooeikermani',
+        isStaff: false
+      }
+
+      const result = (mapper as any).extractClient(clientPayload);
+      expect(result).toEqual({
+        ClientID: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+        ClientFirstName: 'Ashkan',
+        ClientLastName: 'EktesabiKhajooeikerm'
+      })
+    })
+  }) 
 
   describe('mapAntechV6TestGuide()', () => {
     const testGuide: AntechV6TestGuide = {
