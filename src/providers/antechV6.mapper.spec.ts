@@ -136,6 +136,24 @@ describe('AntechV6Mapper', () => {
     })
   })
 
+  describe('extractClient()', () => {
+    it('should extract ClientName and truncate if its too long', () => {
+      const clientPayload = {
+        id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+        firstName: 'Ashkan',
+        lastName: 'EktesabiKhajooeikermani',
+        isStaff: false
+      }
+
+      const result = (mapper as any).extractClient(clientPayload);
+      expect(result).toEqual({
+        ClientID: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+        ClientFirstName: 'Ashkan',
+        ClientLastName: 'EktesabiKhajooeikerm'
+      })
+    })
+  }) 
+
   describe('mapAntechV6TestGuide()', () => {
     const testGuide: AntechV6TestGuide = {
       TotalCount: 1086,
