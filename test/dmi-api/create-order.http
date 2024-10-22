@@ -5,8 +5,7 @@ Content-Type: application/json
 X-API-Key: {{apiKey}}
 
 {
-    "requisitionId": "{{requisitionId}}",
-    "integrationId": "{{providers.integrationId}}",
+    "integrationId": "{{integrationId}}",
     "patient": {
         "name": "Miso",
         "sex": "{{referenceData.sex.male}}",
