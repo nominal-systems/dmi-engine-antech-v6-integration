@@ -53,11 +53,9 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
     return true
   }
 
-  public extract(url: string, body: any, response: AxiosResponse): ProviderRawData {
-    const data = super.extract(url, body, response)
-
-    // Accession ID
+  public extractAccessionIds(url: string, body: any, response: AxiosResponse): string[] {
     let accessionIds: string[] = []
+
     if (url.includes(AntechV6Endpoints.PLACE_PRE_ORDER)) {
       const jsonData: any = JSON.parse(response.config.data)
       const clinicAccessionId: any = jsonData['ClinicAccessionID']
@@ -73,12 +71,9 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
       const jsonData: any = JSON.parse(response.config.data)
       accessionIds = jsonData['clinicAccessionIds']
     } else if (url.includes(AntechV6Endpoints.GET_ALL_RESULTS)) {
-      accessionIds = data.body.map((result) => result.ClinicAccessionID)
-    }
-    if (accessionIds.length > 0) {
-      data.accessionIds = accessionIds
+      accessionIds = body.map((result) => result.ClinicAccessionID)
     }
 
-    return data
+    return accessionIds
   }
 }
