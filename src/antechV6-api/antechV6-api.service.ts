@@ -27,13 +27,13 @@ export class AntechV6ApiService extends BaseApiService {
     endpoint: AntechV6Endpoints,
     params?: any
   ): Promise<T> {
-    const accessToken = await this.authenticate(baseUrl, credentials)
+    const { Token } = await this.authenticate(baseUrl, credentials)
     return await this.get<T>(`${baseUrl}${endpoint}`, {
       params: {
         ...params
       },
       headers: {
-        accessToken
+        accessToken: Token
       }
     })
   }
@@ -44,21 +44,17 @@ export class AntechV6ApiService extends BaseApiService {
     endpoint: AntechV6Endpoints,
     data: any
   ): Promise<T> {
-    const accessToken = await this.authenticate(baseUrl, credentials)
+    const { Token } = await this.authenticate(baseUrl, credentials)
     return await this.post<T>(`${baseUrl}${endpoint}`, data, {
       headers: {
         'Content-Type': 'application/json',
-        accessToken
+        accessToken: Token
       }
     })
   }
 
-  private async authenticate(baseUrl: string, credentials: AntechV6UserCredentials): Promise<string> {
-    const accessToken: AntechV6AccessToken = await this.post<AntechV6AccessToken>(
-      `${baseUrl}${AntechV6Endpoints.LOGIN}`,
-      credentials
-    )
-    return accessToken.Token
+  private async authenticate(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6AccessToken> {
+    return await this.post<AntechV6AccessToken>(`${baseUrl}${AntechV6Endpoints.LOGIN}`, credentials)
   }
 
   async getOrderStatus(
@@ -123,7 +119,7 @@ export class AntechV6ApiService extends BaseApiService {
     preOrder: AntechV6PreOrder
   ): Promise<AntechV6PreOrderPlacement & AntechV6AccessToken> {
     try {
-      const accessToken = await this.authenticate(baseUrl, credentials)
+      const { Token } = await this.authenticate(baseUrl, credentials)
       const preOrderPlacement: AntechV6PreOrderPlacement = await this.doPost<AntechV6PreOrderPlacement>(
         credentials,
         baseUrl,
@@ -132,7 +128,7 @@ export class AntechV6ApiService extends BaseApiService {
       )
       return {
         ...preOrderPlacement,
-        Token: accessToken
+        Token
       }
     } catch (error) {
       throw new AntechV6ApiException('Failed to place pre-order', error.status, error)
@@ -161,5 +157,13 @@ export class AntechV6ApiService extends BaseApiService {
       clinicId: credentials.ClinicID,
       clinicAccessionIds: clinicAccessionIds
     })
+  }
+
+  async testAuth(baseUrl: string, credentials: AntechV6UserCredentials): Promise<void> {
+    try {
+      await this.authenticate(baseUrl, credentials)
+    } catch (error) {
+      throw new AntechV6ApiException('Failed to authenticate', error.status, error)
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   Device,
   IdPayload,
   IdsPayload,
+  IntegrationTestResponse,
   mergePicks,
   NullPayloadPayload,
   Order,
@@ -44,6 +45,27 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     private readonly antechV6Mapper: AntechV6Mapper
   ) {
     super()
+  }
+
+  async testAuth(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<IntegrationTestResponse> {
+    const credentials: AntechV6UserCredentials = {
+      UserName: metadata.integrationOptions.username,
+      Password: metadata.integrationOptions.password,
+      ClinicID: metadata.integrationOptions.clinicId
+    }
+
+    try {
+      await this.antechV6Api.testAuth(metadata.providerConfiguration.baseUrl, credentials)
+      return {
+        success: true,
+        message: 'Authentication successful'
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message
+      }
+    }
   }
 
   async createOrder(payload: CreateOrderPayload, metadata: AntechV6MessageData): Promise<OrderCreatedResponse> {

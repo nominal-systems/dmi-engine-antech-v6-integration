@@ -4,8 +4,10 @@ import {
   Breed,
   CreateOrderPayload,
   Device,
+  IntegrationTestResponse,
   Operation,
   OrderCreatedResponse,
+  ProviderApi,
   ProviderOrderCreation,
   ProviderOrderUpdate,
   ProviderReferenceData,
@@ -23,11 +25,17 @@ import { AntechV6Service } from '../services/antechV6.service'
 
 @Controller('engine/antech-v6')
 export class AntechV6Controller
-  implements ProviderOrderCreation, ProviderOrderUpdate, ProviderReferenceData, ProviderServices
+  implements ProviderOrderCreation, ProviderOrderUpdate, ProviderReferenceData, ProviderServices, ProviderApi
 {
   private readonly logger = new Logger(AntechV6Controller.name)
 
   constructor(private readonly antechV6Service: AntechV6Service) {}
+
+  @MessagePattern(`${PROVIDER_NAME}/${Resource.Integration}/${Operation.Test}`)
+  public async testCredentials(msg: ApiEvent<AntechV6MessageData>): Promise<IntegrationTestResponse> {
+    const { payload, ...metadata } = msg.data
+    return await this.antechV6Service.testAuth(payload, metadata)
+  }
 
   @MessagePattern(`${PROVIDER_NAME}/${Resource.Orders}/${Operation.Create}`)
   public async createOrder(msg: ApiEvent<AntechV6MessageData>): Promise<OrderCreatedResponse> {
