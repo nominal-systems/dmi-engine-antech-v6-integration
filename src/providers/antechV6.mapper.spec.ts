@@ -428,7 +428,7 @@ describe('AntechV6Mapper', () => {
       }
     })
 
-    it('should correctly mapAntech Thyroid Panel unit code results', () => {
+    it('should correctly map Antech Thyroid Panel unit code results', () => {
       const unitCodeResult: AntechV6UnitCodeResult = tyroidResultsResponse[0].UnitCodeResults[0]
       const testResult1: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
 
@@ -462,6 +462,20 @@ describe('AntechV6Mapper', () => {
         name: 'T4',
         items: expect.arrayContaining([expect.objectContaining({ name: 'T4', code: '4022' })])
       })
+    })
+
+    it('should sort Antech Thyroid Panel in the order', () => {
+      for (const resultResponse of tyroidResultsResponse) {
+        for (const unitCodeResult of resultResponse.UnitCodeResults) {
+          const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
+          expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
+          for (const [idx, item] of testResult.items.entries()) {
+            const indexInResponse = unitCodeResult.TestCodeResults.findIndex((r) => r.TestCodeExtID === item.code)
+            expect(item.seq).toBe(indexInResponse)
+            expect(idx).toBe(indexInResponse)
+          }
+        }
+      }
     })
   })
 
