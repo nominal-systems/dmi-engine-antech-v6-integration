@@ -19,7 +19,7 @@ import {
   AntechV6TestGuide,
   AntechV6UnitCodeResult
 } from '../interfaces/antechV6-api.interface'
-import { ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
+import { ResultItem, ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 import * as path from 'path'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
@@ -372,6 +372,11 @@ describe('AntechV6Mapper', () => {
     const cbcResultsResponse: any = FileUtils.loadFile(
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_cbc.json')
     )
+
+    const tyroidResultsResponse: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_04.json')
+    )
+
     it('should map Antech order code results to DMI test results', () => {
       const unitCodeResult: AntechV6UnitCodeResult = allResultsResponseNew[0].UnitCodeResults[0]
       const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
@@ -421,6 +426,48 @@ describe('AntechV6Mapper', () => {
           }
         }
       }
+    })
+
+    it('should correctly mapAntech Thyroid Panel unit code results', () => {
+      const unitCodeResult: AntechV6UnitCodeResult = tyroidResultsResponse[0].UnitCodeResults[0]
+      const testResult1: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
+
+      const unitCodeResult2: AntechV6UnitCodeResult = tyroidResultsResponse[0].UnitCodeResults[1]
+      const testResult2: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult2, 0)
+
+      const unitCodeResult3: AntechV6UnitCodeResult = tyroidResultsResponse[0].UnitCodeResults[2]
+      const testResult3: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult3, 0)
+
+      const unitCodeResult4: AntechV6UnitCodeResult = tyroidResultsResponse[0].UnitCodeResults[3]
+      const testResult4: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult4, 0)
+      
+      expect(testResult1).toEqual({
+        seq: 0,
+        code: 'SA380',
+        name: '',
+        items: undefined
+      })
+      expect(testResult2).toMatchObject({
+        code: 'SA380',
+        name: 'TSH',
+        items: expect.arrayContaining([
+          expect.objectContaining({ name: 'TSH', code: '4001' })
+        ])
+      });
+      expect(testResult3).toMatchObject({
+        code: 'SA380',
+        name: 'Free T4 By Equilibrium Dialysis',
+        items: expect.arrayContaining([
+          expect.objectContaining({ name: 'Free T4 Equilibrium Dialysis', code: '6386' })
+        ])
+      });
+      expect(testResult4).toMatchObject({
+        code: 'SA380',
+        name: 'T4',
+        items: expect.arrayContaining([
+          expect.objectContaining({ name: 'T4', code: '4022' })
+        ]) 
+      });
     })
   })
 
