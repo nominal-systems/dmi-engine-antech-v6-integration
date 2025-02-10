@@ -19,7 +19,7 @@ import {
   AntechV6TestGuide,
   AntechV6UnitCodeResult
 } from '../interfaces/antechV6-api.interface'
-import { ResultItem, ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
+import { ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 import * as path from 'path'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
