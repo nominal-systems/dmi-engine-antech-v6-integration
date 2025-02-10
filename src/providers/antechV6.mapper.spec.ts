@@ -440,7 +440,7 @@ describe('AntechV6Mapper', () => {
 
       const unitCodeResult4: AntechV6UnitCodeResult = tyroidResultsResponse[0].UnitCodeResults[3]
       const testResult4: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult4, 0)
-      
+
       expect(testResult1).toEqual({
         seq: 0,
         code: 'SA380',
@@ -450,24 +450,18 @@ describe('AntechV6Mapper', () => {
       expect(testResult2).toMatchObject({
         code: 'SA380',
         name: 'TSH',
-        items: expect.arrayContaining([
-          expect.objectContaining({ name: 'TSH', code: '4001' })
-        ])
-      });
+        items: expect.arrayContaining([expect.objectContaining({ name: 'TSH', code: '4001' })])
+      })
       expect(testResult3).toMatchObject({
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
-        items: expect.arrayContaining([
-          expect.objectContaining({ name: 'Free T4 Equilibrium Dialysis', code: '6386' })
-        ])
-      });
+        items: expect.arrayContaining([expect.objectContaining({ name: 'Free T4 Equilibrium Dialysis', code: '6386' })])
+      })
       expect(testResult4).toMatchObject({
         code: 'SA380',
         name: 'T4',
-        items: expect.arrayContaining([
-          expect.objectContaining({ name: 'T4', code: '4022' })
-        ]) 
-      });
+        items: expect.arrayContaining([expect.objectContaining({ name: 'T4', code: '4022' })])
+      })
     })
   })
 
