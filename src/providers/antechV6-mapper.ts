@@ -157,9 +157,11 @@ export class AntechV6Mapper {
   }
 
   mapAntechV6UnitCodeResult(unitCodeResult: AntechV6UnitCodeResult, index: number): TestResult {
-    const testResultItems: TestResultItem[] = unitCodeResult.TestCodeResults?.map((testCodeResult, idx) =>
-      this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.OrderCode)
-    )
+    const testResultItems: TestResultItem[] =
+      unitCodeResult.TestCodeResults?.map((testCodeResult, idx) =>
+        this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.OrderCode)
+      ) ?? []
+
     return {
       seq: index,
       code: unitCodeResult.OrderCode ? unitCodeResult.OrderCode : unitCodeResult.UnitCodeExtID,
@@ -270,7 +272,9 @@ export class AntechV6Mapper {
   }
 
   private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
-    return unitCodeResults.map(this.mapAntechV6UnitCodeResult, this)
+    return unitCodeResults
+      .filter((unitCodeResult) => unitCodeResult.TestCodeResults && unitCodeResult.TestCodeResults.length > 0)
+      .map(this.mapAntechV6UnitCodeResult, this)
   }
 
   private extractTestResultValueX(

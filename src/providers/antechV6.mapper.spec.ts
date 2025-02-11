@@ -445,7 +445,7 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: 'SA380',
         name: '',
-        items: undefined
+        items: expect.any(Array<TestResultItem>)
       })
       expect(testResult2).toMatchObject({
         code: 'SA380',
@@ -464,15 +464,19 @@ describe('AntechV6Mapper', () => {
       })
     })
 
-    it('should sort Antech Thyroid Panel in the order', () => {
+    it('should sort Antech Thyroid Panel in the order and ignore empty items', () => {
       for (const resultResponse of tyroidResultsResponse) {
         for (const unitCodeResult of resultResponse.UnitCodeResults) {
           const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
-          expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
-          for (const [idx, item] of testResult.items.entries()) {
-            const indexInResponse = unitCodeResult.TestCodeResults.findIndex((r) => r.TestCodeExtID === item.code)
-            expect(item.seq).toBe(indexInResponse)
-            expect(idx).toBe(indexInResponse)
+          if (unitCodeResult.TestCodeResults && unitCodeResult.TestCodeResults.length > 0) {
+            expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
+            for (const [idx, item] of testResult.items.entries()) {
+              const indexInResponse = unitCodeResult.TestCodeResults.findIndex((r) => r.TestCodeExtID === item.code)
+              expect(item.seq).toBe(indexInResponse)
+              expect(idx).toBe(indexInResponse)
+            }
+          } else {
+            expect(testResult.items).toHaveLength(0)
           }
         }
       }
