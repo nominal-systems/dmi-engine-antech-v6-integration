@@ -276,6 +276,10 @@ describe('AntechV6Mapper', () => {
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_01.json')
     )
 
+    const tyroidResultsResponse: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_04.json')
+    )
+
     it('should map Antech results to DMI results', () => {
       const antechV6Result: AntechV6Result = allResultsResponse[0]
       const result: Result = mapper.mapAntechV6Result(antechV6Result)
@@ -357,6 +361,39 @@ describe('AntechV6Mapper', () => {
           }
         })
       )
+    })
+
+    it('should map Antech Tyroud Panel results to DMI results', () => {
+      const antechV6Result: AntechV6Result = tyroidResultsResponse[0]
+      const result: Result = mapper.mapAntechV6Result(antechV6Result)
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: '305580024',
+          orderId: '7092-VOY-37157652213',
+          accession: 'DLEA00533798',
+          status: ResultStatus.COMPLETED,
+          testResults: expect.any(Array<TestResult>)
+        })
+      )
+      expect(result.testResults.length).toBe(3)
+      expect(result.testResults[0]).toEqual({
+        seq: 0,
+        code: 'SA380',
+        name: 'TSH',
+        items: expect.arrayContaining([expect.objectContaining({ name: 'TSH', code: '4001' })])
+      })
+      expect(result.testResults[1]).toEqual({
+        seq: 1,
+        code: 'SA380',
+        name: 'Free T4 By Equilibrium Dialysis',
+        items: expect.arrayContaining([expect.objectContaining({ name: 'Free T4 Equilibrium Dialysis', code: '6386' })])
+      })
+      expect(result.testResults[2]).toEqual({
+        seq: 2,
+        code: 'SA380',
+        name: 'T4',
+        items: expect.arrayContaining([expect.objectContaining({ name: 'T4', code: '4022' })])
+      })
     })
   })
 
