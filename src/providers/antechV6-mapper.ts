@@ -157,14 +157,19 @@ export class AntechV6Mapper {
   }
 
   mapAntechV6UnitCodeResult(unitCodeResult: AntechV6UnitCodeResult, index: number): TestResult {
-    const testResultItems: TestResultItem[] = unitCodeResult.TestCodeResults?.map((testCodeResult, idx) =>
-      this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.OrderCode)
-    )
+    const testResultItems: TestResultItem[] = unitCodeResult.TestCodeResults
+      ? unitCodeResult.TestCodeResults.map((testCodeResult, idx) =>
+          this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.OrderCode)
+        )
+      : []
+
     return {
       seq: index,
       code: unitCodeResult.OrderCode ? unitCodeResult.OrderCode : unitCodeResult.UnitCodeExtID,
       name: unitCodeResult.UnitCodeDisplayName,
-      items: testResultItems?.sort((a, b) => (a.seq !== undefined && b.seq !== undefined ? a.seq - b.seq : -1)) || []
+      items: testResultItems?.sort((a, b) => {
+        return a.seq !== undefined && b.seq !== undefined ? a.seq - b.seq : -1
+      })
     }
   }
 
