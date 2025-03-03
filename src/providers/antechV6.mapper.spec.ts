@@ -440,7 +440,7 @@ describe('AntechV6Mapper', () => {
           id: '305580024',
           orderId: '7092-VOY-37157652213',
           accession: 'DLEA00533798',
-          status: ResultStatus.PENDING,
+          status: ResultStatus.PARTIAL,
           testResults: expect.any(Array<TestResult>)
         })
       )
@@ -731,6 +731,55 @@ describe('AntechV6Mapper', () => {
           })
         })
       )
+    })
+  })
+
+  describe('extractResultStatus', () => {
+    let mapper: AntechV6Mapper
+
+    beforeEach(() => {
+      mapper = new AntechV6Mapper()
+    })
+
+    it('should return REVISED if the result is corrected', () => {
+      const result: AntechV6Result = { Corrected: 'C' } as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.REVISED)
+    })
+
+    it('should return PARTIAL if there are pending tests', () => {
+      const result: AntechV6Result = { PendingTestCount: 2, TotalTestCount: 5 } as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PARTIAL)
+    })
+
+    it('should return COMPLETED if there are no pending tests', () => {
+      const result: AntechV6Result = { PendingTestCount: 0, TotalTestCount: 5 } as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
+    })
+
+    it('should return PENDING if TotalTestCount is 0', () => {
+      const result: AntechV6Result = { PendingTestCount: 0, TotalTestCount: 0 } as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PENDING)
+    })
+
+    it('should handle undefined PendingTestCount and TotalTestCount safely', () => {
+      const result: AntechV6Result = { PendingTestCount: undefined, TotalTestCount: undefined } as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PENDING)
+
+      const result_1: AntechV6Result = { PendingTestCount: undefined, TotalTestCount: 2 } as AntechV6Result
+      expect(mapper.extractResultStatus(result_1)).toBe(ResultStatus.PENDING)
+
+      const result_2: AntechV6Result = { PendingTestCount: 2, TotalTestCount: undefined } as AntechV6Result
+      expect(mapper.extractResultStatus(result_2)).toBe(ResultStatus.PENDING)
+    })
+
+    it('should return PARTIAL if PendingTestCount is greater than 0 and less than TotalTestCount', () => {
+      const result: AntechV6Result = { PendingTestCount: 3, TotalTestCount: 5 } as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PARTIAL)
+    })
+
+    it('should return COMPLETED if PendingTestCount is 0 and TotalTestCount is greater than 0', () => {
+      const result: AntechV6Result = { PendingTestCount: 0, TotalTestCount: 10 } as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
     })
   })
 })
