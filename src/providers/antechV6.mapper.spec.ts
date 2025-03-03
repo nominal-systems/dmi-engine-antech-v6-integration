@@ -377,6 +377,10 @@ describe('AntechV6Mapper', () => {
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_1.json')
     )
 
+    const tyroidResultsResponse_2: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_2.json')
+    )
+
     it('should map Antech order code results to DMI test results', () => {
       const unitCodeResult: AntechV6UnitCodeResult = allResultsResponseNew[0].UnitCodeResults[0]
       const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
@@ -466,7 +470,47 @@ describe('AntechV6Mapper', () => {
         items: expect.any(Array<TestResultItem>)
       })
     })
-    
+
+    it('should correctly map Tyroid Profile results items when received for the second time', () => {
+      const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_2[0]
+      const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: '305580024',
+          orderId: '7092-VOY-37157652213',
+          accession: 'DLEA00533798',
+          status: ResultStatus.PARTIAL,
+          testResults: expect.any(Array<TestResult>)
+        })
+      )
+      expect(result.testResults.length).toBe(4)
+      expect(result.testResults[0]).toEqual({
+        seq: 0,
+        code: 'SA380',
+        name: '',
+        items: expect.any(Array<TestResultItem>)
+      })
+      expect(result.testResults[1]).toEqual({
+        seq: 1,
+        code: 'SA380',
+        name: 'TSH',
+        items: expect.any(Array<TestResultItem>)
+      })
+      expect(result.testResults[2]).toEqual({
+        seq: 2,
+        code: 'SA380',
+        name: 'Free T4 By Equilibrium Dialysis',
+        items: expect.any(Array<TestResultItem>)
+      })
+      expect(result.testResults[3]).toEqual({
+        seq: 3,
+        code: 'SA380',
+        name: 'T4',
+        items: expect.any(Array<TestResultItem>)
+      })
+
+    })
+
   })
   describe('mapAntechV6TestCodeResult()', () => {
     it('should map numeric test code results', () => {
