@@ -1,0 +1,112 @@
+[
+  {
+    "Client": {
+      "Id": "HOU0JUG",
+      "FirstName": "Eric D. Katie M.",
+      "LastName": "Pfalzer"
+    },
+    "Clinic": {
+      "ClinicID": 7092,
+      "LabId": 1,
+      "ClinicExtId": "12877",
+      "HasUsers": false
+    },
+    "ClinicAccessionID": "7092-VOY-37157652213",
+    "Corrected": "",
+    "CorrectedTestCount": 0,
+    "Doctor": {
+      "Id": "409479",
+      "FirstName": "Brian",
+      "LastName": "Tighe"
+    },
+    "ID": 305580024,
+    "LabAccessionID": "DLEA00533798",
+    "OrderStatus": "In Progress",
+    "PendingTestCount": 3,
+    "Pet": {
+      "Id": "13581060946",
+      "Name": "Phil"
+    },
+    "ProfileDisplay": "Thyroid Profile 3",
+    "ReceivedDateTime": "2025-01-18T23:07:00",
+    "ReleasedDateTime": "0001-01-01T00:00:00",
+    "TestDescription": "Thyroid Profile 3 ,TSH,Free T4 By Equilibrium Dialysis,T4",
+    "TotalTestCount": 4,
+    "ViewedDateTime": "0001-01-01T00:00:00",
+    "UnitCodeResults": [
+      {
+        "UnitCodeResultID": "877067834",
+        "UnitCodeID": 0,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "",
+        "ReleasedDateTime": "0001-01-01T00:00:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "F",
+        "OrderControlStatus": "NW",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "Category": "",
+        "AccessionResultID": 305580024
+      },
+      {
+        "UnitCodeResultID": "877067837",
+        "UnitCodeID": 12218,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "502529",
+        "ReleasedDateTime": "0001-01-01T00:00:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "I",
+        "OrderControlStatus": "NW",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "TSH",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "Category": "Endocrinology",
+        "AccessionResultID": 305580024
+      },
+      {
+        "UnitCodeResultID": "877067836",
+        "UnitCodeID": 12204,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "502473",
+        "ReleasedDateTime": "0001-01-01T00:00:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "I",
+        "OrderControlStatus": "NW",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "Free T4 By Equilibrium Dialysis",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "Category": "Endocrinology",
+        "AccessionResultID": 305580024
+      },
+      {
+        "UnitCodeResultID": "877067835",
+        "UnitCodeID": 12211,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "502511",
+        "ReleasedDateTime": "0001-01-01T00:00:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "I",
+        "OrderControlStatus": "NW",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "T4",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "Category": "Endocrinology",
+        "AccessionResultID": 305580024
+      }
+    ]
+  }
+]
+
