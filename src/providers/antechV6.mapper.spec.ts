@@ -488,25 +488,33 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: 'SA380',
         name: '',
-        items: expect.any(Array<TestResultItem>)
+        items: []
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
         code: 'SA380',
         name: 'TSH',
-        items: expect.any(Array<TestResultItem>)
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            code: "4001",
+            name: "TSH",
+            status: "DONE",
+            seq: 0
+
+          })
+        ])
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
-        items: expect.any(Array<TestResultItem>)
+        items: []
       })
       expect(result.testResults[3]).toEqual({
         seq: 3,
         code: 'SA380',
         name: 'T4',
-        items: expect.any(Array<TestResultItem>)
+        items: []
       })
 
     })
