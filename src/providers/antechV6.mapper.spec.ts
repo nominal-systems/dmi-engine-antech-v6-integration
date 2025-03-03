@@ -431,7 +431,7 @@ describe('AntechV6Mapper', () => {
         }
       }
     })
-    
+
     it('should correctly map Tyroid Profile results items when first received', () => {
       const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_1[0]
       const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
@@ -496,11 +496,10 @@ describe('AntechV6Mapper', () => {
         name: 'TSH',
         items: expect.arrayContaining([
           expect.objectContaining({
-            code: "4001",
-            name: "TSH",
-            status: "DONE",
+            code: '4001',
+            name: 'TSH',
+            status: 'DONE',
             seq: 0
-
           })
         ])
       })
@@ -516,9 +515,7 @@ describe('AntechV6Mapper', () => {
         name: 'T4',
         items: []
       })
-
     })
-
   })
   describe('mapAntechV6TestCodeResult()', () => {
     it('should map numeric test code results', () => {

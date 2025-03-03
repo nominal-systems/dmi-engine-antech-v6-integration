@@ -261,7 +261,7 @@ export class AntechV6Mapper {
     }
 
     if ((result.PendingTestCount ?? 0) > 0 && (result.PendingTestCount ?? 0) < (result.TotalTestCount ?? 0)) {
-      return ResultStatus.PARTIAL;
+      return ResultStatus.PARTIAL
     }
 
     if (result.PendingTestCount === 0) {
