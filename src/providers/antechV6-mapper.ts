@@ -190,26 +190,6 @@ export class AntechV6Mapper {
     }
   }
 
-  extractResultStatus(result: AntechV6Result): ResultStatus {
-    const resultPendingCount = result.PendingTestCount ?? 0
-    const resultTotalCount = result.TotalTestCount ?? 0
-    const status = ResultStatus.PENDING
-
-    if (result.Corrected !== undefined && result.Corrected !== '') {
-      return ResultStatus.REVISED
-    }
-
-    if (resultPendingCount > 0 && resultPendingCount < resultTotalCount) {
-      return ResultStatus.PARTIAL
-    }
-
-    if (result.PendingTestCount === 0 && resultTotalCount > 0) {
-      return ResultStatus.COMPLETED
-    }
-
-    return status
-  }
-
   private extractLabId(metadata: AntechV6MessageData): Pick<AntechV6PreOrder, 'LabID'> {
     return {
       LabID: parseInt(metadata.integrationOptions.labId)
@@ -276,6 +256,26 @@ export class AntechV6Mapper {
 
   private getIdFromIdentifier(system: string, identifier?: Identifier[]): string | undefined {
     return identifier && identifier.find((identifier) => identifier.system === system)?.value
+  }
+
+  extractResultStatus(result: AntechV6Result): ResultStatus {
+    const resultPendingCount = result.PendingTestCount ?? 0
+    const resultTotalCount = result.TotalTestCount ?? 0
+    const status = ResultStatus.PENDING
+
+    if (result.Corrected !== undefined && result.Corrected !== '') {
+      return ResultStatus.REVISED
+    }
+
+    if (resultPendingCount > 0 && resultPendingCount < resultTotalCount) {
+      return ResultStatus.PARTIAL
+    }
+
+    if (result.PendingTestCount === 0 && resultTotalCount > 0) {
+      return ResultStatus.COMPLETED
+    }
+
+    return status
   }
 
   private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
