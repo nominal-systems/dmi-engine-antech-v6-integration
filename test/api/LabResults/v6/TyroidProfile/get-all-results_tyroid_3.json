@@ -1,0 +1,150 @@
+[
+  {
+    "Client": {
+      "Id": "HOU0JUG",
+      "FirstName": "Eric D. Katie M.",
+      "LastName": "Pfalzer"
+    },
+    "Clinic": {
+      "ClinicID": 7092,
+      "LabId": 1,
+      "ClinicExtId": "12877",
+      "HasUsers": false
+    },
+    "ClinicAccessionID": "7092-VOY-37157652213",
+    "Corrected": "",
+    "CorrectedTestCount": 0,
+    "Doctor": {
+      "Id": "409479",
+      "FirstName": "Brian",
+      "LastName": "Tighe"
+    },
+    "ID": 305580024,
+    "LabAccessionID": "DLEA00533798",
+    "LatestAccessionUpdate": "2025-01-19T04:43:00",
+    "OrderStatus": "Partial",
+    "PendingTestCount": 1,
+    "Pet": {
+      "Id": "13581060946",
+      "Name": "Phil"
+    },
+    "ProfileDisplay": "Thyroid Profile 3",
+    "ReceivedDateTime": "2025-01-18T23:07:00",
+    "ReleasedDateTime": "0001-01-01T00:00:00",
+    "TestDescription": "Thyroid Profile 3 ,TSH,Free T4 By Equilibrium Dialysis,T4",
+    "TotalTestCount": 4,
+    "ViewedDateTime": "0001-01-01T00:00:00",
+    "UnitCodeResults": [
+      {
+        "UnitCodeResultID": "877067834",
+        "UnitCodeID": 0,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "",
+        "ReleasedDateTime": "0001-01-01T00:00:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "F",
+        "OrderControlStatus": "NW",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "Category": "",
+        "AccessionResultID": 305580024
+      },
+      {
+        "UnitCodeResultID": "877067837",
+        "UnitCodeID": 12218,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "502529",
+        "ReleasedDateTime": "2025-01-19T00:55:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "F",
+        "OrderControlStatus": "RE",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "TSH",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "TestCodeResults": [
+          {
+            "TestCodeID": "2459",
+            "TestCodeResultID": "8659447583",
+            "AbnormalFlag": "",
+            "Result": "0.17",
+            "Range": "0 - 0.60",
+            "TestCodeExtID": "4001",
+            "Test": "TSH",
+            "Unit": "NG/ML",
+            "Comments": "  While many dogs with primary hypothyroidism have elevated cTSH concentrations, up to one third of affected dogs have normal or low cTSH concentrations, for reasons that are unclear. In those cases where TSH concentrations are normal and hypothyroidism is still strongly suspected, consider performing a free T4 and/or thyroglobulin autoantibodies.",
+            "Min": "",
+            "Max": "",
+            "TestType": "",
+            "UnitCodeID": "877067837",
+            "Displayorder": "ng/mL",
+            "SortOrder": ""
+          }
+        ],
+        "Category": "Endocrinology",
+        "AccessionResultID": 305580024
+      },
+      {
+        "UnitCodeResultID": "877067836",
+        "UnitCodeID": 12204,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "502473",
+        "ReleasedDateTime": "0001-01-01T00:00:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "I",
+        "OrderControlStatus": "NW",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "Free T4 By Equilibrium Dialysis",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "Category": "Endocrinology",
+        "AccessionResultID": 305580024
+      },
+      {
+        "UnitCodeResultID": "877067835",
+        "UnitCodeID": 12211,
+        "ProfileExtID": "530399",
+        "UnitCodeExtID": "502511",
+        "ReleasedDateTime": "2025-01-19T03:39:00",
+        "ViewedDateTime": "0001-01-01T00:00:00",
+        "ResultStatus": "F",
+        "OrderControlStatus": "RE",
+        "OrderCode": "SA380",
+        "UnitCodeDisplayName": "T4",
+        "ProfileDisplayName": "Thyroid Profile 3",
+        "UnitCodeType": "",
+        "AnalyzerName": "",
+        "UCType": "",
+        "TestCodeResults": [
+          {
+            "TestCodeID": "2496",
+            "TestCodeResultID": "8659769729",
+            "AbnormalFlag": "",
+            "Result": "1.4",
+            "Range": "0.8-3.5",
+            "TestCodeExtID": "4022",
+            "Test": "T4",
+            "Unit": "UG/DL",
+            "Comments": "",
+            "Min": "0.1",
+            "Max": "12",
+            "TestType": "",
+            "UnitCodeID": "877067835",
+            "Displayorder": "<font face=\"symbol\">&#109;</font>g/dL",
+            "SortOrder": ""
+          }
+        ],
+        "Category": "Endocrinology",
+        "AccessionResultID": 305580024
+      }
+    ]
+  }
+]

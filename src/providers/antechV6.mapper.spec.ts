@@ -381,6 +381,14 @@ describe('AntechV6Mapper', () => {
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_2.json')
     )
 
+    const tyroidResultsResponse_3: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_3.json')
+    )
+
+    const tyroidResultsResponse_4: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_4.json')
+    )
+
     it('should map Antech order code results to DMI test results', () => {
       const unitCodeResult: AntechV6UnitCodeResult = allResultsResponseNew[0].UnitCodeResults[0]
       const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
@@ -516,7 +524,109 @@ describe('AntechV6Mapper', () => {
         items: []
       })
     })
+    
+    it('should correctly map Tyroid Profile results items when received for the third time', () => {
+      const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_3[0]
+      const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: '305580024',
+          orderId: '7092-VOY-37157652213',
+          accession: 'DLEA00533798',
+          status: ResultStatus.PARTIAL,
+          testResults: expect.any(Array<TestResult>)
+        })
+      )
+      expect(result.testResults.length).toBe(4)
+      expect(result.testResults[0]).toEqual({
+        seq: 0,
+        code: 'SA380',
+        name: '',
+        items: []
+      })
+      expect(result.testResults[1]).toEqual({
+        seq: 1,
+        code: 'SA380',
+        name: 'TSH',
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            code: '4001',
+            name: 'TSH',
+            status: 'DONE',
+            seq: 0
+          })
+        ])
+      })
+      expect(result.testResults[2]).toEqual({
+        seq: 2,
+        code: 'SA380',
+        name: 'Free T4 By Equilibrium Dialysis',
+        items: []
+      })
+      expect(result.testResults[3]).toEqual({
+        seq: 3,
+        code: 'SA380',
+        name: 'T4',
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            code: '4022',
+            name: 'T4',
+            status: 'DONE',
+            seq: 0
+          })
+        ])
+      })
+    })
+
+    it('should correctly map Tyroid Profile results items when received for the fourth time', () => {
+      const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_4[0]
+      const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: '305580024',
+          orderId: '7092-VOY-37157652213',
+          accession: 'DLEA00533798',
+          status: ResultStatus.COMPLETED,
+          testResults: expect.any(Array<TestResult>)
+        })
+      )
+      expect(result.testResults.length).toBe(4)
+      expect(result.testResults[0]).toEqual({
+        seq: 0,
+        code: 'SA380',
+        name: '',
+        items: []
+      })
+      expect(result.testResults[1]).toEqual({
+        seq: 1,
+        code: 'SA380',
+        name: 'TSH',
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            code: '4001',
+            name: 'TSH',
+            status: 'DONE',
+            seq: 0
+          })
+        ])
+      })
+      expect(result.testResults[2]).toEqual({
+        seq: 2,
+        code: 'SA380',
+        name: 'Free T4 By Equilibrium Dialysis',
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            code: '6386',
+            name: 'Free T4 Equilibrium Dialysis',
+            status: 'DONE',
+            seq: 0
+          })
+        ])
+      })
+    })
+
   })
+
   describe('mapAntechV6TestCodeResult()', () => {
     it('should map numeric test code results', () => {
       const testCodeResult = {
@@ -770,16 +880,6 @@ describe('AntechV6Mapper', () => {
 
       const result_2: AntechV6Result = { PendingTestCount: 2, TotalTestCount: undefined } as AntechV6Result
       expect(mapper.extractResultStatus(result_2)).toBe(ResultStatus.PENDING)
-    })
-
-    it('should return PARTIAL if PendingTestCount is greater than 0 and less than TotalTestCount', () => {
-      const result: AntechV6Result = { PendingTestCount: 3, TotalTestCount: 5 } as AntechV6Result
-      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PARTIAL)
-    })
-
-    it('should return COMPLETED if PendingTestCount is 0 and TotalTestCount is greater than 0', () => {
-      const result: AntechV6Result = { PendingTestCount: 0, TotalTestCount: 10 } as AntechV6Result
-      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
     })
   })
 })
