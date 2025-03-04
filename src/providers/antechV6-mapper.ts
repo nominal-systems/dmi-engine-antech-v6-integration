@@ -260,8 +260,18 @@ export class AntechV6Mapper {
 
   extractResultStatus(result: AntechV6Result): ResultStatus {
     const resultPendingCount = result.PendingTestCount ?? 0
-    const resultTotalCount = result.TotalTestCount ?? 0
+    let resultTotalCount = result.TotalTestCount ?? 0
     const status = ResultStatus.PENDING
+
+    // Filter out completed tests without results
+    const filteredUnitCodeResults =
+      result.UnitCodeResults?.filter(
+        (UnitCodeResult) =>
+          UnitCodeResult.ResultStatus?.toString() === 'F' &&
+          (!UnitCodeResult.TestCodeResults || UnitCodeResult.TestCodeResults.length === 0)
+      ) ?? []
+
+    resultTotalCount -= filteredUnitCodeResults.length
 
     if (result.Corrected !== undefined && result.Corrected !== '') {
       return ResultStatus.REVISED
@@ -279,7 +289,15 @@ export class AntechV6Mapper {
   }
 
   private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
-    return unitCodeResults.map(this.mapAntechV6UnitCodeResult, this)
+    return unitCodeResults
+      .filter(
+        (unitCodeResult) =>
+          !(
+            unitCodeResult.ResultStatus?.toString() === 'F' &&
+            (!unitCodeResult.TestCodeResults || unitCodeResult.TestCodeResults.length === 0)
+          )
+      )
+      .map(this.mapAntechV6UnitCodeResult, this)
   }
 
   private extractTestResultValueX(

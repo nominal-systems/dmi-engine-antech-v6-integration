@@ -448,31 +448,25 @@ describe('AntechV6Mapper', () => {
           id: '305580024',
           orderId: '7092-VOY-37157652213',
           accession: 'DLEA00533798',
-          status: ResultStatus.PARTIAL,
+          status: ResultStatus.PENDING,
           testResults: expect.any(Array<TestResult>)
         })
       )
-      expect(result.testResults.length).toBe(4)
+      expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
         code: 'SA380',
-        name: '',
+        name: 'TSH',
         items: expect.any(Array<TestResultItem>)
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
         code: 'SA380',
-        name: 'TSH',
+        name: 'Free T4 By Equilibrium Dialysis',
         items: expect.any(Array<TestResultItem>)
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
-        code: 'SA380',
-        name: 'Free T4 By Equilibrium Dialysis',
-        items: expect.any(Array<TestResultItem>)
-      })
-      expect(result.testResults[3]).toEqual({
-        seq: 3,
         code: 'SA380',
         name: 'T4',
         items: expect.any(Array<TestResultItem>)
@@ -491,15 +485,9 @@ describe('AntechV6Mapper', () => {
           testResults: expect.any(Array<TestResult>)
         })
       )
-      expect(result.testResults.length).toBe(4)
+      expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: 'SA380',
-        name: '',
-        items: []
-      })
-      expect(result.testResults[1]).toEqual({
-        seq: 1,
         code: 'SA380',
         name: 'TSH',
         items: expect.arrayContaining([
@@ -511,14 +499,14 @@ describe('AntechV6Mapper', () => {
           })
         ])
       })
-      expect(result.testResults[2]).toEqual({
-        seq: 2,
+      expect(result.testResults[1]).toEqual({
+        seq: 1,
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
         items: []
       })
-      expect(result.testResults[3]).toEqual({
-        seq: 3,
+      expect(result.testResults[2]).toEqual({
+        seq: 2,
         code: 'SA380',
         name: 'T4',
         items: []
@@ -537,15 +525,9 @@ describe('AntechV6Mapper', () => {
           testResults: expect.any(Array<TestResult>)
         })
       )
-      expect(result.testResults.length).toBe(4)
+      expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: 'SA380',
-        name: '',
-        items: []
-      })
-      expect(result.testResults[1]).toEqual({
-        seq: 1,
         code: 'SA380',
         name: 'TSH',
         items: expect.arrayContaining([
@@ -557,14 +539,14 @@ describe('AntechV6Mapper', () => {
           })
         ])
       })
-      expect(result.testResults[2]).toEqual({
-        seq: 2,
+      expect(result.testResults[1]).toEqual({
+        seq: 1,
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
         items: []
       })
-      expect(result.testResults[3]).toEqual({
-        seq: 3,
+      expect(result.testResults[2]).toEqual({
+        seq: 2,
         code: 'SA380',
         name: 'T4',
         items: expect.arrayContaining([
@@ -590,15 +572,9 @@ describe('AntechV6Mapper', () => {
           testResults: expect.any(Array<TestResult>)
         })
       )
-      expect(result.testResults.length).toBe(4)
+      expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: 'SA380',
-        name: '',
-        items: []
-      })
-      expect(result.testResults[1]).toEqual({
-        seq: 1,
         code: 'SA380',
         name: 'TSH',
         items: expect.arrayContaining([
@@ -610,14 +586,27 @@ describe('AntechV6Mapper', () => {
           })
         ])
       })
-      expect(result.testResults[2]).toEqual({
-        seq: 2,
+      expect(result.testResults[1]).toEqual({
+        seq: 1,
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
         items: expect.arrayContaining([
           expect.objectContaining({
             code: '6386',
             name: 'Free T4 Equilibrium Dialysis',
+            status: 'DONE',
+            seq: 0
+          })
+        ])
+      })
+      expect(result.testResults[2]).toEqual({
+        seq: 2,
+        code: 'SA380',
+        name: 'T4',
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            code: '4022',
+            name: 'T4',
             status: 'DONE',
             seq: 0
           })
