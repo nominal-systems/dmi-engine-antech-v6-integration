@@ -271,7 +271,7 @@ export class AntechV6Mapper {
       return ResultStatus.PARTIAL
     }
 
-    if (result.PendingTestCount === 0 && resultTotalCount > 0) {
+    if (result.PendingTestCount === 0) {
       return ResultStatus.COMPLETED
     }
 

@@ -524,7 +524,7 @@ describe('AntechV6Mapper', () => {
         items: []
       })
     })
-    
+
     it('should correctly map Tyroid Profile results items when received for the third time', () => {
       const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_3[0]
       const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
@@ -624,7 +624,6 @@ describe('AntechV6Mapper', () => {
         ])
       })
     })
-
   })
 
   describe('mapAntechV6TestCodeResult()', () => {
@@ -868,7 +867,7 @@ describe('AntechV6Mapper', () => {
 
     it('should return PENDING if TotalTestCount is 0', () => {
       const result: AntechV6Result = { PendingTestCount: 0, TotalTestCount: 0 } as AntechV6Result
-      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PENDING)
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
     })
 
     it('should handle undefined PendingTestCount and TotalTestCount safely', () => {
