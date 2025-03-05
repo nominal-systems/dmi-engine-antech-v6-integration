@@ -839,6 +839,22 @@ describe('AntechV6Mapper', () => {
       mapper = new AntechV6Mapper()
     })
 
+    const thyroidResultsResponse_1: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_1.json')
+    )
+
+    const thyroidResultsResponse_2: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_2.json')
+    )
+
+    const thyroidResultsResponse_3: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_3.json')
+    )
+
+    const thyroidResultsResponse_4: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_4.json')
+    )
+
     it('should return REVISED if the result is corrected', () => {
       const result: AntechV6Result = { Corrected: 'C' } as AntechV6Result
       expect(mapper.extractResultStatus(result)).toBe(ResultStatus.REVISED)
@@ -854,20 +870,179 @@ describe('AntechV6Mapper', () => {
       expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
     })
 
-    it('should return PENDING if TotalTestCount is 0', () => {
+    it('should return COMPLETED if TotalTestCount is 0', () => {
       const result: AntechV6Result = { PendingTestCount: 0, TotalTestCount: 0 } as AntechV6Result
       expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
     })
 
     it('should handle undefined PendingTestCount and TotalTestCount safely', () => {
       const result: AntechV6Result = { PendingTestCount: undefined, TotalTestCount: undefined } as AntechV6Result
-      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PENDING)
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
 
       const result_1: AntechV6Result = { PendingTestCount: undefined, TotalTestCount: 2 } as AntechV6Result
-      expect(mapper.extractResultStatus(result_1)).toBe(ResultStatus.PENDING)
+      expect(mapper.extractResultStatus(result_1)).toBe(ResultStatus.COMPLETED)
 
       const result_2: AntechV6Result = { PendingTestCount: 2, TotalTestCount: undefined } as AntechV6Result
       expect(mapper.extractResultStatus(result_2)).toBe(ResultStatus.PENDING)
+    })
+
+    it('should return PARTIAL if there are pending tests after filtering completed tests without results', () => {
+      const mockResult: AntechV6Result = {
+        PendingTestCount: 2,
+        TotalTestCount: 5,
+        UnitCodeResults: [
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T1',
+            ProfileDisplayName: 'Thyroid Profile 1',
+            TestCodeResults: [],
+            ResultStatus: 'F'
+          },
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T2',
+            ProfileDisplayName: 'Thyroid Profile 2',
+            TestCodeResults: [
+              {
+                /* Non-empty test result */
+              }
+            ],
+            ResultStatus: 'I'
+          },
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T3',
+            ProfileDisplayName: 'Thyroid Profile 3',
+            TestCodeResults: [],
+            ResultStatus: 'F'
+          }
+        ]
+      } as unknown as AntechV6Result
+
+      expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.PARTIAL)
+    })
+
+    it('should return COMPLETED if there are no pending tests after filtering completed tests without results', () => {
+      const mockResult: AntechV6Result = {
+        PendingTestCount: 0,
+        TotalTestCount: 5,
+        UnitCodeResults: [
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T1',
+            ProfileDisplayName: 'Thyroid Profile 1',
+            TestCodeResults: [],
+            ResultStatus: 'F'
+          },
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T2',
+            ProfileDisplayName: 'Thyroid Profile 2',
+            TestCodeResults: [
+              {
+                /* Non-empty test result */
+              }
+            ],
+            ResultStatus: 'I'
+          },
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T3',
+            ProfileDisplayName: 'Thyroid Profile 3',
+            TestCodeResults: [],
+            ResultStatus: 'F'
+          }
+        ]
+      } as unknown as AntechV6Result
+
+      expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.COMPLETED)
+    })
+
+    it('should return COMPLETED if TotalTestCount is adjusted to 0 after filtering completed tests without results', () => {
+      const mockResult: AntechV6Result = {
+        PendingTestCount: 0,
+        TotalTestCount: 2,
+        UnitCodeResults: [
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T1',
+            ProfileDisplayName: 'Thyroid Profile 1',
+            TestCodeResults: [],
+            ResultStatus: 'F'
+          },
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T2',
+            ProfileDisplayName: 'Thyroid Profile 2',
+            TestCodeResults: [
+              {
+                /* Non-empty test result */
+              }
+            ],
+            ResultStatus: 'I'
+          },
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T3',
+            ProfileDisplayName: 'Thyroid Profile 3',
+            TestCodeResults: [],
+            ResultStatus: 'F'
+          }
+        ]
+      } as unknown as AntechV6Result
+
+      expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.COMPLETED)
+    })
+
+    it('should return PENDING if there are still pending tests after filtering completed tests without results', () => {
+      const mockResult: AntechV6Result = {
+        PendingTestCount: 4,
+        TotalTestCount: 5,
+        UnitCodeResults: [
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T1',
+            ProfileDisplayName: 'Thyroid Profile 1',
+            TestCodeResults: [],
+            ResultStatus: 'F'
+          }
+        ]
+      } as unknown as AntechV6Result
+
+      expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.PENDING)
+    })
+
+    it('should not filter COMPLETED tests with results', () => {
+      const mockResult: AntechV6Result = {
+        PendingTestCount: 4,
+        TotalTestCount: 5,
+        UnitCodeResults: [
+          {
+            UnitCodeExtID: '',
+            OrderCode: 'SA380',
+            UnitCodeDisplayName: 'T1',
+            ProfileDisplayName: 'Thyroid Profile 1',
+            TestCodeResults: [
+              {
+                /* Non-empty test result */
+              }
+            ],
+            ResultStatus: 'F'
+          }
+        ]
+      } as unknown as AntechV6Result
+
+      expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.PARTIAL)
     })
   })
 })
