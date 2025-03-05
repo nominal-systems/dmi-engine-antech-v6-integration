@@ -373,20 +373,20 @@ describe('AntechV6Mapper', () => {
       path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_cbc.json')
     )
 
-    const tyroidResultsResponse_1: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_1.json')
+    const thyroidResultsResponse_1: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_1.json')
     )
 
-    const tyroidResultsResponse_2: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_2.json')
+    const thyroidResultsResponse_2: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_2.json')
     )
 
-    const tyroidResultsResponse_3: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_3.json')
+    const thyroidResultsResponse_3: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_3.json')
     )
 
-    const tyroidResultsResponse_4: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/TyroidProfile/get-all-results_tyroid_4.json')
+    const thyroidResultsResponse_4: any = FileUtils.loadFile(
+      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_4.json')
     )
 
     it('should map Antech order code results to DMI test results', () => {
@@ -440,9 +440,9 @@ describe('AntechV6Mapper', () => {
       }
     })
 
-    it('should correctly map Tyroid Profile results items when first received', () => {
-      const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_1[0]
-      const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
+    it('should correctly map Thyroid Profile results items when first received', () => {
+      const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_1[0]
+      const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
         expect.objectContaining({
           id: '305580024',
@@ -473,9 +473,9 @@ describe('AntechV6Mapper', () => {
       })
     })
 
-    it('should correctly map Tyroid Profile results items when received for the second time', () => {
-      const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_2[0]
-      const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
+    it('should correctly map Thyroid Profile results items when received for the second time', () => {
+      const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_2[0]
+      const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
         expect.objectContaining({
           id: '305580024',
@@ -513,9 +513,9 @@ describe('AntechV6Mapper', () => {
       })
     })
 
-    it('should correctly map Tyroid Profile results items when received for the third time', () => {
-      const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_3[0]
-      const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
+    it('should correctly map Thyroid Profile results items when received for the third time', () => {
+      const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_3[0]
+      const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
         expect.objectContaining({
           id: '305580024',
@@ -560,9 +560,9 @@ describe('AntechV6Mapper', () => {
       })
     })
 
-    it('should correctly map Tyroid Profile results items when received for the fourth time', () => {
-      const tyroidProfileResult: AntechV6Result = tyroidResultsResponse_4[0]
-      const result: Result = mapper.mapAntechV6Result(tyroidProfileResult)
+    it('should correctly map Thyroid Profile results items when received for the fourth time', () => {
+      const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_4[0]
+      const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
         expect.objectContaining({
           id: '305580024',
