@@ -143,7 +143,7 @@ export class AntechV6ApiService extends BaseApiService {
     await this.doPost(credentials, baseUrl, AntechV6Endpoints.ACKNOWLEDGE_STATUS, {
       serviceType: 'labResult',
       clinicId: credentials.ClinicID,
-      labAccessionsIds: labAccessionIds
+      labAccessionsIds: [...new Set(labAccessionIds)]
     })
   }
 
@@ -155,7 +155,7 @@ export class AntechV6ApiService extends BaseApiService {
     await this.doPost(credentials, baseUrl, AntechV6Endpoints.ACKNOWLEDGE_STATUS, {
       serviceType: 'labOrder',
       clinicId: credentials.ClinicID,
-      clinicAccessionIds: clinicAccessionIds
+      clinicAccessionIds: [...new Set(clinicAccessionIds)]
     })
   }
 
