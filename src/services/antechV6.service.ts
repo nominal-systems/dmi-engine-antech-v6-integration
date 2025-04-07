@@ -35,6 +35,7 @@ import {
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
+import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
 
 @Injectable()
 export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
@@ -159,11 +160,15 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
   }
 
   cancelOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
-    throw new Error('Antech V6 API does not support cancelling orders.')
+    throw new AntechV6ApiException('Antech V6 API does not support cancelling orders.', 501, {
+      message: 'Not Implemented'
+    })
   }
 
   cancelOrderTest(payload: OrderTestPayload, metadata: AntechV6MessageData): Promise<void> {
-    throw new Error('Antech V6 API does not support cancelling individual tests.')
+    throw new AntechV6ApiException('Antech V6 API does not support cancelling individual tests.', 501, {
+      message: 'Not Implemented'
+    })
   }
 
   async getServices(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<Service[]> {
