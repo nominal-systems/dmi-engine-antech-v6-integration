@@ -1,0 +1,72 @@
+{
+  "LabResults": [
+    {
+      "ClinicAccessionID": "7152-VOY-44905954790",
+      "LabAccessionID": "DLEA01112119",
+      "LatestResultReceivedDate": "2025-04-18T09:18:00",
+      "ResultStatus": "F",
+      "Pet": {
+        "Id": "2147814673",
+        "Name": "CHANEL"
+      },
+      "Client": {
+        "Id": "ATS26RB",
+        "FirstName": "Lucyana",
+        "LastName": "De La Fuente"
+      },
+      "Doctor": {
+        "Id": "402457",
+        "FirstName": "Candice",
+        "LastName": "Janecka"
+      },
+      "SpeciesID": 41,
+      "BreedID": 345,
+      "OrderDate": "2025-04-17T23:18:00",
+      "CreatedDate": "2025-04-17T00:00:00",
+      "CodeID": 19736,
+      "Mnemonic": "BANT805",
+      "DisplayName": "Banfield Ova and Parasite",
+      "LabTests": [
+        {
+          "CodeID": 19736,
+          "Mnemonic": "BANT805",
+          "DisplayName": "Banfield Ova and Parasite"
+        }
+      ]
+    },
+    {
+      "ClinicAccessionID": "7152-VOY-44905954790",
+      "LabAccessionID": "DLEA01111471",
+      "LatestResultReceivedDate": "2025-04-18T08:38:00",
+      "ResultStatus": "F",
+      "Pet": {
+        "Id": "2147814673",
+        "Name": "CHANEL"
+      },
+      "Client": {
+        "Id": "ATS26RB",
+        "FirstName": "Lucyana",
+        "LastName": "De La Fuente"
+      },
+      "Doctor": {
+        "Id": "402457",
+        "FirstName": "Candice",
+        "LastName": "Janecka"
+      },
+      "SpeciesID": 41,
+      "BreedID": 345,
+      "OrderDate": "2025-04-17T23:33:00",
+      "CreatedDate": "2025-04-17T00:00:00",
+      "CodeID": 19736,
+      "Mnemonic": "BANT805",
+      "DisplayName": "Banfield Ova and Parasite",
+      "LabTests": [
+        {
+          "CodeID": 19736,
+          "Mnemonic": "BANT805",
+          "DisplayName": "Banfield Ova and Parasite"
+        }
+      ]
+    }
+  ]
+}

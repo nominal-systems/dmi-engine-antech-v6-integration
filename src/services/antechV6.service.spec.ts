@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antechV6.service'
-import { NullPayloadPayload, Order, OrderStatus, PimsIdentifiers } from '@nominal-systems/dmi-engine-common'
+import { FileUtils, NullPayloadPayload, Order, OrderStatus, PimsIdentifiers } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 import { AntechV6OrderStatus } from '../interfaces/antechV6-api.interface'
@@ -85,7 +85,6 @@ describe('AntechV6Service', () => {
       expect(antechV6ApiServiceMock.getResultStatus).not.toHaveBeenCalled()
       expect(orders).toEqual([])
     })
-
     it('should map order from order/report status', async () => {
       antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
         LabResults: [],
@@ -180,6 +179,16 @@ describe('AntechV6Service', () => {
         firstName: 'Gregorio',
         lastName: 'Christiansen'
       })
+    })
+    it('should accept more than one result per order', async () => {
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue(
+        FileUtils.loadFile('test/api/LabOrders/v6/GetStatus/7152-VOY-44905954790.json')
+      )
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue(
+        FileUtils.loadFile('test/api/LabResults/v6/GetStatus/7152-VOY-44905954790.json')
+      )
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+      expect(orders.length).toEqual(1)
     })
   })
 

@@ -109,7 +109,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         }
       )
 
-      if (resultStatusResponse.LabResults.length === 1) {
+      if (resultStatusResponse.LabResults.length > 0) {
         const resultStatus: AntechV6LabResultStatus = resultStatusResponse.LabResults[0]
         orders.push(
           mergePicks(

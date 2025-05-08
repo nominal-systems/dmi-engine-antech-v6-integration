@@ -1,0 +1,41 @@
+{
+  "LabOrders": [
+    {
+      "ClinicAccessionID": "7152-VOY-44905954790",
+      "OrderDate": "2025-04-17T11:51:26",
+      "CreatedDate": "2025-04-17T11:06:16",
+      "Pet": {
+        "Id": "2147814673",
+        "Name": "Chanel"
+      },
+      "Client": {
+        "Id": "ATS26RB",
+        "FirstName": "Lucyana",
+        "LastName": "De La Fuente"
+      },
+      "Doctor": {
+        "Id": "402457",
+        "FirstName": "Candice",
+        "LastName": "Janecka"
+      },
+      "OrderStatus": "Submitted",
+      "LabAccessionID": "DLEA01112119",
+      "LabTests": [
+        {
+          "CodeType": "U",
+          "CodeID": 19736,
+          "Mnemonic": "BANT805",
+          "DisplayName": "Banfield Ova and Parasite",
+          "Price": 39.52
+        },
+        {
+          "CodeType": "U",
+          "CodeID": 19736,
+          "Mnemonic": "BANT805",
+          "DisplayName": "Banfield Ova and Parasite",
+          "Price": 39.52
+        }
+      ]
+    }
+  ]
+}
