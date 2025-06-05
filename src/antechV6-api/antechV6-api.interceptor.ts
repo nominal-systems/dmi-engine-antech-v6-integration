@@ -72,6 +72,11 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
       accessionIds = jsonData['clinicAccessionIds']
     } else if (url.includes(AntechV6Endpoints.GET_ALL_RESULTS)) {
       accessionIds = body.map((result) => result.ClinicAccessionID)
+    } else if (url.includes(AntechV6Endpoints.GET_ORDER_TRF)) {
+      const clinicAccessionId: string = url.split('/').pop() || ''
+      if (!isNullOrUndefinedOrEmpty(clinicAccessionId)) {
+        accessionIds = [clinicAccessionId]
+      }
     }
 
     return accessionIds
