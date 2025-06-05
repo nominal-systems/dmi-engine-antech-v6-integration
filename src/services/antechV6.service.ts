@@ -111,7 +111,8 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
               )
             : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
 
-        const manifest: Attachment = await this.antechV6Api.getOrderTrf(
+        // Get the manifest for the order
+        const manifest: Attachment | undefined = await this.antechV6Api.getOrderTrf(
           metadata.providerConfiguration.baseUrl,
           credentials,
           orderStatus.ClinicAccessionID

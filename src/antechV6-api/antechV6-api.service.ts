@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   AntechV6AccessToken,
   AntechV6Endpoints,
@@ -11,12 +11,14 @@ import {
   AntechV6TestGuide,
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
-import { BaseApiService, Attachment } from '@nominal-systems/dmi-engine-common'
+import { Attachment, BaseApiService } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
 
 @Injectable()
 export class AntechV6ApiService extends BaseApiService {
+  private readonly logger = new Logger(AntechV6ApiService.name)
+
   constructor(private readonly httpService: AntechV6ApiHttpService) {
     super(httpService)
   }
@@ -80,15 +82,20 @@ export class AntechV6ApiService extends BaseApiService {
     baseUrl: string,
     credentials: AntechV6UserCredentials,
     clinicAccessionID: string
-  ): Promise<Attachment> {
-    const pdfData = await this.doGet<ArrayBuffer>(credentials, baseUrl, AntechV6Endpoints.GET_ORDER_TRF, {
-      path: `/${clinicAccessionID}`
-    })
+  ): Promise<Attachment | undefined> {
+    try {
+      const pdfData = await this.doGet<ArrayBuffer>(credentials, baseUrl, AntechV6Endpoints.GET_ORDER_TRF, {
+        path: `/${clinicAccessionID}`
+      })
 
-    return {
-      contentType: 'application/pdf',
-      data: Buffer.from(pdfData).toString('base64'),
-      uri: `${baseUrl}${AntechV6Endpoints.GET_ORDER_TRF}/${clinicAccessionID}`
+      return {
+        contentType: 'application/pdf',
+        data: Buffer.from(pdfData).toString('base64'),
+        uri: `${baseUrl}${AntechV6Endpoints.GET_ORDER_TRF}/${clinicAccessionID}`
+      }
+    } catch (error) {
+      this.logger.warn(`Couldn't fetch order TRF for order ${clinicAccessionID}`)
+      return undefined
     }
   }
 

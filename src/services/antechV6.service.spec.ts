@@ -50,7 +50,7 @@ describe('AntechV6Service', () => {
         }
       }
     }),
-    getOrderTrf: jest.fn(() => {
+    getOrderTrf: jest.fn(async () => {
       return {
         contentType: 'application/pdf',
         data: 'base64-encoded-pdf-data',
@@ -220,6 +220,44 @@ describe('AntechV6Service', () => {
           data: expect.any(String)
         })
       )
+    })
+
+    it('should continue if order TRF request fails', async () => {
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC123',
+            LabTests: []
+          }
+        ]
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
+        LabResults: []
+      })
+      antechV6ApiServiceMock.getOrderTrf.mockResolvedValueOnce(undefined as any)
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+      expect(antechV6ApiServiceMock.getOrderTrf).toBeCalled()
+      expect(orders.length).toEqual(1)
+      expect(orders[0].manifest).toBeUndefined()
+    })
+
+    it('should continue if order TRF is not returned', async () => {
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC124',
+            LabTests: []
+          }
+        ]
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
+        LabResults: []
+      })
+      antechV6ApiServiceMock.getOrderTrf.mockResolvedValueOnce(undefined as any)
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+      expect(antechV6ApiServiceMock.getOrderTrf).toBeCalled()
+      expect(orders.length).toEqual(1)
+      expect(orders[0].manifest).toBeUndefined()
     })
   })
 
