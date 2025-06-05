@@ -50,7 +50,13 @@ describe('AntechV6Service', () => {
         }
       }
     }),
-    getOrderTrf: jest.fn()
+    getOrderTrf: jest.fn(() => {
+      return {
+        contentType: 'application/pdf',
+        data: 'base64-encoded-pdf-data',
+        uri: 'https://example.com/trf.pdf'
+      }
+    })
   }
 
   beforeEach(async () => {
@@ -145,15 +151,17 @@ describe('AntechV6Service', () => {
         ClinicAccessionID: 'SHIUBBT1054'
       })
       expect(orders.length).toEqual(1)
-      expect(orders[0]).toEqual({
-        externalId: 'SHIUBBT1054',
-        status: OrderStatus.SUBMITTED,
-        patient: expect.any(Object),
-        client: expect.any(Object),
-        veterinarian: expect.any(Object),
-        tests: [{ code: 'SA804' }],
-        editable: false
-      })
+      expect(orders[0]).toEqual(
+        expect.objectContaining({
+          externalId: 'SHIUBBT1054',
+          status: OrderStatus.SUBMITTED,
+          patient: expect.any(Object),
+          client: expect.any(Object),
+          veterinarian: expect.any(Object),
+          tests: [{ code: 'SA804' }],
+          editable: false
+        })
+      )
       expect(orders[0].patient).toEqual({
         name: 'Barbara',
         sex: 'U',
@@ -205,7 +213,13 @@ describe('AntechV6Service', () => {
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(antechV6ApiServiceMock.getOrderTrf).toBeCalled()
       expect(orders.length).toEqual(1)
-      // TODO(gb): assert that manifest is defined and well formed
+      expect(orders[0].manifest).toEqual(
+        expect.objectContaining({
+          contentType: 'application/pdf',
+          uri: expect.any(String),
+          data: expect.any(String)
+        })
+      )
     })
   })
 

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import {
+  Attachment,
   BaseProviderService,
   BatchResultsResponse,
   Breed,
@@ -110,12 +111,14 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
               )
             : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
 
-        // TODO: find TRF for order and attach it to the order
-        await this.antechV6Api.getOrderTrf(
+        const manifest: Attachment = await this.antechV6Api.getOrderTrf(
           metadata.providerConfiguration.baseUrl,
           credentials,
           orderStatus.ClinicAccessionID
         )
+        if (manifest != null) {
+          order.manifest = manifest
+        }
 
         if (resultStatusResponse.LabResults.length === 0) {
           this.logger.warn(`Couldn't find result status for order ${orderStatus.ClinicAccessionID}`)

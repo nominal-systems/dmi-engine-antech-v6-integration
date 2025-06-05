@@ -11,7 +11,7 @@ import {
   AntechV6TestGuide,
   AntechV6UserCredentials
 } from '../interfaces/antechV6-api.interface'
-import { BaseApiService } from '@nominal-systems/dmi-engine-common'
+import { BaseApiService, Attachment } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
 
@@ -80,10 +80,16 @@ export class AntechV6ApiService extends BaseApiService {
     baseUrl: string,
     credentials: AntechV6UserCredentials,
     clinicAccessionID: string
-  ): Promise<AntechV6OrderStatusResponse> {
-    return await this.doGet<AntechV6OrderStatusResponse>(credentials, baseUrl, AntechV6Endpoints.GET_ORDER_TRF, {
+  ): Promise<Attachment> {
+    const pdfData = await this.doGet<ArrayBuffer>(credentials, baseUrl, AntechV6Endpoints.GET_ORDER_TRF, {
       path: `/${clinicAccessionID}`
     })
+
+    return {
+      contentType: 'application/pdf',
+      data: Buffer.from(pdfData).toString('base64'),
+      uri: `${baseUrl}${AntechV6Endpoints.GET_ORDER_TRF}/${clinicAccessionID}`
+    }
   }
 
   async getResultStatus(
