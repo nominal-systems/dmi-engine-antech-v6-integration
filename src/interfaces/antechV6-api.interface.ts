@@ -5,6 +5,7 @@ export enum AntechV6Endpoints {
   GET_ALL_ORPHAN_RESULTS = '/LabResults/v6/OrphanResults',
   GET_SPECIES_AND_BREEDS = '/Master/v6/GetSpeciesBreed',
   GET_TEST_GUIDE = '/Tests/v6',
+  GET_ORDER_TRF = '/HTPDF/trf/pims',
   PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement',
   ACKNOWLEDGE_STATUS = '/LabResults/v6/AckStatus'
 }

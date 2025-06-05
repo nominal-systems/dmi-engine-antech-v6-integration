@@ -25,12 +25,17 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     baseUrl: string,
     endpoint: AntechV6Endpoints,
-    params?: any
+    opts?: {
+      path?: string
+      params?: Record<string, any>
+    }
   ): Promise<T> {
     const { Token } = await this.authenticate(baseUrl, credentials)
-    return await this.get<T>(`${baseUrl}${endpoint}`, {
+    const url = opts?.path ? `${baseUrl}${endpoint}${opts.path}` : `${baseUrl}${endpoint}`
+
+    return await this.get<T>(url, {
       params: {
-        ...params
+        ...opts?.params
       },
       headers: {
         accessToken: Token
@@ -63,9 +68,21 @@ export class AntechV6ApiService extends BaseApiService {
     overrideAck = true
   ): Promise<AntechV6OrderStatusResponse> {
     return await this.doGet<AntechV6OrderStatusResponse>(credentials, baseUrl, AntechV6Endpoints.GET_STATUS, {
-      serviceType: 'labOrder',
-      ClinicID: credentials.ClinicID,
-      overrideAck
+      params: {
+        serviceType: 'labOrder',
+        ClinicID: credentials.ClinicID,
+        overrideAck
+      }
+    })
+  }
+
+  async getOrderTrf(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+    clinicAccessionID: string
+  ): Promise<AntechV6OrderStatusResponse> {
+    return await this.doGet<AntechV6OrderStatusResponse>(credentials, baseUrl, AntechV6Endpoints.GET_ORDER_TRF, {
+      path: `/${clinicAccessionID}`
     })
   }
 
@@ -77,10 +94,12 @@ export class AntechV6ApiService extends BaseApiService {
     } = {}
   ): Promise<AntechV6ResultStatusResponse> {
     return await this.doGet<AntechV6ResultStatusResponse>(credentials, baseUrl, AntechV6Endpoints.GET_STATUS, {
-      serviceType: 'labResult',
-      ClinicID: credentials.ClinicID,
-      overrideAck: true,
-      ...query
+      params: {
+        serviceType: 'labResult',
+        ClinicID: credentials.ClinicID,
+        overrideAck: true,
+        ...query
+      }
     })
   }
 
@@ -94,7 +113,9 @@ export class AntechV6ApiService extends BaseApiService {
 
   async getSpeciesAndBreeds(baseUrl: string, credentials: AntechV6UserCredentials): Promise<AntechV6SpeciesAndBreeds> {
     return await this.doGet<AntechV6SpeciesAndBreeds>(credentials, baseUrl, AntechV6Endpoints.GET_SPECIES_AND_BREEDS, {
-      ClinicID: credentials.ClinicID
+      params: {
+        ClinicID: credentials.ClinicID
+      }
     })
   }
 

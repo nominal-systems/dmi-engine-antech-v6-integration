@@ -49,7 +49,8 @@ describe('AntechV6Service', () => {
           ]
         }
       }
-    })
+    }),
+    getOrderTrf: jest.fn()
   }
 
   beforeEach(async () => {
@@ -189,6 +190,22 @@ describe('AntechV6Service', () => {
       )
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(orders.length).toEqual(1)
+    })
+    it('should fetch order TRF', async () => {
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            LabTests: []
+          }
+        ]
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
+        LabResults: []
+      })
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+      expect(antechV6ApiServiceMock.getOrderTrf).toBeCalled()
+      expect(orders.length).toEqual(1)
+      // TODO(gb): assert that manifest is defined and well formed
     })
   })
 
