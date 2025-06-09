@@ -30,6 +30,7 @@ export class AntechV6ApiService extends BaseApiService {
     opts?: {
       path?: string
       params?: Record<string, any>
+      responseType?: 'json' | 'arraybuffer'
     }
   ): Promise<T> {
     const { Token } = await this.authenticate(baseUrl, credentials)
@@ -39,6 +40,7 @@ export class AntechV6ApiService extends BaseApiService {
       params: {
         ...opts?.params
       },
+      responseType: opts?.responseType || 'json',
       headers: {
         accessToken: Token
       }
@@ -84,13 +86,14 @@ export class AntechV6ApiService extends BaseApiService {
     clinicAccessionID: string
   ): Promise<Attachment | undefined> {
     try {
-      const pdfData = await this.doGet<ArrayBuffer>(credentials, baseUrl, AntechV6Endpoints.GET_ORDER_TRF, {
-        path: `/${clinicAccessionID}`
+      const pdfData = await this.doGet<string>(credentials, baseUrl, AntechV6Endpoints.GET_ORDER_TRF, {
+        path: `/${clinicAccessionID}`,
+        responseType: 'arraybuffer'
       })
 
       return {
         contentType: 'application/pdf',
-        data: Buffer.from(pdfData).toString('base64'),
+        data: Buffer.from(pdfData, 'binary').toString('base64'),
         uri: `${baseUrl}${AntechV6Endpoints.GET_ORDER_TRF}/${clinicAccessionID}`
       }
     } catch (error) {
