@@ -1,4 +1,4 @@
-import { AxiosInterceptor, isNullOrUndefinedOrEmpty, ProviderRawData } from '@nominal-systems/dmi-engine-common'
+import { AxiosInterceptor, isNullOrUndefinedOrEmpty } from '@nominal-systems/dmi-engine-common'
 import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AxiosResponse } from 'axios'
 import { AntechV6Endpoints } from '../interfaces/antechV6-api.interface'
@@ -7,7 +7,7 @@ import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 const EXCLUDED_ENDPOINTS = [
   AntechV6Endpoints.LOGIN,
   AntechV6Endpoints.GET_TEST_GUIDE,
-  AntechV6Endpoints.GET_SPECIES_AND_BREEDS
+  AntechV6Endpoints.GET_SPECIES_AND_BREEDS,
 ]
 
 export class AntechV6ApiInterceptor extends AxiosInterceptor {
@@ -17,6 +17,10 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
   }
 
   public filter(url: string, body: any, response: AxiosResponse): boolean {
+    if (response.status >= 400) {
+      return true
+    }
+
     // Filter excluded endpoints
     if (EXCLUDED_ENDPOINTS.some((endpoint) => url.includes(endpoint))) {
       return false
@@ -65,7 +69,7 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
     } else if (url.includes(AntechV6Endpoints.GET_STATUS)) {
       accessionIds = [
         ...body.LabOrders.map((order) => order.ClinicAccessionID),
-        ...body.LabResults.map((result) => result.ClinicAccessionID)
+        ...body.LabResults.map((result) => result.ClinicAccessionID),
       ]
     } else if (url.includes(AntechV6Endpoints.ACKNOWLEDGE_STATUS)) {
       const jsonData: any = JSON.parse(response.config.data)
