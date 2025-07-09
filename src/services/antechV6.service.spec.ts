@@ -1,6 +1,12 @@
 import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antechV6.service'
-import { FileUtils, NullPayloadPayload, Order, OrderStatus, PimsIdentifiers } from '@nominal-systems/dmi-engine-common'
+import {
+  FileUtils,
+  NullPayloadPayload,
+  Order,
+  OrderStatus,
+  PimsIdentifiers,
+} from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 import { AntechV6OrderStatus } from '../interfaces/antechV6-api.interface'
@@ -12,13 +18,13 @@ describe('AntechV6Service', () => {
       username: 'PIMS_USER',
       password: 'devtest',
       clinicId: '140039',
-      labId: '1'
+      labId: '1',
     },
     providerConfiguration: {
       baseUrl: 'https://margaapi-pims.marsvh.com',
       uiBaseUrl: 'https://margaui-pims.marsvh.com',
-      PimsIdentifier: 'PIMS'
-    }
+      PimsIdentifier: 'PIMS',
+    },
   }
   const nullPayloadMock: NullPayloadPayload = null
   const antechV6ApiServiceMock = {
@@ -36,27 +42,27 @@ describe('AntechV6Service', () => {
                   id: 348,
                   name: 'Goat',
                   breedExtId: 'G',
-                  speciesExtId: 'CA'
+                  speciesExtId: 'CA',
                 },
                 {
                   id: 602,
                   name: 'Rocky Mountain Goat',
                   breedExtId: 'RMG',
-                  speciesExtId: 'CA'
-                }
-              ]
-            }
-          ]
-        }
+                  speciesExtId: 'CA',
+                },
+              ],
+            },
+          ],
+        },
       }
     }),
     getOrderTrf: jest.fn(async () => {
       return {
         contentType: 'application/pdf',
         data: 'base64-encoded-pdf-data',
-        uri: 'https://example.com/trf.pdf'
+        uri: 'https://example.com/trf.pdf',
       }
-    })
+    }),
   }
 
   beforeEach(async () => {
@@ -66,9 +72,9 @@ describe('AntechV6Service', () => {
         AntechV6Mapper,
         {
           provide: AntechV6ApiService,
-          useValue: antechV6ApiServiceMock
-        }
-      ]
+          useValue: antechV6ApiServiceMock,
+        },
+      ],
     }).compile()
 
     service = module.get<AntechV6Service>(AntechV6Service)
@@ -80,12 +86,12 @@ describe('AntechV6Service', () => {
 
   describe('getBatchOrders()', () => {
     const payloadMock = {
-      integrationId: '26740bd3-44ee-47f9-aa6c-466ec702cdb7'
+      integrationId: '26740bd3-44ee-47f9-aa6c-466ec702cdb7',
     } as unknown as NullPayloadPayload
 
     it('should fetch orders', async () => {
       antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
-        LabOrders: []
+        LabOrders: [],
       })
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(antechV6ApiServiceMock.getOrderStatus).toHaveBeenCalled()
@@ -108,12 +114,12 @@ describe('AntechV6Service', () => {
                 CodeID: 12687,
                 Mnemonic: 'SA804',
                 DisplayName: 'Chemistry Panel w/SDMA',
-                Price: 49.51
-              }
+                Price: 49.51,
+              },
             ],
-            AddOnTests: []
-          }
-        ]
+            AddOnTests: [],
+          },
+        ],
       })
       antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
         LabResults: [
@@ -122,16 +128,16 @@ describe('AntechV6Service', () => {
             LabAccessionID: 'IREA00025940',
             Pet: {
               Id: 'AXAXAXA',
-              Name: 'Barbara'
+              Name: 'Barbara',
             },
             Client: {
               Id: 'd32f0184-f13a-40a6-816d-a0d3a0cfce69',
               FirstName: 'Trace',
-              LastName: 'Bayer'
+              LastName: 'Bayer',
             },
             Doctor: {
               FirstName: 'Gregorio',
-              LastName: 'Christiansen'
+              LastName: 'Christiansen',
             },
             SpeciesID: 41,
             BreedID: 370,
@@ -140,16 +146,20 @@ describe('AntechV6Service', () => {
             CodeID: 12687,
             Mnemonic: 'SA804',
             DisplayName: 'Chemistry Panel w/SDMA',
-            LabTests: []
-          }
+            LabTests: [],
+          },
         ],
-        LabOrders: []
+        LabOrders: [],
       })
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(antechV6ApiServiceMock.getOrderStatus).toHaveBeenCalled()
-      expect(antechV6ApiServiceMock.getResultStatus).toHaveBeenCalledWith(expect.any(String), expect.any(Object), {
-        ClinicAccessionID: 'SHIUBBT1054'
-      })
+      expect(antechV6ApiServiceMock.getResultStatus).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+        {
+          ClinicAccessionID: 'SHIUBBT1054',
+        },
+      )
       expect(orders.length).toEqual(1)
       expect(orders[0]).toEqual(
         expect.objectContaining({
@@ -159,8 +169,8 @@ describe('AntechV6Service', () => {
           client: expect.any(Object),
           veterinarian: expect.any(Object),
           tests: [{ code: 'SA804' }],
-          editable: false
-        })
+          editable: false,
+        }),
       )
       expect(orders[0].patient).toEqual({
         name: 'Barbara',
@@ -170,9 +180,9 @@ describe('AntechV6Service', () => {
         identifier: [
           {
             system: PimsIdentifiers.PatientID,
-            value: 'AXAXAXA'
-          }
-        ]
+            value: 'AXAXAXA',
+          },
+        ],
       })
       expect(orders[0].client).toEqual({
         firstName: 'Trace',
@@ -180,21 +190,21 @@ describe('AntechV6Service', () => {
         identifier: [
           {
             system: PimsIdentifiers.ClientID,
-            value: 'd32f0184-f13a-40a6-816d-a0d3a0cfce69'
-          }
-        ]
+            value: 'd32f0184-f13a-40a6-816d-a0d3a0cfce69',
+          },
+        ],
       })
       expect(orders[0].veterinarian).toEqual({
         firstName: 'Gregorio',
-        lastName: 'Christiansen'
+        lastName: 'Christiansen',
       })
     })
     it('should accept more than one result per order', async () => {
       antechV6ApiServiceMock.getOrderStatus.mockResolvedValue(
-        FileUtils.loadFile('test/api/LabOrders/v6/GetStatus/7152-VOY-44905954790.json')
+        FileUtils.loadFile('test/api/LabOrders/v6/GetStatus/7152-VOY-44905954790.json'),
       )
       antechV6ApiServiceMock.getResultStatus.mockResolvedValue(
-        FileUtils.loadFile('test/api/LabResults/v6/GetStatus/7152-VOY-44905954790.json')
+        FileUtils.loadFile('test/api/LabResults/v6/GetStatus/7152-VOY-44905954790.json'),
       )
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(orders.length).toEqual(1)
@@ -203,12 +213,12 @@ describe('AntechV6Service', () => {
       antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
         LabOrders: [
           {
-            LabTests: []
-          }
-        ]
+            LabTests: [],
+          },
+        ],
       })
       antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
-        LabResults: []
+        LabResults: [],
       })
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(antechV6ApiServiceMock.getOrderTrf).toBeCalled()
@@ -217,8 +227,8 @@ describe('AntechV6Service', () => {
         expect.objectContaining({
           contentType: 'application/pdf',
           uri: expect.any(String),
-          data: expect.any(String)
-        })
+          data: expect.any(String),
+        }),
       )
     })
 
@@ -227,12 +237,12 @@ describe('AntechV6Service', () => {
         LabOrders: [
           {
             ClinicAccessionID: 'ACC123',
-            LabTests: []
-          }
-        ]
+            LabTests: [],
+          },
+        ],
       })
       antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
-        LabResults: []
+        LabResults: [],
       })
       antechV6ApiServiceMock.getOrderTrf.mockResolvedValueOnce(undefined as any)
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
@@ -246,12 +256,12 @@ describe('AntechV6Service', () => {
         LabOrders: [
           {
             ClinicAccessionID: 'ACC124',
-            LabTests: []
-          }
-        ]
+            LabTests: [],
+          },
+        ],
       })
       antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
-        LabResults: []
+        LabResults: [],
       })
       antechV6ApiServiceMock.getOrderTrf.mockResolvedValueOnce(undefined as any)
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
@@ -268,27 +278,27 @@ describe('AntechV6Service', () => {
           items: [
             {
               name: 'MALE',
-              code: 'M'
+              code: 'M',
             },
             {
               name: 'FEMALE',
-              code: 'F'
+              code: 'F',
             },
             {
               name: 'MALE_CASTRATED',
-              code: 'CM'
+              code: 'CM',
             },
             {
               name: 'FEMALE_SPRAYED',
-              code: 'SF'
+              code: 'SF',
             },
             {
               name: 'UNKNOWN',
-              code: 'U'
-            }
+              code: 'U',
+            },
           ],
-          hash: expect.any(String)
-        })
+          hash: expect.any(String),
+        }),
       )
     })
   })
@@ -300,11 +310,11 @@ describe('AntechV6Service', () => {
           items: [
             {
               name: 'Caprine',
-              code: '13'
-            }
+              code: '13',
+            },
           ],
-          hash: expect.any(String)
-        })
+          hash: expect.any(String),
+        }),
       )
     })
   })
@@ -317,16 +327,16 @@ describe('AntechV6Service', () => {
             {
               code: '348',
               name: 'Goat',
-              species: '13'
+              species: '13',
             },
             {
               code: '602',
               name: 'Rocky Mountain Goat',
-              species: '13'
-            }
+              species: '13',
+            },
           ],
-          hash: expect.any(String)
-        })
+          hash: expect.any(String),
+        }),
       )
     })
   })

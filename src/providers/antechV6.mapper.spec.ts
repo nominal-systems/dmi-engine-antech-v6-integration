@@ -7,7 +7,7 @@ import {
   Result,
   ResultStatus,
   TestResultItem,
-  TestResultItemInterpretationCode
+  TestResultItemInterpretationCode,
 } from '@nominal-systems/dmi-engine-common'
 import {
   AntechV6AbnormalFlag,
@@ -17,9 +17,12 @@ import {
   AntechV6PreOrder,
   AntechV6Result,
   AntechV6TestGuide,
-  AntechV6UnitCodeResult
+  AntechV6UnitCodeResult,
 } from '../interfaces/antechV6-api.interface'
-import { ServiceType, TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
+import {
+  ServiceType,
+  TestResult,
+} from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
 import * as path from 'path'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
@@ -31,18 +34,18 @@ describe('AntechV6Mapper', () => {
       username: 'PIMS_USER',
       password: 'devtest',
       clinicId: '140039',
-      labId: '1'
+      labId: '1',
     },
     providerConfiguration: {
       baseUrl: 'https://margaapi-pims.marsvh.com',
       uiBaseUrl: 'https://margaui-pims.marsvh.com',
-      PimsIdentifier: 'PIMS'
-    }
+      PimsIdentifier: 'PIMS',
+    },
   }
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [AntechV6Mapper]
+      providers: [AntechV6Mapper],
     }).compile()
 
     mapper = module.get<AntechV6Mapper>(AntechV6Mapper)
@@ -62,8 +65,8 @@ describe('AntechV6Mapper', () => {
           {
             id: 703,
             system: 'pims:patient:id',
-            value: 'GILBERT'
-          }
+            value: 'GILBERT',
+          },
         ],
         species: '36c3cde0-bd6b-11eb-9610-302432eba3e9',
         breed: '1ddc1bc2-d7ed-11ea-aee5-302432eba3ec',
@@ -71,13 +74,13 @@ describe('AntechV6Mapper', () => {
         birthdate: null,
         weightMeasurement: null,
         weightUnits: null,
-        id: '192931a6-4067-4019-8d94-612c1e08b51a'
+        id: '192931a6-4067-4019-8d94-612c1e08b51a',
       },
       client: {
         id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
         firstName: 'Marcellus',
         lastName: 'Kerluke',
-        isStaff: false
+        isStaff: false,
       },
       veterinarian: {
         id: '672b294e-9a57-49ba-8504-642965827981',
@@ -87,18 +90,18 @@ describe('AntechV6Mapper', () => {
           {
             id: 902,
             system: 'pims:veterinarian:id',
-            value: '99'
-          }
-        ]
+            value: '99',
+          },
+        ],
       },
       status: 'ACCEPTED',
       tests: [
         {
-          code: 'SA804'
+          code: 'SA804',
         },
         {
-          code: 'CAC655S'
-        }
+          code: 'CAC655S',
+        },
       ],
       externalId: null,
       submissionUri: null,
@@ -109,7 +112,7 @@ describe('AntechV6Mapper', () => {
       id: '8fce8113-4ab4-4f4c-b80a-b4ebd00e49a9',
       editable: false,
       createdAt: '2024-03-13T15:51:39.607Z',
-      updatedAt: '2024-03-13T15:51:39.607Z'
+      updatedAt: '2024-03-13T15:51:39.607Z',
     } as unknown as CreateOrderPayload
 
     it('should map the payload to an Antech PreOrder', () => {
@@ -130,7 +133,7 @@ describe('AntechV6Mapper', () => {
         PetAgeUnits: 'Y',
         SpeciesID: DEFAULT_PET_SPECIES,
         BreedID: 370,
-        OrderCodes: ['SA804', 'CAC655S']
+        OrderCodes: ['SA804', 'CAC655S'],
       }
       expect(mapper.mapCreateOrderPayload(payload, metadataMock)).toEqual(expected)
     })
@@ -142,14 +145,14 @@ describe('AntechV6Mapper', () => {
         id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
         firstName: 'Ashkan',
         lastName: 'EktesabiKhajooeikermani',
-        isStaff: false
+        isStaff: false,
       }
 
       const result = (mapper as any).extractClient(clientPayload)
       expect(result).toEqual({
         ClientID: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
         ClientFirstName: 'Ashkan',
-        ClientLastName: 'EktesabiKhajooeikerm'
+        ClientLastName: 'EktesabiKhajooeikerm',
       })
     })
   })
@@ -199,7 +202,7 @@ describe('AntechV6Mapper', () => {
           RetentionStability: '7 days',
           SpecimenDefinition:
             'GV, GVG, L, LV, P, PO, R, RV, S, SS, SV, UNL, UNLV, UNR, UNRV, UNS, UNSS, UNW, UNYV, V, W, YV',
-          POC_Id: ''
+          POC_Id: '',
         },
         {
           CodeID: '52439',
@@ -240,9 +243,9 @@ describe('AntechV6Mapper', () => {
           AcceptableSpecimenRequirements: '',
           RetentionStability: '',
           SpecimenDefinition: '',
-          POC_Id: ''
-        }
-      ]
+          POC_Id: '',
+        },
+      ],
     }
 
     it('should map the test guide to a Service list', () => {
@@ -255,7 +258,7 @@ describe('AntechV6Mapper', () => {
           category: 'Infectious',
           type: ServiceType.IN_HOUSE,
           price: 23.61,
-          currency: 'USD'
+          currency: 'USD',
         },
         {
           code: 'AC535S',
@@ -265,15 +268,20 @@ describe('AntechV6Mapper', () => {
           category: 'CBC Chemistry Profiles',
           type: ServiceType.IN_HOUSE,
           price: 105.67,
-          currency: 'USD'
-        }
+          currency: 'USD',
+        },
       ])
     })
   })
 
   describe('mapAntechV6Result()', () => {
     const allResultsResponse: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_01.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/GetAllResults/get-all-results_01.json',
+      ),
     )
 
     it('should map Antech results to DMI results', () => {
@@ -285,8 +293,8 @@ describe('AntechV6Mapper', () => {
           orderId: '140039-ABC1708966466',
           accession: 'IREA00016889',
           status: ResultStatus.COMPLETED,
-          testResults: expect.any(Array<TestResult>)
-        })
+          testResults: expect.any(Array<TestResult>),
+        }),
       )
       expect(result.testResults.length).toBeGreaterThan(0)
     })
@@ -300,17 +308,17 @@ describe('AntechV6Mapper', () => {
         UnitCodeResults: [],
         Pet: {
           Id: '',
-          Name: 'Bruce'
+          Name: 'Bruce',
         },
         Client: {
           Id: '',
           FirstName: '',
-          LastName: ''
+          LastName: '',
         },
         Doctor: {
           Id: '',
-          FirstName: 'Not Stated'
-        }
+          FirstName: 'Not Stated',
+        },
       }
       const result: Result = mapper.mapAntechV6Result(orphanResult)
       expect(result).toHaveProperty('order')
@@ -320,8 +328,8 @@ describe('AntechV6Mapper', () => {
           status: 'COMPLETED',
           patient: expect.any(Object),
           client: expect.any(Object),
-          veterinarian: expect.any(Object)
-        })
+          veterinarian: expect.any(Object),
+        }),
       )
     })
 
@@ -334,18 +342,18 @@ describe('AntechV6Mapper', () => {
         UnitCodeResults: [],
         Pet: {
           Id: '',
-          Name: 'Bruce'
+          Name: 'Bruce',
         },
         Client: {
           Id: '',
           FirstName: '',
-          LastName: ''
+          LastName: '',
         },
         Doctor: {
           Id: '',
           LastName: 'Doe',
-          FirstName: 'John'
-        }
+          FirstName: 'John',
+        },
       }
       const result: Result = mapper.mapAntechV6Result(orphanResult)
       expect(result).toHaveProperty('order')
@@ -353,40 +361,75 @@ describe('AntechV6Mapper', () => {
         expect.objectContaining({
           veterinarian: {
             firstName: 'John',
-            lastName: 'Doe'
-          }
-        })
+            lastName: 'Doe',
+          },
+        }),
       )
     })
   })
 
   describe('mapAntechV6UnitCodeResult()', () => {
     const allResultsResponse: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_01.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/GetAllResults/get-all-results_01.json',
+      ),
     )
 
     const allResultsResponseNew: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_03.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/GetAllResults/get-all-results_03.json',
+      ),
     )
 
     const cbcResultsResponse: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/GetAllResults/get-all-results_cbc.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/GetAllResults/get-all-results_cbc.json',
+      ),
     )
 
     const thyroidResultsResponse_1: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_1.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_1.json',
+      ),
     )
 
     const thyroidResultsResponse_2: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_2.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_2.json',
+      ),
     )
 
     const thyroidResultsResponse_3: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_3.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_3.json',
+      ),
     )
 
     const thyroidResultsResponse_4: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_4.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_4.json',
+      ),
     )
 
     it('should map Antech order code results to DMI test results', () => {
@@ -396,7 +439,7 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: 'BANT805',
         name: 'Banfield Ova and Parasite',
-        items: expect.any(Array<TestResultItem>)
+        items: expect.any(Array<TestResultItem>),
       })
       expect(testResult.items.length).toBeGreaterThan(0)
     })
@@ -408,7 +451,7 @@ describe('AntechV6Mapper', () => {
         seq: 0,
         code: '502020',
         name: 'Alkaline Phosphatase',
-        items: expect.any(Array<TestResultItem>)
+        items: expect.any(Array<TestResultItem>),
       })
     })
 
@@ -418,7 +461,9 @@ describe('AntechV6Mapper', () => {
           const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
           expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
           for (const [idx, item] of testResult.items.entries()) {
-            const indexInResponse = unitCodeResult.TestCodeResults.findIndex((r) => r.TestCodeExtID === item.code)
+            const indexInResponse = unitCodeResult.TestCodeResults.findIndex(
+              (r) => r.TestCodeExtID === item.code,
+            )
             expect(item.seq).toBe(indexInResponse)
             expect(idx).toBe(indexInResponse)
           }
@@ -432,7 +477,9 @@ describe('AntechV6Mapper', () => {
           const testResult: TestResult = mapper.mapAntechV6UnitCodeResult(unitCodeResult, 0)
           expect(testResult.items).toHaveLength(unitCodeResult.TestCodeResults.length)
           for (const [idx, item] of testResult.items.entries()) {
-            const indexInResponse = TEST_RESULT_SEQUENCING_MAP[unitCodeResult.OrderCode].indexOf(item.name)
+            const indexInResponse = TEST_RESULT_SEQUENCING_MAP[unitCodeResult.OrderCode].indexOf(
+              item.name,
+            )
             expect(item.seq).toBe(indexInResponse)
             expect(idx).toBe(indexInResponse)
           }
@@ -449,27 +496,27 @@ describe('AntechV6Mapper', () => {
           orderId: '7092-VOY-37157652213',
           accession: 'DLEA00533798',
           status: ResultStatus.PENDING,
-          testResults: expect.any(Array<TestResult>)
-        })
+          testResults: expect.any(Array<TestResult>),
+        }),
       )
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
         code: 'SA380',
         name: 'TSH',
-        items: expect.any(Array<TestResultItem>)
+        items: expect.any(Array<TestResultItem>),
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
-        items: expect.any(Array<TestResultItem>)
+        items: expect.any(Array<TestResultItem>),
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
         code: 'SA380',
         name: 'T4',
-        items: expect.any(Array<TestResultItem>)
+        items: expect.any(Array<TestResultItem>),
       })
     })
 
@@ -482,8 +529,8 @@ describe('AntechV6Mapper', () => {
           orderId: '7092-VOY-37157652213',
           accession: 'DLEA00533798',
           status: ResultStatus.PARTIAL,
-          testResults: expect.any(Array<TestResult>)
-        })
+          testResults: expect.any(Array<TestResult>),
+        }),
       )
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
@@ -495,21 +542,21 @@ describe('AntechV6Mapper', () => {
             code: '4001',
             name: 'TSH',
             status: 'DONE',
-            seq: 0
-          })
-        ])
+            seq: 0,
+          }),
+        ]),
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
-        items: []
+        items: [],
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
         code: 'SA380',
         name: 'T4',
-        items: []
+        items: [],
       })
     })
 
@@ -522,8 +569,8 @@ describe('AntechV6Mapper', () => {
           orderId: '7092-VOY-37157652213',
           accession: 'DLEA00533798',
           status: ResultStatus.PARTIAL,
-          testResults: expect.any(Array<TestResult>)
-        })
+          testResults: expect.any(Array<TestResult>),
+        }),
       )
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
@@ -535,15 +582,15 @@ describe('AntechV6Mapper', () => {
             code: '4001',
             name: 'TSH',
             status: 'DONE',
-            seq: 0
-          })
-        ])
+            seq: 0,
+          }),
+        ]),
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
         code: 'SA380',
         name: 'Free T4 By Equilibrium Dialysis',
-        items: []
+        items: [],
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
@@ -554,9 +601,9 @@ describe('AntechV6Mapper', () => {
             code: '4022',
             name: 'T4',
             status: 'DONE',
-            seq: 0
-          })
-        ])
+            seq: 0,
+          }),
+        ]),
       })
     })
 
@@ -569,8 +616,8 @@ describe('AntechV6Mapper', () => {
           orderId: '7092-VOY-37157652213',
           accession: 'DLEA00533798',
           status: ResultStatus.COMPLETED,
-          testResults: expect.any(Array<TestResult>)
-        })
+          testResults: expect.any(Array<TestResult>),
+        }),
       )
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
@@ -582,9 +629,9 @@ describe('AntechV6Mapper', () => {
             code: '4001',
             name: 'TSH',
             status: 'DONE',
-            seq: 0
-          })
-        ])
+            seq: 0,
+          }),
+        ]),
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
@@ -595,9 +642,9 @@ describe('AntechV6Mapper', () => {
             code: '6386',
             name: 'Free T4 Equilibrium Dialysis',
             status: 'DONE',
-            seq: 0
-          })
-        ])
+            seq: 0,
+          }),
+        ]),
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
@@ -608,9 +655,9 @@ describe('AntechV6Mapper', () => {
             code: '4022',
             name: 'T4',
             status: 'DONE',
-            seq: 0
-          })
-        ])
+            seq: 0,
+          }),
+        ]),
       })
     })
   })
@@ -628,7 +675,7 @@ describe('AntechV6Mapper', () => {
         Min: '0',
         Max: '8',
         UnitCodeID: '800599069',
-        ReportComments: []
+        ReportComments: [],
       }
       expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
         seq: 0,
@@ -637,16 +684,16 @@ describe('AntechV6Mapper', () => {
         status: 'DONE',
         valueQuantity: {
           value: 3.3,
-          units: 'g/dL'
+          units: 'g/dL',
         },
         referenceRange: [
           {
             type: ReferenceRangeType.NORMAL,
             text: '2.5-3.9',
             low: 2.5,
-            high: 3.9
-          }
-        ]
+            high: 3.9,
+          },
+        ],
       })
     })
     it('should map numeric test code results with abnormal flags', () => {
@@ -662,7 +709,7 @@ describe('AntechV6Mapper', () => {
         Min: '2',
         Max: '1000',
         UnitCodeID: '800599071',
-        ReportComments: []
+        ReportComments: [],
       }
       expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
         seq: 0,
@@ -671,20 +718,20 @@ describe('AntechV6Mapper', () => {
         status: 'DONE',
         valueQuantity: {
           value: 128,
-          units: 'IU/L'
+          units: 'IU/L',
         },
         interpretation: {
           code: TestResultItemInterpretationCode.HIGH,
-          text: 'H'
+          text: 'H',
         },
         referenceRange: [
           {
             type: ReferenceRangeType.NORMAL,
             text: '6-102',
             low: 6,
-            high: 102
-          }
-        ]
+            high: 102,
+          },
+        ],
       })
     })
     it('should map non-numeric test code results', () => {
@@ -698,7 +745,7 @@ describe('AntechV6Mapper', () => {
         Comments:
           "This patient's RenalTech status indicates that it will develop chronic\nkidney disease within the next 24 months with greater than 95%\naccuracy.\n \nSuggested Follow-Up:\nWithin the next 3 months, and every 3-6 months thereafter, perform a\ncomplete evaluation of kidney function to evaluate the patient's\nprogression toward developing chronic kidney disease. It is\nrecommended that a minimum database including a chemistry panel, CBC,\nand urinalysis are performed.\n \nAdditional diagnostic testing and imaging should also be considered to\ninvestigate for comorbidities and underlying conditions that may\ncontribute to the development of chronic kidney disease, including\nhyperthyroidism, diabetes mellitus, cardiomyopathy, and systemic\nhypertension.\n \nThe International Renal Interest Society (IRIS) has guidelines for the\ndiagnosis, staging, and treatment of chronic kidney disease.\n \nVisit the website http://iris-kidney.com/ for more details.\n \nFor more information, please see: https://antechdiagnostics.com/RenalT\nech",
         UnitCodeID: '800599067',
-        ReportComments: []
+        ReportComments: [],
       }
       expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
         seq: 0,
@@ -708,10 +755,10 @@ describe('AntechV6Mapper', () => {
         valueString: 'POSITIVE',
         interpretation: {
           code: TestResultItemInterpretationCode.POSITIVE,
-          text: 'P'
+          text: 'P',
         },
         notes:
-          "This patient's RenalTech status indicates that it will develop chronic\nkidney disease within the next 24 months with greater than 95%\naccuracy.\n \nSuggested Follow-Up:\nWithin the next 3 months, and every 3-6 months thereafter, perform a\ncomplete evaluation of kidney function to evaluate the patient's\nprogression toward developing chronic kidney disease. It is\nrecommended that a minimum database including a chemistry panel, CBC,\nand urinalysis are performed.\n \nAdditional diagnostic testing and imaging should also be considered to\ninvestigate for comorbidities and underlying conditions that may\ncontribute to the development of chronic kidney disease, including\nhyperthyroidism, diabetes mellitus, cardiomyopathy, and systemic\nhypertension.\n \nThe International Renal Interest Society (IRIS) has guidelines for the\ndiagnosis, staging, and treatment of chronic kidney disease.\n \nVisit the website http://iris-kidney.com/ for more details.\n \nFor more information, please see: https://antechdiagnostics.com/RenalT\nech"
+          "This patient's RenalTech status indicates that it will develop chronic\nkidney disease within the next 24 months with greater than 95%\naccuracy.\n \nSuggested Follow-Up:\nWithin the next 3 months, and every 3-6 months thereafter, perform a\ncomplete evaluation of kidney function to evaluate the patient's\nprogression toward developing chronic kidney disease. It is\nrecommended that a minimum database including a chemistry panel, CBC,\nand urinalysis are performed.\n \nAdditional diagnostic testing and imaging should also be considered to\ninvestigate for comorbidities and underlying conditions that may\ncontribute to the development of chronic kidney disease, including\nhyperthyroidism, diabetes mellitus, cardiomyopathy, and systemic\nhypertension.\n \nThe International Renal Interest Society (IRIS) has guidelines for the\ndiagnosis, staging, and treatment of chronic kidney disease.\n \nVisit the website http://iris-kidney.com/ for more details.\n \nFor more information, please see: https://antechdiagnostics.com/RenalT\nech",
       })
     })
     it('should map non-finite reference ranges', () => {
@@ -724,7 +771,7 @@ describe('AntechV6Mapper', () => {
         Test: 'SDMA',
         Unit: 'UG/dL',
         UnitCodeID: '800599065',
-        ReportComments: []
+        ReportComments: [],
       }
       expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
         seq: 0,
@@ -733,15 +780,15 @@ describe('AntechV6Mapper', () => {
         status: 'DONE',
         valueQuantity: {
           value: 13.8,
-          units: 'UG/dL'
+          units: 'UG/dL',
         },
         referenceRange: [
           {
             type: ReferenceRangeType.NORMAL,
             text: '<15.0',
-            high: 15
-          }
-        ]
+            high: 15,
+          },
+        ],
       })
     })
   })
@@ -752,56 +799,56 @@ describe('AntechV6Mapper', () => {
         mapper.mapAntechV6ResultStatus({
           Pet: {
             Id: '2147305531',
-            Name: 'JOJO'
+            Name: 'JOJO',
           },
           Client: {
             Id: 'BAC0LWT',
             FirstName: 'Joy',
-            LastName: 'Hua'
+            LastName: 'Hua',
           },
           Doctor: {
             Id: '',
             FirstName: 'foo',
-            LastName: 'bar'
+            LastName: 'bar',
           },
           SpeciesID: 42,
-          BreedID: 650
-        } as unknown as AntechV6LabResultStatus)
+          BreedID: 650,
+        } as unknown as AntechV6LabResultStatus),
       ).toEqual(
         expect.objectContaining({
           patient: expect.objectContaining({
-            name: 'JOJO'
+            name: 'JOJO',
           }),
           client: expect.objectContaining({
             firstName: 'Joy',
-            lastName: 'Hua'
+            lastName: 'Hua',
           }),
           veterinarian: expect.objectContaining({
             firstName: 'foo',
-            lastName: 'bar'
-          })
-        })
+            lastName: 'bar',
+          }),
+        }),
       )
 
       expect(
         mapper.mapAntechV6ResultStatus({
           Pet: {
             Id: '2147301908',
-            Name: 'PETRIE PETEY'
+            Name: 'PETRIE PETEY',
           },
           Client: {
             Id: 'BAC0213',
             FirstName: 'Lynda',
-            LastName: 'Hutchinson-Hinderer'
+            LastName: 'Hutchinson-Hinderer',
           },
           Doctor: {
             Id: '',
             FirstName: '',
-            LastName: ''
+            LastName: '',
           },
           SpeciesID: 41,
-          BreedID: 650
-        } as unknown as AntechV6LabResultStatus)
+          BreedID: 650,
+        } as unknown as AntechV6LabResultStatus),
       ).toEqual(
         expect.objectContaining({
           patient: expect.objectContaining({
@@ -809,9 +856,9 @@ describe('AntechV6Mapper', () => {
             identifier: [
               {
                 system: 'pims:patient:id',
-                value: '2147301908'
-              }
-            ]
+                value: '2147301908',
+              },
+            ],
           }),
           client: expect.objectContaining({
             firstName: 'Lynda',
@@ -819,15 +866,15 @@ describe('AntechV6Mapper', () => {
             identifier: [
               {
                 system: 'pims:client:id',
-                value: 'BAC0213'
-              }
-            ]
+                value: 'BAC0213',
+              },
+            ],
           }),
           veterinarian: expect.objectContaining({
             firstName: '',
-            lastName: ''
-          })
-        })
+            lastName: '',
+          }),
+        }),
       )
     })
   })
@@ -840,19 +887,39 @@ describe('AntechV6Mapper', () => {
     })
 
     const thyroidResultsResponse_1: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_1.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_1.json',
+      ),
     )
 
     const thyroidResultsResponse_2: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_2.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_2.json',
+      ),
     )
 
     const thyroidResultsResponse_3: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_3.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_3.json',
+      ),
     )
 
     const thyroidResultsResponse_4: any = FileUtils.loadFile(
-      path.join(__dirname, '..', '..', 'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_4.json')
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test/api/LabResults/v6/ThyroidProfile/get-all-results_thyroid_4.json',
+      ),
     )
 
     it('should return REVISED if the result is corrected', () => {
@@ -876,13 +943,22 @@ describe('AntechV6Mapper', () => {
     })
 
     it('should handle undefined PendingTestCount and TotalTestCount safely', () => {
-      const result: AntechV6Result = { PendingTestCount: undefined, TotalTestCount: undefined } as AntechV6Result
+      const result: AntechV6Result = {
+        PendingTestCount: undefined,
+        TotalTestCount: undefined,
+      } as AntechV6Result
       expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
 
-      const result_1: AntechV6Result = { PendingTestCount: undefined, TotalTestCount: 2 } as AntechV6Result
+      const result_1: AntechV6Result = {
+        PendingTestCount: undefined,
+        TotalTestCount: 2,
+      } as AntechV6Result
       expect(mapper.extractResultStatus(result_1)).toBe(ResultStatus.COMPLETED)
 
-      const result_2: AntechV6Result = { PendingTestCount: 2, TotalTestCount: undefined } as AntechV6Result
+      const result_2: AntechV6Result = {
+        PendingTestCount: 2,
+        TotalTestCount: undefined,
+      } as AntechV6Result
       expect(mapper.extractResultStatus(result_2)).toBe(ResultStatus.PENDING)
     })
 
@@ -897,7 +973,7 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T1',
             ProfileDisplayName: 'Thyroid Profile 1',
             TestCodeResults: [],
-            ResultStatus: 'F'
+            ResultStatus: 'F',
           },
           {
             UnitCodeExtID: '',
@@ -905,7 +981,7 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T2',
             ProfileDisplayName: 'Thyroid Profile 2',
             TestCodeResults: [],
-            ResultStatus: 'I'
+            ResultStatus: 'I',
           },
           {
             UnitCodeExtID: '',
@@ -913,7 +989,7 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T3',
             ProfileDisplayName: 'Thyroid Profile 3',
             TestCodeResults: [],
-            ResultStatus: 'F'
+            ResultStatus: 'F',
           },
           {
             UnitCodeExtID: '',
@@ -923,11 +999,11 @@ describe('AntechV6Mapper', () => {
             TestCodeResults: [
               {
                 /* Non-empty test result */
-              }
+              },
             ],
-            ResultStatus: 'F'
-          }
-        ]
+            ResultStatus: 'F',
+          },
+        ],
       } as unknown as AntechV6Result
 
       expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.PARTIAL)
@@ -944,7 +1020,7 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T1',
             ProfileDisplayName: 'Thyroid Profile 1',
             TestCodeResults: [],
-            ResultStatus: 'F'
+            ResultStatus: 'F',
           },
           {
             UnitCodeExtID: '',
@@ -952,7 +1028,7 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T2',
             ProfileDisplayName: 'Thyroid Profile 2',
             TestCodeResults: [],
-            ResultStatus: 'I'
+            ResultStatus: 'I',
           },
           {
             UnitCodeExtID: '',
@@ -960,9 +1036,9 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T3',
             ProfileDisplayName: 'Thyroid Profile 3',
             TestCodeResults: [],
-            ResultStatus: 'F'
-          }
-        ]
+            ResultStatus: 'F',
+          },
+        ],
       } as unknown as AntechV6Result
 
       expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.PENDING)
@@ -979,7 +1055,7 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T1',
             ProfileDisplayName: 'Thyroid Profile 1',
             TestCodeResults: [],
-            ResultStatus: 'F'
+            ResultStatus: 'F',
           },
           {
             UnitCodeExtID: '',
@@ -987,9 +1063,9 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T3',
             ProfileDisplayName: 'Thyroid Profile 3',
             TestCodeResults: [],
-            ResultStatus: 'F'
-          }
-        ]
+            ResultStatus: 'F',
+          },
+        ],
       } as unknown as AntechV6Result
 
       expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.COMPLETED)
@@ -1008,9 +1084,9 @@ describe('AntechV6Mapper', () => {
             TestCodeResults: [
               {
                 /* Non-empty test result */
-              }
+              },
             ],
-            ResultStatus: 'F'
+            ResultStatus: 'F',
           },
           {
             UnitCodeExtID: '',
@@ -1018,9 +1094,9 @@ describe('AntechV6Mapper', () => {
             UnitCodeDisplayName: 'T2',
             ProfileDisplayName: 'Thyroid Profile 2',
             TestCodeResults: [],
-            ResultStatus: 'I'
-          }
-        ]
+            ResultStatus: 'I',
+          },
+        ],
       } as unknown as AntechV6Result
 
       expect(mapper.extractResultStatus(mockResult)).toBe(ResultStatus.PARTIAL)

@@ -22,6 +22,6 @@ export const TEST_RESULT_SEQUENCING_MAP = {
     'RBC Histogram',
     'PLT',
     'MPV',
-    'PLT Histogram'
-  ]
+    'PLT Histogram',
+  ],
 }

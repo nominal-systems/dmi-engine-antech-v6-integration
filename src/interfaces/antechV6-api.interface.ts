@@ -7,7 +7,7 @@ export enum AntechV6Endpoints {
   GET_TEST_GUIDE = '/Tests/v6',
   GET_ORDER_TRF = '/HTPDF/trf/pims',
   PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement',
-  ACKNOWLEDGE_STATUS = '/LabResults/v6/AckStatus'
+  ACKNOWLEDGE_STATUS = '/LabResults/v6/AckStatus',
 }
 
 export interface AntechV6UserCredentials {
@@ -42,7 +42,7 @@ export enum AntechV6OrderStatus {
   'Received',
   'Resulted',
   'Partial',
-  'Final'
+  'Final',
 }
 
 export interface AntechV6LabTest {
@@ -208,7 +208,7 @@ export enum AntechV6PetSex {
   FEMALE = 'F',
   MALE_CASTRATED = 'CM',
   FEMALE_SPRAYED = 'SF',
-  UNKNOWN = 'U'
+  UNKNOWN = 'U',
 }
 
 export type AntechV6PetAgeUnits = 'Y' | 'M' | 'W' | 'D'
@@ -311,12 +311,12 @@ export enum AntechV6ResultStatus {
   IN_PROGRESS = 'I',
   PARTIAL = 'P',
   FINAL = 'F',
-  UPDATED_CORRECTED = 'C'
+  UPDATED_CORRECTED = 'C',
 }
 
 export enum AntechV6AbnormalFlag {
   HIGH = 'H',
   LOW = 'L',
   ABNORMAL = '*',
-  POSITIVE = 'P'
+  POSITIVE = 'P',
 }

@@ -12,7 +12,7 @@ export class AntechV6OrdersProcessor {
 
   constructor(
     private readonly antechV6Service: AntechV6Service,
-    @Inject('API_SERVICE') private readonly apiClient: ClientProxy
+    @Inject('API_SERVICE') private readonly apiClient: ClientProxy,
   ) {}
 
   @Process()
@@ -24,7 +24,7 @@ export class AntechV6OrdersProcessor {
 
       if (orders.length > 0) {
         this.logger.log(
-          `Fetched ${orders.length} order${orders.length > 1 ? 's' : ''} for integration ${payload.integrationId}`
+          `Fetched ${orders.length} order${orders.length > 1 ? 's' : ''} for integration ${payload.integrationId}`,
         )
 
         const clinicAccessionIds = orders
@@ -33,11 +33,13 @@ export class AntechV6OrdersProcessor {
 
         this.apiClient.emit('external_orders', {
           integrationId: payload.integrationId,
-          orders
+          orders,
         })
 
         await this.antechV6Service.acknowledgeOrders({ ids: clinicAccessionIds }, metadata)
-        this.logger.log(`Acknowledged orders ${clinicAccessionIds.join(',')} for integration ${payload.integrationId}`)
+        this.logger.log(
+          `Acknowledged orders ${clinicAccessionIds.join(',')} for integration ${payload.integrationId}`,
+        )
       }
     } catch (error) {
       this.logger.error(`Error fetching orders for integration ${payload.integrationId}`)

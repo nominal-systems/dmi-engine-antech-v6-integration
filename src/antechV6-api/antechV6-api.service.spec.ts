@@ -14,10 +14,10 @@ describe('AntechV6ApiService', () => {
         {
           provide: AntechV6ApiHttpService,
           useValue: {
-            post: jest.fn() // Mock the HTTP service
-          }
-        }
-      ]
+            post: jest.fn(), // Mock the HTTP service
+          },
+        },
+      ],
     }).compile()
 
     service = module.get<AntechV6ApiService>(AntechV6ApiService)
@@ -31,7 +31,11 @@ describe('AntechV6ApiService', () => {
 
     jest.spyOn(service as any, 'doPost').mockResolvedValue(undefined)
 
-    await service.acknowledgeResults('https://api.antechv6.com', mockCredentials, duplicateAccessionIds)
+    await service.acknowledgeResults(
+      'https://api.antechv6.com',
+      mockCredentials,
+      duplicateAccessionIds,
+    )
 
     expect(service['doPost']).toHaveBeenCalledWith(
       mockCredentials,
@@ -40,8 +44,8 @@ describe('AntechV6ApiService', () => {
       {
         serviceType: 'labResult',
         clinicId: '12345',
-        labAccessionsIds: uniqueAccessionIds
-      }
+        labAccessionsIds: uniqueAccessionIds,
+      },
     )
   })
 
@@ -52,7 +56,11 @@ describe('AntechV6ApiService', () => {
 
     jest.spyOn(service as any, 'doPost').mockResolvedValue(undefined)
 
-    await service.acknowledgeOrders('https://api.antechv6.com', mockCredentials, duplicateAccessionIds)
+    await service.acknowledgeOrders(
+      'https://api.antechv6.com',
+      mockCredentials,
+      duplicateAccessionIds,
+    )
 
     expect(service['doPost']).toHaveBeenCalledWith(
       mockCredentials,
@@ -61,8 +69,8 @@ describe('AntechV6ApiService', () => {
       {
         serviceType: 'labOrder',
         clinicId: '12345',
-        clinicAccessionIds: uniqueAccessionIds
-      }
+        clinicAccessionIds: uniqueAccessionIds,
+      },
     )
   })
 })

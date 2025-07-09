@@ -16,7 +16,7 @@ import {
   Resource,
   Service,
   Sex,
-  Species
+  Species,
 } from '@nominal-systems/dmi-engine-common'
 import { MessagePattern } from '@nestjs/microservices'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
@@ -25,14 +25,21 @@ import { AntechV6Service } from '../services/antechV6.service'
 
 @Controller('engine/antech-v6')
 export class AntechV6Controller
-  implements ProviderOrderCreation, ProviderOrderUpdate, ProviderReferenceData, ProviderServices, ProviderApi
+  implements
+    ProviderOrderCreation,
+    ProviderOrderUpdate,
+    ProviderReferenceData,
+    ProviderServices,
+    ProviderApi
 {
   private readonly logger = new Logger(AntechV6Controller.name)
 
   constructor(private readonly antechV6Service: AntechV6Service) {}
 
   @MessagePattern(`${PROVIDER_NAME}/${Resource.Integration}/${Operation.Test}`)
-  public async testCredentials(msg: ApiEvent<AntechV6MessageData>): Promise<IntegrationTestResponse> {
+  public async testCredentials(
+    msg: ApiEvent<AntechV6MessageData>,
+  ): Promise<IntegrationTestResponse> {
     const { payload, ...metadata } = msg.data
     return await this.antechV6Service.testAuth(payload, metadata)
   }
@@ -40,8 +47,13 @@ export class AntechV6Controller
   @MessagePattern(`${PROVIDER_NAME}/${Resource.Orders}/${Operation.Create}`)
   public async createOrder(msg: ApiEvent<AntechV6MessageData>): Promise<OrderCreatedResponse> {
     const { payload, ...metadata } = msg.data
-    const orderCreatedResponse = await this.antechV6Service.createOrder(<CreateOrderPayload>payload, metadata)
-    this.logger.log(`Antech V6 pre-order placed. Finalize it at: ${orderCreatedResponse.submissionUri}`)
+    const orderCreatedResponse = await this.antechV6Service.createOrder(
+      <CreateOrderPayload>payload,
+      metadata,
+    )
+    this.logger.log(
+      `Antech V6 pre-order placed. Finalize it at: ${orderCreatedResponse.submissionUri}`,
+    )
     return orderCreatedResponse
   }
 
@@ -64,13 +76,17 @@ export class AntechV6Controller
   }
 
   @MessagePattern(`${PROVIDER_NAME}/${Resource.Species}/${Operation.List}`)
-  public getSpecies(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Species> | Species[]> {
+  public getSpecies(
+    msg: ApiEvent<AntechV6MessageData>,
+  ): Promise<ReferenceDataResponse<Species> | Species[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getSpecies(payload, metadata)
   }
 
   @MessagePattern(`${PROVIDER_NAME}/${Resource.Breeds}/${Operation.List}`)
-  public getBreeds(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Breed> | Breed[]> {
+  public getBreeds(
+    msg: ApiEvent<AntechV6MessageData>,
+  ): Promise<ReferenceDataResponse<Breed> | Breed[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getBreeds(payload, metadata)
   }
@@ -81,7 +97,9 @@ export class AntechV6Controller
   }
 
   @MessagePattern(`${PROVIDER_NAME}/${Resource.Services}/${Operation.List}`)
-  public getServices(msg: ApiEvent<AntechV6MessageData>): Promise<ReferenceDataResponse<Service> | Service[]> {
+  public getServices(
+    msg: ApiEvent<AntechV6MessageData>,
+  ): Promise<ReferenceDataResponse<Service> | Service[]> {
     const { payload, ...metadata } = msg.data
     return this.antechV6Service.getServices(payload, metadata)
   }

@@ -1,11 +1,15 @@
-import { AntechV6Pet, AntechV6PetSex, AntechV6Result } from '../../interfaces/antechV6-api.interface'
+import {
+  AntechV6Pet,
+  AntechV6PetSex,
+  AntechV6Result,
+} from '../../interfaces/antechV6-api.interface'
 import {
   Client,
   isNullOrUndefinedOrEmpty,
   Patient,
   Test,
   TestResultItemStatus,
-  Veterinarian
+  Veterinarian,
 } from '@nominal-systems/dmi-engine-common'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
@@ -61,19 +65,19 @@ export function mapTestCodeResultStatus(status?: string): TestResultItemStatus {
 export function generateClinicAccessionId(clinicId: string, pimsId: string): string {
   if (clinicId === undefined) {
     throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
-      message: 'clinicId is not set in the integration options'
+      message: 'clinicId is not set in the integration options',
     })
   }
 
   if (pimsId === undefined) {
     throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
-      message: 'pimsId is not set in the provider configuration'
+      message: 'pimsId is not set in the provider configuration',
     })
   }
 
   if (pimsId.length < 3 || pimsId.length > 4) {
     throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
-      message: 'pimsId incorrect length: it must be 3-4 characters long'
+      message: 'pimsId incorrect length: it must be 3-4 characters long',
     })
   }
 
@@ -81,7 +85,7 @@ export function generateClinicAccessionId(clinicId: string, pimsId: string): str
   const maxSeqLength = 20 - clinicId.length - pimsId.length - 2 // 2 hyphens
   if (maxSeqLength <= 0) {
     throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
-      message: 'clinicId and/or pimsId are too long'
+      message: 'clinicId and/or pimsId are too long',
     })
   }
 
@@ -105,21 +109,21 @@ export function extractPatientFromResult(result: AntechV6Result): Patient {
   return {
     name: result.Pet.Name || '',
     sex: 'UNKNOWN',
-    species: 'UNKNOWN'
+    species: 'UNKNOWN',
   }
 }
 
 export function extractClientFromResult(result: AntechV6Result): Client {
   return {
     firstName: result.Client.FirstName || '',
-    lastName: result.Client.LastName || ''
+    lastName: result.Client.LastName || '',
   }
 }
 
 export function extractVeterinarianFromResult(result: AntechV6Result): Veterinarian {
   return {
     firstName: result.Doctor.FirstName || '',
-    lastName: result.Doctor.LastName || ''
+    lastName: result.Doctor.LastName || '',
   }
 }
 

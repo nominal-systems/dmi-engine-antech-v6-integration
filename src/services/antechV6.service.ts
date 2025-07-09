@@ -20,7 +20,7 @@ import {
   Service,
   ServiceCodePayload,
   Sex,
-  Species
+  Species,
 } from '@nominal-systems/dmi-engine-common'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
@@ -31,7 +31,7 @@ import {
   AntechV6Result,
   AntechV6SpeciesAndBreeds,
   AntechV6TestGuide,
-  AntechV6UserCredentials
+  AntechV6UserCredentials,
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
@@ -42,57 +42,67 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
   constructor(
     private readonly antechV6Api: AntechV6ApiService,
-    private readonly antechV6Mapper: AntechV6Mapper
+    private readonly antechV6Mapper: AntechV6Mapper,
   ) {
     super()
   }
 
-  async testAuth(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<IntegrationTestResponse> {
+  async testAuth(
+    payload: NullPayloadPayload,
+    metadata: AntechV6MessageData,
+  ): Promise<IntegrationTestResponse> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
     try {
       await this.antechV6Api.testAuth(metadata.providerConfiguration.baseUrl, credentials)
       return {
         success: true,
-        message: 'Authentication successful'
+        message: 'Authentication successful',
       }
     } catch (error) {
       return {
         success: false,
-        message: error.message
+        message: error.message,
       }
     }
   }
 
-  async createOrder(payload: CreateOrderPayload, metadata: AntechV6MessageData): Promise<OrderCreatedResponse> {
+  async createOrder(
+    payload: CreateOrderPayload,
+    metadata: AntechV6MessageData,
+  ): Promise<OrderCreatedResponse> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
     const preOrder = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
-    const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken = await this.antechV6Api.placePreOrder(
-      metadata.providerConfiguration.baseUrl,
-      credentials,
-      preOrder
-    )
+    const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken =
+      await this.antechV6Api.placePreOrder(
+        metadata.providerConfiguration.baseUrl,
+        credentials,
+        preOrder,
+      )
 
     return this.antechV6Mapper.mapAntechV6PreOrder(preOrder, preOrderPlacement, metadata)
   }
 
-  async getBatchOrders(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<Order[]> {
+  async getBatchOrders(
+    payload: NullPayloadPayload,
+    metadata: AntechV6MessageData,
+  ): Promise<Order[]> {
     const { username, password, clinicId } = metadata.integrationOptions
     const credentials = { UserName: username, Password: password, ClinicID: clinicId }
 
     const orderStatusResponse = await this.antechV6Api.getOrderStatus(
       metadata.providerConfiguration.baseUrl,
       credentials,
-      false
+      false,
     )
 
     return Promise.all(
@@ -100,14 +110,14 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         const resultStatusResponse = await this.antechV6Api.getResultStatus(
           metadata.providerConfiguration.baseUrl,
           credentials,
-          { ClinicAccessionID: orderStatus.ClinicAccessionID }
+          { ClinicAccessionID: orderStatus.ClinicAccessionID },
         )
 
         const order =
           resultStatusResponse.LabResults.length > 0
             ? mergePicks(
                 this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus),
-                this.antechV6Mapper.mapAntechV6ResultStatus(resultStatusResponse.LabResults[0])
+                this.antechV6Mapper.mapAntechV6ResultStatus(resultStatusResponse.LabResults[0]),
               )
             : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
 
@@ -115,7 +125,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         const manifest: Attachment | undefined = await this.antechV6Api.getOrderTrf(
           metadata.providerConfiguration.baseUrl,
           credentials,
-          orderStatus.ClinicAccessionID
+          orderStatus.ClinicAccessionID,
         )
         if (manifest != null) {
           order.manifest = manifest
@@ -126,24 +136,27 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         }
 
         return order
-      })
+      }),
     )
   }
 
-  async getBatchResults(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<BatchResultsResponse> {
+  async getBatchResults(
+    payload: NullPayloadPayload,
+    metadata: AntechV6MessageData,
+  ): Promise<BatchResultsResponse> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
     const allResults: AntechV6Result[] = await this.antechV6Api.getAllResults(
       metadata.providerConfiguration.baseUrl,
-      credentials
+      credentials,
     )
 
     return {
-      results: allResults.map((result) => this.antechV6Mapper.mapAntechV6Result(result))
+      results: allResults.map((result) => this.antechV6Mapper.mapAntechV6Result(result)),
     }
   }
 
@@ -163,26 +176,33 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
   cancelOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
     throw new AntechV6ApiException('Antech V6 API does not support cancelling orders.', 501, {
-      message: 'Not Implemented'
+      message: 'Not Implemented',
     })
   }
 
   cancelOrderTest(payload: OrderTestPayload, metadata: AntechV6MessageData): Promise<void> {
-    throw new AntechV6ApiException('Antech V6 API does not support cancelling individual tests.', 501, {
-      message: 'Not Implemented'
-    })
+    throw new AntechV6ApiException(
+      'Antech V6 API does not support cancelling individual tests.',
+      501,
+      {
+        message: 'Not Implemented',
+      },
+    )
   }
 
-  async getServices(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<Service[]> {
+  async getServices(
+    payload: NullPayloadPayload,
+    metadata: AntechV6MessageData,
+  ): Promise<Service[]> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
     const testGuide: AntechV6TestGuide = await this.antechV6Api.getTestGuide(
       metadata.providerConfiguration.baseUrl,
-      credentials
+      credentials,
     )
 
     return this.antechV6Mapper.mapAntechV6TestGuide(testGuide)
@@ -203,58 +223,70 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getSexes(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<ReferenceDataResponse<Sex>> {
+  async getSexes(
+    payload: NullPayloadPayload,
+    metadata: AntechV6MessageData,
+  ): Promise<ReferenceDataResponse<Sex>> {
     const items: Sex[] = Object.entries(AntechV6PetSex).map(([key, value]) => ({
       name: key,
-      code: value
+      code: value,
     }))
 
     return Promise.resolve({
       items,
-      hash: calculateHash(items)
+      hash: calculateHash(items),
     })
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getSpecies(
     payload: NullPayloadPayload,
-    metadata: AntechV6MessageData
+    metadata: AntechV6MessageData,
   ): Promise<ReferenceDataResponse<Species>> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    const antechV6SpeciesAndBreeds: AntechV6SpeciesAndBreeds = await this.antechV6Api.getSpeciesAndBreeds(
-      metadata.providerConfiguration.baseUrl,
-      credentials
-    )
+    const antechV6SpeciesAndBreeds: AntechV6SpeciesAndBreeds =
+      await this.antechV6Api.getSpeciesAndBreeds(
+        metadata.providerConfiguration.baseUrl,
+        credentials,
+      )
     const items: Species[] = antechV6SpeciesAndBreeds.value.data.map((species) => ({
       name: species.name,
-      code: String(species.id)
+      code: String(species.id),
     }))
 
     return {
       items,
-      hash: calculateHash(items)
+      hash: calculateHash(items),
     }
   }
 
-  async getBreeds(payload: NullPayloadPayload, metadata: AntechV6MessageData): Promise<ReferenceDataResponse<Breed>> {
+  async getBreeds(
+    payload: NullPayloadPayload,
+    metadata: AntechV6MessageData,
+  ): Promise<ReferenceDataResponse<Breed>> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    const antechV6SpeciesAndBreeds: AntechV6SpeciesAndBreeds = await this.antechV6Api.getSpeciesAndBreeds(
-      metadata.providerConfiguration.baseUrl,
-      credentials
-    )
+    const antechV6SpeciesAndBreeds: AntechV6SpeciesAndBreeds =
+      await this.antechV6Api.getSpeciesAndBreeds(
+        metadata.providerConfiguration.baseUrl,
+        credentials,
+      )
     const getBreeds = (data: AntechV6SpeciesAndBreeds): Breed[] => {
       return data.value.data.flatMap((species) =>
-        species.breed.map((breed) => ({ code: String(breed.id), name: breed.name, species: String(species.id) }))
+        species.breed.map((breed) => ({
+          code: String(breed.id),
+          name: breed.name,
+          species: String(species.id),
+        })),
       )
     }
 
@@ -262,7 +294,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
     return {
       items,
-      hash: calculateHash(items)
+      hash: calculateHash(items),
     }
   }
 
@@ -270,40 +302,52 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    await this.antechV6Api.acknowledgeOrders(metadata.providerConfiguration.baseUrl, credentials, payload.ids)
+    await this.antechV6Api.acknowledgeOrders(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      payload.ids,
+    )
   }
 
   async acknowledgeOrder(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    await this.antechV6Api.acknowledgeOrders(metadata.providerConfiguration.baseUrl, credentials, [payload.id])
+    await this.antechV6Api.acknowledgeOrders(metadata.providerConfiguration.baseUrl, credentials, [
+      payload.id,
+    ])
   }
 
   async acknowledgeResults(payload: IdsPayload, metadata: AntechV6MessageData): Promise<void> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, payload.ids)
+    await this.antechV6Api.acknowledgeResults(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      payload.ids,
+    )
   }
 
   async acknowledgeResult(payload: IdPayload, metadata: AntechV6MessageData): Promise<void> {
     const credentials: AntechV6UserCredentials = {
       UserName: metadata.integrationOptions.username,
       Password: metadata.integrationOptions.password,
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, [payload.id])
+    await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, [
+      payload.id,
+    ])
   }
 
   createRequisitionId(payload: NullPayloadPayload, metadata: AntechV6MessageData): string {

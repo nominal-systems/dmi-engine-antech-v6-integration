@@ -17,23 +17,23 @@ import { AntechV6ApiInterceptor } from './antechV6-api.interceptor'
         useFactory: async (configService: ConfigService) => ({
           transport: Transport.MQTT,
           options: {
-            ...configService.get('mqtt')
-          }
-        })
-      }
-    ])
+            ...configService.get('mqtt'),
+          },
+        }),
+      },
+    ]),
   ],
   providers: [
     {
       provide: AntechV6ApiHttpService,
-      useExisting: HttpService
+      useExisting: HttpService,
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: AntechV6ApiInterceptor
-    }
+      useClass: AntechV6ApiInterceptor,
+    },
   ],
-  exports: [AntechV6ApiHttpService]
+  exports: [AntechV6ApiHttpService],
 })
 export class AntechV6ApiModule {
   constructor(private readonly httpService: HttpService) {}

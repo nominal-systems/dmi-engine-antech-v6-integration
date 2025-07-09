@@ -19,7 +19,7 @@ import {
   ServiceType,
   TestResultItem,
   TestResultItemInterpretationCode,
-  VeterinarianPayload
+  VeterinarianPayload,
 } from '@nominal-systems/dmi-engine-common'
 import {
   AntechV6AccessToken,
@@ -37,7 +37,7 @@ import {
   AntechV6TestCodeResult,
   AntechV6TestGuide,
   AntechV6UnitCodeResult,
-  PersonDetails
+  PersonDetails,
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { TestResult } from '@nominal-systems/dmi-engine-common/lib/interfaces/provider-service'
@@ -51,7 +51,7 @@ import {
   generateClinicAccessionId,
   isOrphanResult,
   mapPatientSex,
-  mapTestCodeResultStatus
+  mapTestCodeResultStatus,
 } from '../common/utils/mapper-utils'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
@@ -59,7 +59,10 @@ import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-
 
 @Injectable()
 export class AntechV6Mapper {
-  mapCreateOrderPayload(payload: CreateOrderPayload, metadata: AntechV6MessageData): AntechV6PreOrder {
+  mapCreateOrderPayload(
+    payload: CreateOrderPayload,
+    metadata: AntechV6MessageData,
+  ): AntechV6PreOrder {
     const clinicId: string = metadata.integrationOptions.clinicId
     const pimsId: string = metadata.providerConfiguration.PimsIdentifier
 
@@ -70,40 +73,45 @@ export class AntechV6Mapper {
       ...this.extractClient(payload.client),
       ...this.extractDoctor(payload.veterinarian),
       ...this.extractPet(payload.patient),
-      ...this.extractOrderCodes(payload)
+      ...this.extractOrderCodes(payload),
     }
   }
 
   mapAntechV6PreOrder(
     preOrder: AntechV6PreOrder,
     preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken,
-    metadata: AntechV6MessageData
+    metadata: AntechV6MessageData,
   ): OrderCreatedResponse {
     return {
       requisitionId: preOrder.ClinicAccessionID,
       externalId: preOrder.ClinicAccessionID,
       status: OrderStatus.WAITING_FOR_INPUT,
-      submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}&accessToken=${preOrderPlacement.Token}`
+      submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}&accessToken=${preOrderPlacement.Token}`,
     }
   }
 
   mapAntechV6OrderStatus(
-    orderStatus: AntechV6LabOrderStatus
+    orderStatus: AntechV6LabOrderStatus,
   ): Pick<Order, 'externalId' | 'status' | 'tests' | 'editable'> {
     return {
       externalId: orderStatus.ClinicAccessionID,
       status: this.mapOrderStatus(orderStatus.OrderStatus),
       tests: orderStatus.LabTests.map((test) => {
         return {
-          code: test.Mnemonic
+          code: test.Mnemonic,
         }
       }),
-      editable: false
+      editable: false,
     }
   }
 
-  mapAntechV6ResultStatus(resultStatus: AntechV6LabResultStatus): Pick<Order, 'patient' | 'client' | 'veterinarian'> {
-    const extractIdentifier = (obj: PersonDetails, system: string): { identifier?: Identifier[] } => {
+  mapAntechV6ResultStatus(
+    resultStatus: AntechV6LabResultStatus,
+  ): Pick<Order, 'patient' | 'client' | 'veterinarian'> {
+    const extractIdentifier = (
+      obj: PersonDetails,
+      system: string,
+    ): { identifier?: Identifier[] } => {
       return obj.Id ? { identifier: [{ system, value: obj.Id }] } : {}
     }
     return {
@@ -112,15 +120,15 @@ export class AntechV6Mapper {
         sex: AntechV6PetSex.UNKNOWN,
         species: String(resultStatus.SpeciesID),
         breed: String(resultStatus.BreedID),
-        ...extractIdentifier(resultStatus.Pet, PimsIdentifiers.PatientID)
+        ...extractIdentifier(resultStatus.Pet, PimsIdentifiers.PatientID),
       },
       client: {
         ...this.extractClientName(resultStatus.Client),
-        ...extractIdentifier(resultStatus.Client, PimsIdentifiers.ClientID)
+        ...extractIdentifier(resultStatus.Client, PimsIdentifiers.ClientID),
       },
       veterinarian: {
-        ...this.extractVeterinarianName(resultStatus.Doctor)
-      }
+        ...this.extractVeterinarianName(resultStatus.Doctor),
+      },
     }
   }
 
@@ -134,7 +142,7 @@ export class AntechV6Mapper {
         type: ServiceType.IN_HOUSE,
         price: test.Price,
         // TODO(gb): is currency always USD?
-        currency: 'USD'
+        currency: 'USD',
         // TODO(gb): map labRequisitionInfo
       }
     })
@@ -146,7 +154,7 @@ export class AntechV6Mapper {
       orderId: result.ClinicAccessionID,
       accession: result.LabAccessionID,
       status: this.extractResultStatus(result),
-      testResults: this.extractTestResults(result.UnitCodeResults)
+      testResults: this.extractTestResults(result.UnitCodeResults),
     }
 
     if (isOrphanResult(result)) {
@@ -159,7 +167,7 @@ export class AntechV6Mapper {
   mapAntechV6UnitCodeResult(unitCodeResult: AntechV6UnitCodeResult, index: number): TestResult {
     const testResultItems: TestResultItem[] = unitCodeResult.TestCodeResults
       ? unitCodeResult.TestCodeResults.map((testCodeResult, idx) =>
-          this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.OrderCode)
+          this.mapAntechV6TestCodeResult(testCodeResult, idx, unitCodeResult.OrderCode),
         )
       : []
 
@@ -169,11 +177,15 @@ export class AntechV6Mapper {
       name: unitCodeResult.UnitCodeDisplayName,
       items: testResultItems?.sort((a, b) => {
         return a.seq !== undefined && b.seq !== undefined ? a.seq - b.seq : -1
-      })
+      }),
     }
   }
 
-  mapAntechV6TestCodeResult(testCodeResult: AntechV6TestCodeResult, index: number, orderCode?: string): TestResultItem {
+  mapAntechV6TestCodeResult(
+    testCodeResult: AntechV6TestCodeResult,
+    index: number,
+    orderCode?: string,
+  ): TestResultItem {
     let seq = index
     if (orderCode !== undefined && Object.keys(TEST_RESULT_SEQUENCING_MAP).includes(orderCode)) {
       seq = applyTestResultSequencing(testCodeResult.Test, TEST_RESULT_SEQUENCING_MAP[orderCode])
@@ -186,31 +198,31 @@ export class AntechV6Mapper {
       ...this.extractTestResultValueX(testCodeResult),
       ...this.extractTestResultInterpretation(testCodeResult),
       ...this.extractTestResultReferenceRange(testCodeResult),
-      ...this.extractTestResultNotes(testCodeResult)
+      ...this.extractTestResultNotes(testCodeResult),
     }
   }
 
   private extractLabId(metadata: AntechV6MessageData): Pick<AntechV6PreOrder, 'LabID'> {
     return {
-      LabID: parseInt(metadata.integrationOptions.labId)
+      LabID: parseInt(metadata.integrationOptions.labId),
     }
   }
 
   private extractClinicId(metadata: AntechV6MessageData): Pick<AntechV6PreOrder, 'ClinicID'> {
     return {
-      ClinicID: metadata.integrationOptions.clinicId
+      ClinicID: metadata.integrationOptions.clinicId,
     }
   }
 
   private extractClinicAccessionId(
     payload: CreateOrderPayload,
     clinicId: string,
-    pimsId: string
+    pimsId: string,
   ): Pick<AntechV6PreOrder, 'ClinicAccessionID'> {
     return {
       ClinicAccessionID: !isNullOrUndefinedOrEmpty(payload.requisitionId)
         ? payload.requisitionId
-        : generateClinicAccessionId(clinicId, pimsId)
+        : generateClinicAccessionId(clinicId, pimsId),
     }
   }
 
@@ -218,7 +230,7 @@ export class AntechV6Mapper {
     return {
       ClientID: this.getIdFromIdentifier(PimsIdentifiers.ClientID, client.identifier) || client.id,
       ClientFirstName: client.firstName ? client.firstName : '',
-      ClientLastName: client.lastName ? client.lastName.slice(0, 20) : ''
+      ClientLastName: client.lastName ? client.lastName.slice(0, 20) : '',
       // TODO(gb): extract client address
       // TODO(gb): extract client contact
     }
@@ -226,9 +238,11 @@ export class AntechV6Mapper {
 
   private extractDoctor(veterinarian: VeterinarianPayload): AntechV6Doctor {
     return {
-      DoctorID: this.getIdFromIdentifier(PimsIdentifiers.VeterinarianID, veterinarian.identifier) || veterinarian.id,
+      DoctorID:
+        this.getIdFromIdentifier(PimsIdentifiers.VeterinarianID, veterinarian.identifier) ||
+        veterinarian.id,
       DoctorFirstName: veterinarian.firstName ? veterinarian.firstName : '',
-      DoctorLastName: veterinarian.lastName
+      DoctorLastName: veterinarian.lastName,
       // TODO(gb): extract doctor contact
     }
   }
@@ -241,7 +255,10 @@ export class AntechV6Mapper {
       ...extractPetAge(patient.birthdate),
       ...this.extractPetWeight(patient),
       SpeciesID: isNumber(patient.species) ? parseInt(patient.species) : DEFAULT_PET_SPECIES,
-      BreedID: patient.breed !== undefined && isNumber(patient.breed) ? parseInt(patient.breed) : DEFAULT_PET_BREED
+      BreedID:
+        patient.breed !== undefined && isNumber(patient.breed)
+          ? parseInt(patient.breed)
+          : DEFAULT_PET_BREED,
     }
   }
 
@@ -268,7 +285,7 @@ export class AntechV6Mapper {
       result.UnitCodeResults?.filter(
         (UnitCodeResult) =>
           UnitCodeResult.ResultStatus?.toString() === 'F' &&
-          (!UnitCodeResult.TestCodeResults || UnitCodeResult.TestCodeResults.length === 0)
+          (!UnitCodeResult.TestCodeResults || UnitCodeResult.TestCodeResults.length === 0),
       ) ?? []
 
     resultTotalCount -= filteredUnitCodeResults.length
@@ -295,37 +312,37 @@ export class AntechV6Mapper {
           !(
             unitCodeResult.ResultStatus?.toString() === 'F' &&
             (!unitCodeResult.TestCodeResults || unitCodeResult.TestCodeResults.length === 0)
-          )
+          ),
       )
       .map(this.mapAntechV6UnitCodeResult, this)
   }
 
   private extractTestResultValueX(
-    testCodeResult: AntechV6TestCodeResult
+    testCodeResult: AntechV6TestCodeResult,
   ): Pick<TestResultItem, 'valueString' | 'valueQuantity'> {
     if (isNumber(testCodeResult.Result)) {
       return {
         valueQuantity: {
           value: parseFloat(testCodeResult.Result),
-          units: testCodeResult.Unit || ''
-        }
+          units: testCodeResult.Unit || '',
+        },
       }
     } else {
       return {
-        valueString: testCodeResult.Result || ''
+        valueString: testCodeResult.Result || '',
       }
     }
   }
 
   private extractTestResultInterpretation(
-    testCodeResult: AntechV6TestCodeResult
+    testCodeResult: AntechV6TestCodeResult,
   ): Pick<TestResultItem, 'interpretation'> {
     if (!isNullOrUndefinedOrEmpty(testCodeResult.AbnormalFlag)) {
       return {
         interpretation: {
           code: this.mapAntechV6AbnormalFlag(testCodeResult.AbnormalFlag),
-          text: testCodeResult.AbnormalFlag || ''
-        }
+          text: testCodeResult.AbnormalFlag || '',
+        },
       }
     }
 
@@ -349,7 +366,7 @@ export class AntechV6Mapper {
   }
 
   private extractTestResultReferenceRange(
-    testCodeResult: AntechV6TestCodeResult
+    testCodeResult: AntechV6TestCodeResult,
   ): Pick<TestResultItem, 'referenceRange'> {
     if (testCodeResult.Range !== undefined) {
       return {
@@ -357,9 +374,9 @@ export class AntechV6Mapper {
           {
             type: ReferenceRangeType.NORMAL,
             text: testCodeResult.Range,
-            ...this.extractReferenceRangeLimits(testCodeResult.Range)
-          }
-        ]
+            ...this.extractReferenceRangeLimits(testCodeResult.Range),
+          },
+        ],
       }
     }
 
@@ -369,11 +386,11 @@ export class AntechV6Mapper {
   private extractReferenceRangeLimits(range: string): Pick<ReferenceRange, 'low' | 'high'> {
     if (range.startsWith('<')) {
       return {
-        high: parseFloat(range.slice(1))
+        high: parseFloat(range.slice(1)),
       }
     } else if (range.startsWith('>')) {
       return {
-        low: parseFloat(range.slice(1))
+        low: parseFloat(range.slice(1)),
       }
     }
 
@@ -381,17 +398,19 @@ export class AntechV6Mapper {
     if (rangeParts.length === 2) {
       return {
         low: parseFloat(rangeParts[0]),
-        high: parseFloat(rangeParts[1])
+        high: parseFloat(rangeParts[1]),
       }
     }
 
     return {}
   }
 
-  private extractTestResultNotes(testCodeResult: AntechV6TestCodeResult): Pick<TestResultItem, 'notes'> {
+  private extractTestResultNotes(
+    testCodeResult: AntechV6TestCodeResult,
+  ): Pick<TestResultItem, 'notes'> {
     if (!isNullOrUndefinedOrEmpty(testCodeResult.Comments)) {
       return {
-        notes: testCodeResult.Comments || ''
+        notes: testCodeResult.Comments || '',
       }
     }
 
@@ -421,22 +440,29 @@ export class AntechV6Mapper {
   private extractClientName(client: PersonDetails): Pick<Client, 'firstName' | 'lastName'> {
     return {
       firstName: client.FirstName || '',
-      lastName: client.LastName || ''
+      lastName: client.LastName || '',
     }
   }
 
-  private extractVeterinarianName(doctor: PersonDetails): Pick<VeterinarianPayload, 'firstName' | 'lastName'> {
+  private extractVeterinarianName(
+    doctor: PersonDetails,
+  ): Pick<VeterinarianPayload, 'firstName' | 'lastName'> {
     return {
       firstName: doctor.FirstName || '',
-      lastName: doctor.LastName || ''
+      lastName: doctor.LastName || '',
     }
   }
 
-  private extractPetWeight(patient: OrderPatient): Pick<AntechV6Pet, 'PetWeight' | 'PetWeightUnits'> {
-    if (!isNullOrUndefinedOrEmpty(patient.weightMeasurement) && !isNullOrUndefinedOrEmpty(patient.weightUnits)) {
+  private extractPetWeight(
+    patient: OrderPatient,
+  ): Pick<AntechV6Pet, 'PetWeight' | 'PetWeightUnits'> {
+    if (
+      !isNullOrUndefinedOrEmpty(patient.weightMeasurement) &&
+      !isNullOrUndefinedOrEmpty(patient.weightUnits)
+    ) {
       return {
         PetWeight: patient.weightMeasurement,
-        PetWeightUnits: patient.weightUnits
+        PetWeightUnits: patient.weightUnits,
       }
     } else {
       return {}
@@ -450,7 +476,7 @@ export class AntechV6Mapper {
       patient: extractPatientFromResult(result),
       client: extractClientFromResult(result),
       veterinarian: extractVeterinarianFromResult(result),
-      tests: extractOrderTestCodesFromResult(result)
+      tests: extractOrderTestCodesFromResult(result),
     }
   }
 }

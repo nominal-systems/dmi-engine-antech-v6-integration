@@ -22,19 +22,19 @@ import { RpcExceptionFilter } from './filters/rcp-exception.filter'
         useFactory: async (configService: ConfigService) => ({
           transport: Transport.MQTT,
           options: {
-            ...configService.get('mqtt')
-          }
-        })
-      }
+            ...configService.get('mqtt'),
+          },
+        }),
+      },
     ]),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        redis: configService.get('redis')
-      })
+        redis: configService.get('redis'),
+      }),
     }),
-    AntechV6ApiModule
+    AntechV6ApiModule,
   ],
   providers: [
     AntechV6Mapper,
@@ -44,16 +44,16 @@ import { RpcExceptionFilter } from './filters/rcp-exception.filter'
     AntechV6ResultsProcessor,
     {
       provide: APP_FILTER,
-      useClass: RpcExceptionFilter
-    }
+      useClass: RpcExceptionFilter,
+    },
   ],
   controllers: [AntechV6Controller],
-  exports: [BullModule]
+  exports: [BullModule],
 })
 export class AntechV6Module {
   static register(): DynamicModule {
     return {
-      module: AntechV6Module
+      module: AntechV6Module,
     }
   }
 }

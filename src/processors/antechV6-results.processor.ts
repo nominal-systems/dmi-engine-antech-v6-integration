@@ -12,7 +12,7 @@ export class AntechV6ResultsProcessor {
 
   constructor(
     private readonly antechV6Service: AntechV6Service,
-    @Inject('API_SERVICE') private readonly apiClient: ClientProxy
+    @Inject('API_SERVICE') private readonly apiClient: ClientProxy,
   ) {}
 
   @Process()
@@ -23,7 +23,7 @@ export class AntechV6ResultsProcessor {
       const batchResults = await this.antechV6Service.getBatchResults(payload, metadata)
       if (batchResults.results.length > 0) {
         this.logger.log(
-          `Fetched ${batchResults.results.length} result${batchResults.results.length > 1 ? 's' : ''} for integration ${payload.integrationId}`
+          `Fetched ${batchResults.results.length} result${batchResults.results.length > 1 ? 's' : ''} for integration ${payload.integrationId}`,
         )
 
         const labAccessionIds = batchResults.results
@@ -32,19 +32,23 @@ export class AntechV6ResultsProcessor {
 
         this.apiClient.emit('external_order_results', {
           integrationId: payload.integrationId,
-          results: batchResults.results
+          results: batchResults.results,
         })
 
         this.apiClient.emit('external_results', {
           integrationId: payload.integrationId,
-          results: batchResults.results
+          results: batchResults.results,
         })
 
         await this.antechV6Service.acknowledgeResults({ ids: labAccessionIds }, metadata)
-        this.logger.log(`Acknowledged results ${labAccessionIds.join(',')} for integration ${payload.integrationId}`)
+        this.logger.log(
+          `Acknowledged results ${labAccessionIds.join(',')} for integration ${payload.integrationId}`,
+        )
       }
     } catch (error) {
-      this.logger.error(`Error fetching results for integration ${payload.integrationId}: ${error.message}`)
+      this.logger.error(
+        `Error fetching results for integration ${payload.integrationId}: ${error.message}`,
+      )
     }
   }
 }
