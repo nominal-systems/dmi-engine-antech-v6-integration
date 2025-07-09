@@ -240,7 +240,8 @@ export class AntechV6Mapper {
     return {
       DoctorID:
         this.getIdFromIdentifier(PimsIdentifiers.VeterinarianID, veterinarian.identifier) ||
-        veterinarian.id,
+        veterinarian.id ||
+        '',
       DoctorFirstName: veterinarian.firstName ? veterinarian.firstName : '',
       DoctorLastName: veterinarian.lastName,
       // TODO(gb): extract doctor contact

@@ -137,6 +137,19 @@ describe('AntechV6Mapper', () => {
       }
       expect(mapper.mapCreateOrderPayload(payload, metadataMock)).toEqual(expected)
     })
+
+    it('should set DoctorID to empty string if missing in payload', () => {
+      const payloadNoDoctorId = {
+        ...payload,
+        veterinarian: {
+          firstName: 'Neva',
+          lastName: 'Klein',
+        },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadNoDoctorId, metadataMock)
+      expect(result.DoctorID).toBe('')
+    })
   })
 
   describe('extractClient()', () => {

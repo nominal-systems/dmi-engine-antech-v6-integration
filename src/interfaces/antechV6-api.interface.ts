@@ -184,7 +184,7 @@ export interface AntechV6Client {
 }
 
 export interface AntechV6Doctor {
-  DoctorID?: string
+  DoctorID: string
   DoctorFirstName: string
   DoctorLastName: string
   DoctorCell?: string
