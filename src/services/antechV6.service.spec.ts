@@ -24,6 +24,7 @@ describe('AntechV6Service', () => {
       baseUrl: 'https://margaapi-pims.marsvh.com',
       uiBaseUrl: 'https://margaui-pims.marsvh.com',
       PimsIdentifier: 'PIMS',
+      IhdMnemonics: [],
     },
   }
   const nullPayloadMock: NullPayloadPayload = null
@@ -78,6 +79,10 @@ describe('AntechV6Service', () => {
     }).compile()
 
     service = module.get<AntechV6Service>(AntechV6Service)
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
   })
 
   it('should be defined', () => {
@@ -231,7 +236,6 @@ describe('AntechV6Service', () => {
         }),
       )
     })
-
     it('should continue if order TRF request fails', async () => {
       antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
         LabOrders: [
@@ -250,7 +254,6 @@ describe('AntechV6Service', () => {
       expect(orders.length).toEqual(1)
       expect(orders[0].manifest).toBeUndefined()
     })
-
     it('should continue if order TRF is not returned', async () => {
       antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
         LabOrders: [
@@ -267,6 +270,37 @@ describe('AntechV6Service', () => {
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
       expect(antechV6ApiServiceMock.getOrderTrf).toBeCalled()
       expect(orders.length).toEqual(1)
+      expect(orders[0].manifest).toBeUndefined()
+    })
+    it('should skip order TRF when mnemonic is configured to be skipped', async () => {
+      const metadataWithSkip = {
+        ...metadataMock,
+        providerConfiguration: {
+          ...metadataMock.providerConfiguration,
+          IhdMnemonic: ['SA804'],
+        },
+      }
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC125',
+            LabTests: [
+              {
+                CodeType: 'U',
+                CodeID: 12687,
+                Mnemonic: 'SA804',
+                DisplayName: 'Chemistry Panel w/SDMA',
+                Price: 49.51,
+              },
+            ],
+          },
+        ],
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
+        LabResults: [],
+      })
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataWithSkip)
+      expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
       expect(orders[0].manifest).toBeUndefined()
     })
   })

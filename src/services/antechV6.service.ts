@@ -97,7 +97,12 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     metadata: AntechV6MessageData,
   ): Promise<Order[]> {
     const { username, password, clinicId } = metadata.integrationOptions
-    const credentials = { UserName: username, Password: password, ClinicID: clinicId }
+    const { IhdMnemonic = [] } = metadata.providerConfiguration
+    const credentials = {
+      UserName: username,
+      Password: password,
+      ClinicID: clinicId,
+    }
 
     const orderStatusResponse = await this.antechV6Api.getOrderStatus(
       metadata.providerConfiguration.baseUrl,
@@ -105,23 +110,25 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       false,
     )
 
-    return Promise.all(
-      orderStatusResponse.LabOrders.map(async (orderStatus) => {
-        const resultStatusResponse = await this.antechV6Api.getResultStatus(
-          metadata.providerConfiguration.baseUrl,
-          credentials,
-          { ClinicAccessionID: orderStatus.ClinicAccessionID },
-        )
+    const orders: Order[] = []
+    for (const orderStatus of orderStatusResponse.LabOrders) {
+      const resultStatusResponse = await this.antechV6Api.getResultStatus(
+        metadata.providerConfiguration.baseUrl,
+        credentials,
+        { ClinicAccessionID: orderStatus.ClinicAccessionID },
+      )
 
-        const order =
-          resultStatusResponse.LabResults.length > 0
-            ? mergePicks(
-                this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus),
-                this.antechV6Mapper.mapAntechV6ResultStatus(resultStatusResponse.LabResults[0]),
-              )
-            : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
+      const order =
+        resultStatusResponse.LabResults.length > 0
+          ? mergePicks(
+              this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus),
+              this.antechV6Mapper.mapAntechV6ResultStatus(resultStatusResponse.LabResults[0]),
+            )
+          : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
 
-        // Get the manifest for the order
+      const orderMnemonics = [...(orderStatus.LabTests || []).map((t) => t.Mnemonic)]
+
+      if (!orderMnemonics.some((mn) => IhdMnemonic.includes(mn))) {
         const manifest: Attachment | undefined = await this.antechV6Api.getOrderTrf(
           metadata.providerConfiguration.baseUrl,
           credentials,
@@ -130,14 +137,16 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         if (manifest != null) {
           order.manifest = manifest
         }
+      }
 
-        if (resultStatusResponse.LabResults.length === 0) {
-          this.logger.warn(`Couldn't find result status for order ${orderStatus.ClinicAccessionID}`)
-        }
+      if (resultStatusResponse.LabResults.length === 0) {
+        this.logger.warn(`Couldn't find result status for order ${orderStatus.ClinicAccessionID}`)
+      }
 
-        return order
-      }),
-    )
+      orders.push(order)
+    }
+
+    return orders
   }
 
   async getBatchResults(

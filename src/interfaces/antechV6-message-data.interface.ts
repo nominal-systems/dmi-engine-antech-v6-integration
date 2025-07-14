@@ -9,6 +9,7 @@ export interface AntechV6ProviderConfiguration {
   baseUrl: string
   uiBaseUrl: string
   PimsIdentifier: string
+  IhdMnemonic?: string[]
 }
 
 export interface AntechV6IntegrationOptions {
