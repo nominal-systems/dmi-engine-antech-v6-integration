@@ -272,12 +272,12 @@ describe('AntechV6Service', () => {
       expect(orders.length).toEqual(1)
       expect(orders[0].manifest).toBeUndefined()
     })
-    it('should skip order TRF when mnemonic is configured to be skipped', async () => {
+    it('should skip a pending order TRF when mnemonic is configured to be skipped', async () => {
       const metadataWithSkip = {
         ...metadataMock,
         providerConfiguration: {
           ...metadataMock.providerConfiguration,
-          IhdMnemonic: ['SA804'],
+          IhdMnemonic: ['HHEM-1', 'M130'],
         },
       }
       antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
@@ -287,10 +287,10 @@ describe('AntechV6Service', () => {
             LabTests: [
               {
                 CodeType: 'U',
-                CodeID: 12687,
-                Mnemonic: 'SA804',
-                DisplayName: 'Chemistry Panel w/SDMA',
-                Price: 49.51,
+                CodeID: 13792,
+                Mnemonic: 'M130',
+                DisplayName: 'Culture, Urine',
+                Price: 157.9,
               },
             ],
           },
@@ -298,6 +298,67 @@ describe('AntechV6Service', () => {
       })
       antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
         LabResults: [],
+      })
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataWithSkip)
+      expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
+      expect(orders[0].manifest).toBeUndefined()
+    })
+    it('should skip a submitted order TRF when mnemonic is configured to be skipped', async () => {
+      const metadataWithSkip = {
+        ...metadataMock,
+        providerConfiguration: {
+          ...metadataMock.providerConfiguration,
+          IhdMnemonic: ['HHEM-1', 'M130'],
+        },
+      }
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC125',
+            LabTests: [
+              {
+                CodeType: 'U',
+                CodeID: 13792,
+                Mnemonic: 'M130',
+                DisplayName: 'Culture, Urine',
+                Price: 157.9,
+              },
+            ],
+          },
+        ],
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({
+        LabResults: [
+          {
+            ClinicAccessionID: '44238-VOY-3380574337',
+            Pet: {
+              Id: '12791019119',
+              Name: 'DOLLY',
+            },
+            Client: {
+              Id: 'WEA0A3K',
+              FirstName: 'Christina',
+              LastName: 'Brown',
+            },
+            Doctor: {
+              Id: '404235',
+              FirstName: 'Holly',
+              LastName: 'Crawford',
+            },
+            LabTests: [
+              {
+                CodeID: 13792,
+                Mnemonic: 'M130',
+                DisplayName: 'Culture, Urine',
+              },
+              {
+                CodeID: 19191,
+                Mnemonic: 'M130A',
+                DisplayName: 'FIRSTract Urine Culture',
+              },
+            ],
+          },
+        ],
       })
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataWithSkip)
       expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
