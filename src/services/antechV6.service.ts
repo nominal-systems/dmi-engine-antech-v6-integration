@@ -98,6 +98,9 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
   ): Promise<Order[]> {
     const { username, password, clinicId } = metadata.integrationOptions
     const { IhdMnemonic = [] } = metadata.providerConfiguration
+    this.logger.debug(
+      `getBatchOrders: clinicId=${clinicId} IhdMnemonic=${Array.isArray(IhdMnemonic) ? IhdMnemonic.join(',') : IhdMnemonic}`,
+    )
     const credentials = {
       UserName: username,
       Password: password,
