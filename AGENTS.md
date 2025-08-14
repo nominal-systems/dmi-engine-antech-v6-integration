@@ -31,6 +31,9 @@ This repository houses the DMI Engine Antech V6 Integration, a NestJS + TypeScri
 - Commits: imperative mood, reference issues (e.g., `[ #26 ] Fix …`), optional Conventional Commit prefixes (`chore:`, `fix:`) are welcome.
 - PRs: include description, linked issues, steps to validate, and logs/screenshots if behavior changes. Ensure `npm run lint && npm test` pass.
 
+## Agent Final Notes
+- When finishing a task, include a "Commit message" section in your final notes with a single-line commit message summarizing all current uncommitted changes (from `git diff`), not just the last change.
+
 ## Security & Configuration Tips
 - Do not commit secrets. Use environment config; the host app must provide `mqtt` and `redis` via `ConfigModule` (`ConfigService.get('mqtt'|'redis')`). See `src/.env` example for Redis.
 - Publishing: tags `v*` trigger GitHub Packages; `GHP_TOKEN` is required (see `.npmrc` and workflow).
