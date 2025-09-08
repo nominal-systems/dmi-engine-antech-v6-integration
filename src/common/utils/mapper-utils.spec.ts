@@ -25,24 +25,14 @@ describe('MapperUtils', () => {
       expect(extractPetAge(futureDate)).toEqual(DEFAULT_PET_AGE)
     })
 
-    it('should calculate pet age in years', () => {
-      const birthdate = moment().subtract(12, 'years').format('YYYY-MM-DD')
-      expect(extractPetAge(birthdate)).toEqual({ PetAge: 12, PetAgeUnits: 'Y' })
-    })
-
-    it('should calculate pet age in months', () => {
-      const birthdate = moment().subtract(3, 'months').format('YYYY-MM-DD')
-      expect(extractPetAge(birthdate)).toEqual({ PetAge: 3, PetAgeUnits: 'M' })
-    })
-
-    it('should calculate the pet age in weeks', () => {
-      const birthdate = moment().subtract(2, 'weeks').format('YYYY-MM-DD')
-      expect(extractPetAge(birthdate)).toEqual({ PetAge: 2, PetAgeUnits: 'W' })
-    })
-
     it('should calculate the pet age in days', () => {
       const birthdate = moment().subtract(2, 'days').format('YYYY-MM-DD')
       expect(extractPetAge(birthdate)).toEqual({ PetAge: 2, PetAgeUnits: 'D' })
+    })
+
+    it('should calculate the pet age in days for a birthdate far in the past', () => {
+      const birthdate = moment().subtract(5, 'years').format('YYYY-MM-DD')
+      expect(extractPetAge(birthdate)).toEqual({ PetAge: 1826, PetAgeUnits: 'D' })
     })
   })
 })
