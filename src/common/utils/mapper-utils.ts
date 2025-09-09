@@ -16,13 +16,29 @@ import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
 import { AntechV6ApiException } from '../exceptions/antechV6-api.exception'
 
-export function extractPetAge(birthdate?: string): Pick<AntechV6Pet, 'PetAge' | 'PetAgeUnits'> {
+export function extractPetAge(
+  birthdate?: string,
+  ageUnits?: 'Y' | 'M' | 'W' | 'D',
+): Pick<AntechV6Pet, 'PetAge' | 'PetAgeUnits'> {
   if (isNullOrUndefinedOrEmpty(birthdate)) {
     return DEFAULT_PET_AGE
   } else {
     const birthdateMoment = moment(birthdate, 'YYYY-MM-DD')
     const now = moment()
     const days = now.diff(birthdateMoment, 'days')
+    const weeks = now.diff(birthdateMoment, 'weeks')
+    const months = now.diff(birthdateMoment, 'months')
+    const years = now.diff(birthdateMoment, 'years')
+
+    if (ageUnits === 'Y' && years > 0) {
+      return { PetAge: years, PetAgeUnits: 'Y' }
+    }
+    if (ageUnits === 'M' && months > 0) {
+      return { PetAge: months, PetAgeUnits: 'M' }
+    }
+    if (ageUnits === 'W' && weeks > 0) {
+      return { PetAge: weeks, PetAgeUnits: 'W' }
+    }
     if (days > 0) {
       return { PetAge: days, PetAgeUnits: 'D' }
     }
