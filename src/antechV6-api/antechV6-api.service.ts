@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import {
   AntechV6AccessToken,
   AntechV6Endpoints,
+  AntechV6Order,
+  AntechV6OrderPlacement,
   AntechV6OrderStatusResponse,
   AntechV6PreOrder,
   AntechV6PreOrderPlacement,
@@ -213,6 +215,28 @@ export class AntechV6ApiService extends BaseApiService {
       }
     } catch (error) {
       throw new AntechV6ApiException('Failed to place pre-order', error.status, error)
+    }
+  }
+
+  async placeOrder(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+    order: AntechV6Order,
+  ): Promise<AntechV6OrderPlacement & AntechV6AccessToken> {
+    try {
+      const { Token } = await this.authenticate(baseUrl, credentials)
+      const orderPlacement = await this.doPost<AntechV6OrderPlacement>(
+        credentials,
+        baseUrl,
+        AntechV6Endpoints.PLACE_ORDER,
+        order,
+      )
+      return {
+        ...orderPlacement,
+        Token,
+      }
+    } catch (error) {
+      throw new AntechV6ApiException('Failed to place order', error.status, error)
     }
   }
 

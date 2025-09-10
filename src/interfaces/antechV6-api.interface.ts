@@ -7,6 +7,7 @@ export enum AntechV6Endpoints {
   GET_TEST_GUIDE = '/Tests/v6',
   GET_ORDER_TRF = '/HTPDF/trf/pims',
   PLACE_PRE_ORDER = '/LabOrders/v6/PreOrderPlacement',
+  PLACE_ORDER = '/LabOrders/v6/Order',
   ACKNOWLEDGE_STATUS = '/LabResults/v6/AckStatus',
 }
 
@@ -94,6 +95,14 @@ export interface AntechV6PreOrderPlacement {
   Value: string
 }
 
+export interface AntechV6OrderPlacement {
+  payload: string
+  status: number
+  message: string
+  isSuccess: boolean
+  requestId: string
+}
+
 export interface AntechV6SpeciesAndBreeds {
   value: {
     data: AntechV6Species[]
@@ -168,6 +177,11 @@ export interface AntechV6PreOrder extends AntechV6Client, AntechV6Doctor, Antech
   User_ID?: number
   ListOrderCodes?: string
   OrderCodes?: string[]
+}
+
+export interface AntechV6Order extends AntechV6PreOrder {
+  PetWeight: number
+  PetWeightUnits: string
 }
 
 export interface AntechV6Client {
