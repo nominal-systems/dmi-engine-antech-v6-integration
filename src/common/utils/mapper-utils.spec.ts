@@ -22,7 +22,7 @@ describe('MapperUtils', () => {
 
     it('should return default age when birthdate is in the future', () => {
       const futureDate = moment().add(1, 'day').format('YYYY-MM-DD')
-      expect(extractPetAge(futureDate)).toEqual(DEFAULT_PET_AGE)
+      expect(extractPetAge(futureDate)).toEqual({ PetAge: 1, PetAgeUnits: 'Y' })
     })
 
     it('should calculate the pet age in days', () => {
@@ -33,6 +33,11 @@ describe('MapperUtils', () => {
     it('should return days when pet age is less than a week', () => {
       const birthdate = moment().subtract(3, 'days').format('YYYY-MM-DD')
       expect(extractPetAge(birthdate, 'W')).toEqual({ PetAge: 3, PetAgeUnits: 'D' })
+    })
+
+    it('should return weeks when pet age is less than a month', () => {
+      const birthdate = moment().subtract(16, 'days').format('YYYY-MM-DD')
+      expect(extractPetAge(birthdate, 'Y')).toEqual({ PetAge: 2, PetAgeUnits: 'W' })
     })
 
     it('should calculate the pet age in weeks', () => {
