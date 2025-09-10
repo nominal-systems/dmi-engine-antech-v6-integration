@@ -7,6 +7,7 @@ import {
   IntegrationTestResponse,
   Operation,
   OrderCreatedResponse,
+  OrderStatus,
   ProviderApi,
   ProviderOrderCreation,
   ProviderOrderUpdate,
@@ -51,9 +52,19 @@ export class AntechV6Controller
       <CreateOrderPayload>payload,
       metadata,
     )
-    this.logger.log(
-      `Antech V6 pre-order placed. Finalize it at: ${orderCreatedResponse.submissionUri}`,
-    )
+    if (orderCreatedResponse.status === OrderStatus.WAITING_FOR_INPUT) {
+      this.logger.log(
+        `Antech V6 pre-order placed. Finalize it at: ${orderCreatedResponse.submissionUri}`,
+      )
+    } else if (orderCreatedResponse.status === OrderStatus.SUBMITTED) {
+      this.logger.log(
+        `Antech V6 order submitted. ClinicAccessionID=${orderCreatedResponse.requisitionId}`,
+      )
+    } else {
+      this.logger.log(
+        `Antech V6 order created with status=${orderCreatedResponse.status} Accession=${orderCreatedResponse.requisitionId}`,
+      )
+    }
     return orderCreatedResponse
   }
 

@@ -6,6 +6,7 @@ import {
 import {
   Client,
   isNullOrUndefinedOrEmpty,
+  OrderPatient,
   Patient,
   Test,
   TestResultItemStatus,
@@ -37,6 +38,22 @@ export function extractPetAge(birthdate?: string): Pick<AntechV6Pet, 'PetAge' | 
     }
 
     return DEFAULT_PET_AGE
+  }
+}
+
+export function extractPetWeight(
+  patient: OrderPatient,
+): Pick<AntechV6Pet, 'PetWeight' | 'PetWeightUnits'> {
+  if (
+    !isNullOrUndefinedOrEmpty(patient.weightMeasurement) &&
+    !isNullOrUndefinedOrEmpty(patient.weightUnits)
+  ) {
+    return {
+      PetWeight: patient.weightMeasurement,
+      PetWeightUnits: patient.weightUnits,
+    }
+  } else {
+    return {}
   }
 }
 

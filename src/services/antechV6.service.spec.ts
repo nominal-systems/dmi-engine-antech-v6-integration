@@ -1,9 +1,11 @@
 import { Test } from '@nestjs/testing'
 import { AntechV6Service } from './antechV6.service'
 import {
+  CreateOrderPayload,
   FileUtils,
   NullPayloadPayload,
   Order,
+  OrderCreatedResponse,
   OrderStatus,
   PimsIdentifiers,
 } from '@nominal-systems/dmi-engine-common'
@@ -31,6 +33,8 @@ describe('AntechV6Service', () => {
   const antechV6ApiServiceMock = {
     getOrderStatus: jest.fn(),
     getResultStatus: jest.fn(),
+    placePreOrder: jest.fn(),
+    placeOrder: jest.fn(),
     getSpeciesAndBreeds: jest.fn(() => {
       return {
         value: {
@@ -363,6 +367,66 @@ describe('AntechV6Service', () => {
       const orders: Order[] = await service.getBatchOrders(payloadMock, metadataWithSkip)
       expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
       expect(orders[0].manifest).toBeUndefined()
+    })
+  })
+
+  describe('createOrder()', () => {
+    const createOrderPayload = {
+      requisitionId: 'REQ123',
+      client: { id: 'C1', firstName: 'Jane', lastName: 'Doe' },
+      veterinarian: { id: 'D1', lastName: 'Doc' },
+      patient: {
+        id: 'P1',
+        name: 'Buddy',
+        sex: 'M',
+        birthdate: '2018-01-01',
+        weightMeasurement: 10,
+        weightUnits: 'kg',
+        species: '41',
+        breed: '370',
+      },
+      tests: [{ code: 'SA804' }],
+    } as unknown as CreateOrderPayload
+
+    it('places a pre-order by default', async () => {
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, metadataMock)
+      expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
+      expect(resp).toEqual(
+        expect.objectContaining({
+          requisitionId: 'REQ123',
+          externalId: 'REQ123',
+          status: OrderStatus.WAITING_FOR_INPUT,
+          submissionUri: expect.any(String),
+        }),
+      )
+    })
+
+    it('places order when autoSubmitOrder is true', async () => {
+      antechV6ApiServiceMock.placeOrder.mockResolvedValue({
+        payload: 'ok',
+        status: 200,
+        message: 'success',
+        isSuccess: true,
+        requestId: 'r1',
+        Token: 'tok',
+      })
+      const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
+        ...metadataMock,
+        autoSubmitOrder: true,
+      } as any)
+      expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.placePreOrder).not.toHaveBeenCalled()
+      expect(resp).toEqual(
+        expect.objectContaining({
+          requisitionId: 'REQ123',
+          externalId: 'REQ123',
+          status: OrderStatus.SUBMITTED,
+        }),
+      )
+      // No submission URI on auto-submitted orders
+      expect((resp as any).submissionUri).toBeUndefined()
     })
   })
 

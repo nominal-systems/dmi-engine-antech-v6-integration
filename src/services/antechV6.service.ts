@@ -26,6 +26,7 @@ import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interfa
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import {
   AntechV6AccessToken,
+  AntechV6Order,
   AntechV6PetSex,
   AntechV6PreOrderPlacement,
   AntechV6Result,
@@ -81,15 +82,25 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    const preOrder = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
+    const orderPayload = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
+
+    if (metadata.autoSubmitOrder === true) {
+      await this.antechV6Api.placeOrder(
+        metadata.providerConfiguration.baseUrl,
+        credentials,
+        orderPayload as AntechV6Order,
+      )
+      return this.antechV6Mapper.mapAntechV6Order(orderPayload)
+    }
+
     const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken =
       await this.antechV6Api.placePreOrder(
         metadata.providerConfiguration.baseUrl,
         credentials,
-        preOrder,
+        orderPayload,
       )
 
-    return this.antechV6Mapper.mapAntechV6PreOrder(preOrder, preOrderPlacement, metadata)
+    return this.antechV6Mapper.mapAntechV6PreOrder(orderPayload, preOrderPlacement, metadata)
   }
 
   async getBatchOrders(

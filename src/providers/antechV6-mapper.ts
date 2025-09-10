@@ -47,6 +47,7 @@ import {
   extractOrderTestCodesFromResult,
   extractPatientFromResult,
   extractPetAge,
+  extractPetWeight,
   extractVeterinarianFromResult,
   generateClinicAccessionId,
   isOrphanResult,
@@ -87,6 +88,14 @@ export class AntechV6Mapper {
       externalId: preOrder.ClinicAccessionID,
       status: OrderStatus.WAITING_FOR_INPUT,
       submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}&accessToken=${preOrderPlacement.Token}`,
+    }
+  }
+
+  mapAntechV6Order(order: AntechV6PreOrder): OrderCreatedResponse {
+    return {
+      requisitionId: order.ClinicAccessionID,
+      externalId: order.ClinicAccessionID,
+      status: OrderStatus.SUBMITTED,
     }
   }
 
@@ -254,7 +263,7 @@ export class AntechV6Mapper {
       PetName: patient.name,
       PetSex: mapPatientSex(patient.sex),
       ...extractPetAge(patient.birthdate),
-      ...this.extractPetWeight(patient),
+      ...extractPetWeight(patient),
       SpeciesID: isNumber(patient.species) ? parseInt(patient.species) : DEFAULT_PET_SPECIES,
       BreedID:
         patient.breed !== undefined && isNumber(patient.breed)
@@ -451,22 +460,6 @@ export class AntechV6Mapper {
     return {
       firstName: doctor.FirstName || '',
       lastName: doctor.LastName || '',
-    }
-  }
-
-  private extractPetWeight(
-    patient: OrderPatient,
-  ): Pick<AntechV6Pet, 'PetWeight' | 'PetWeightUnits'> {
-    if (
-      !isNullOrUndefinedOrEmpty(patient.weightMeasurement) &&
-      !isNullOrUndefinedOrEmpty(patient.weightUnits)
-    ) {
-      return {
-        PetWeight: patient.weightMeasurement,
-        PetWeightUnits: patient.weightUnits,
-      }
-    } else {
-      return {}
     }
   }
 
