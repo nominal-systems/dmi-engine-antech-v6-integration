@@ -263,7 +263,7 @@ export class AntechV6Mapper {
       PetName: patient.name,
       PetSex: mapPatientSex(patient.sex),
       ...extractPetAge(patient.birthdate, 'D'),
-      ...this.extractPetWeight(patient),
+      ...extractPetWeight(patient),
       SpeciesID: isNumber(patient.species) ? parseInt(patient.species) : DEFAULT_PET_SPECIES,
       BreedID:
         patient.breed !== undefined && isNumber(patient.breed)
