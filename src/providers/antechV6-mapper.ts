@@ -262,8 +262,8 @@ export class AntechV6Mapper {
       PetID: this.getIdFromIdentifier(PimsIdentifiers.PatientID, patient.identifier) || patient.id,
       PetName: patient.name,
       PetSex: mapPatientSex(patient.sex),
-      ...extractPetAge(patient.birthdate),
-      ...extractPetWeight(patient),
+      ...extractPetAge(patient.birthdate, 'D'),
+      ...this.extractPetWeight(patient),
       SpeciesID: isNumber(patient.species) ? parseInt(patient.species) : DEFAULT_PET_SPECIES,
       BreedID:
         patient.breed !== undefined && isNumber(patient.breed)
