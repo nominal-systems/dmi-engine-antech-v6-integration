@@ -29,11 +29,25 @@ export function extractPetAge(
     const weeks = now.diff(birthdateMoment, 'weeks')
     const months = now.diff(birthdateMoment, 'months')
     const years = now.diff(birthdateMoment, 'years')
+    // When units are specified, never return 0. If the difference is 0,
+    // round up to 1; if negative (future date), fall through to default.
     if (ageUnits) {
-      if (ageUnits === 'Y' && years >= 0) return { PetAge: years, PetAgeUnits: 'Y' }
-      if (ageUnits === 'M' && months >= 0) return { PetAge: months, PetAgeUnits: 'M' }
-      if (ageUnits === 'W' && weeks >= 0) return { PetAge: weeks, PetAgeUnits: 'W' }
-      if (ageUnits === 'D' && days >= 0) return { PetAge: days, PetAgeUnits: 'D' }
+      if (ageUnits === 'Y') {
+        if (years < 0) return DEFAULT_PET_AGE
+        return { PetAge: Math.max(1, years), PetAgeUnits: 'Y' }
+      }
+      if (ageUnits === 'M') {
+        if (months < 0) return DEFAULT_PET_AGE
+        return { PetAge: Math.max(1, months), PetAgeUnits: 'M' }
+      }
+      if (ageUnits === 'W') {
+        if (weeks < 0) return DEFAULT_PET_AGE
+        return { PetAge: Math.max(1, weeks), PetAgeUnits: 'W' }
+      }
+      if (ageUnits === 'D') {
+        if (days < 0) return DEFAULT_PET_AGE
+        return { PetAge: Math.max(1, days), PetAgeUnits: 'D' }
+      }
     } else {
       if (years > 0) return { PetAge: years, PetAgeUnits: 'Y' }
       if (months > 0) return { PetAge: months, PetAgeUnits: 'M' }
