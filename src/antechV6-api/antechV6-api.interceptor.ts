@@ -60,7 +60,10 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
   public extractAccessionIds(url: string, body: any, response: AxiosResponse): string[] {
     let accessionIds: string[] = []
 
-    if (url.includes(AntechV6Endpoints.PLACE_PRE_ORDER)) {
+    if (
+      url.includes(AntechV6Endpoints.PLACE_PRE_ORDER) ||
+      url.includes(AntechV6Endpoints.PLACE_ORDER)
+    ) {
       const jsonData: any = JSON.parse(response.config.data)
       const clinicAccessionId: any = jsonData['ClinicAccessionID']
       if (!isNullOrUndefinedOrEmpty(clinicAccessionId)) {
