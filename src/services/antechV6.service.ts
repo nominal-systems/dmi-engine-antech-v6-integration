@@ -84,14 +84,15 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
     const orderPayload = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
 
-    if (metadata.autoSubmitOrder === true) {
-      await this.antechV6Api.placeOrder(
-        metadata.providerConfiguration.baseUrl,
-        credentials,
-        orderPayload as AntechV6Order,
-      )
-      return this.antechV6Mapper.mapAntechV6Order(orderPayload)
-    }
+    // Disabling auto submission of orders for now
+    // if (metadata.autoSubmitOrder === true) {
+    //   await this.antechV6Api.placeOrder(
+    //     metadata.providerConfiguration.baseUrl,
+    //     credentials,
+    //     orderPayload as AntechV6Order,
+    //   )
+    //   return this.antechV6Mapper.mapAntechV6Order(orderPayload)
+    // }
 
     const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken =
       await this.antechV6Api.placePreOrder(
