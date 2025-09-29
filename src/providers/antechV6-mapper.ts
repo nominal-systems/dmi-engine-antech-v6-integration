@@ -258,11 +258,12 @@ export class AntechV6Mapper {
   }
 
   private extractPet(patient: OrderPatient): AntechV6Pet {
+    const petAgeUnits = (process.env.ANTECH_V6_PET_AGE_UNITS as 'Y' | 'M' | 'W' | 'D') || 'Y'
     return {
       PetID: this.getIdFromIdentifier(PimsIdentifiers.PatientID, patient.identifier) || patient.id,
       PetName: patient.name,
       PetSex: mapPatientSex(patient.sex),
-      ...extractPetAge(patient.birthdate, 'D'),
+      ...extractPetAge(patient.birthdate, petAgeUnits),
       ...extractPetWeight(patient),
       SpeciesID: isNumber(patient.species) ? parseInt(patient.species) : DEFAULT_PET_SPECIES,
       BreedID:

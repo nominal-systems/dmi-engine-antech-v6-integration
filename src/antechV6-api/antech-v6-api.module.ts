@@ -8,6 +8,9 @@ import { AntechV6ApiInterceptor } from './antechV6-api.interceptor'
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     HttpModule.register({}),
     ClientsModule.registerAsync([
       {
