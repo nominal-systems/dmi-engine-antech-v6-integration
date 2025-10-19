@@ -515,19 +515,19 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: 'SA380',
+        code: '502529',
         name: 'TSH',
         items: expect.any(Array<TestResultItem>),
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
-        code: 'SA380',
+        code: '502473',
         name: 'Free T4 By Equilibrium Dialysis',
         items: expect.any(Array<TestResultItem>),
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
-        code: 'SA380',
+        code: '502511',
         name: 'T4',
         items: expect.any(Array<TestResultItem>),
       })
@@ -548,7 +548,7 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: 'SA380',
+        code: '502529',
         name: 'TSH',
         items: expect.arrayContaining([
           expect.objectContaining({
@@ -561,13 +561,13 @@ describe('AntechV6Mapper', () => {
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
-        code: 'SA380',
+        code: '502473',
         name: 'Free T4 By Equilibrium Dialysis',
         items: [],
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
-        code: 'SA380',
+        code: '502511',
         name: 'T4',
         items: [],
       })
@@ -588,7 +588,7 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: 'SA380',
+        code: '502529',
         name: 'TSH',
         items: expect.arrayContaining([
           expect.objectContaining({
@@ -601,13 +601,13 @@ describe('AntechV6Mapper', () => {
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
-        code: 'SA380',
+        code: '502473',
         name: 'Free T4 By Equilibrium Dialysis',
         items: [],
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
-        code: 'SA380',
+        code: '502511',
         name: 'T4',
         items: expect.arrayContaining([
           expect.objectContaining({
@@ -635,7 +635,7 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults.length).toBe(3)
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: 'SA380',
+        code: '502529',
         name: 'TSH',
         items: expect.arrayContaining([
           expect.objectContaining({
@@ -648,7 +648,7 @@ describe('AntechV6Mapper', () => {
       })
       expect(result.testResults[1]).toEqual({
         seq: 1,
-        code: 'SA380',
+        code: '502473',
         name: 'Free T4 By Equilibrium Dialysis',
         items: expect.arrayContaining([
           expect.objectContaining({
@@ -661,7 +661,7 @@ describe('AntechV6Mapper', () => {
       })
       expect(result.testResults[2]).toEqual({
         seq: 2,
-        code: 'SA380',
+        code: '502511',
         name: 'T4',
         items: expect.arrayContaining([
           expect.objectContaining({
