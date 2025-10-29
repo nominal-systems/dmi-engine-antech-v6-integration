@@ -106,9 +106,18 @@ describe('MapperUtils', () => {
 
     it('should honor the preferred unit when calculating pet age', () => {
       const birthdate = moment().subtract(18, 'months').format('YYYY-MM-DD')
-      expect(extractPetAge(birthdate)).toEqual({ PetAge: moment().diff(moment(birthdate), 'years'), PetAgeUnits: 'Y' })
-      expect(extractPetAge(birthdate, 'D')).toEqual({ PetAge: moment().diff(moment(birthdate), 'days'), PetAgeUnits: 'D' })
-      expect(extractPetAge(birthdate, 'M')).toEqual({ PetAge: moment().diff(moment(birthdate), 'months'), PetAgeUnits: 'M' })
+      expect(extractPetAge(birthdate)).toEqual({
+        PetAge: moment().diff(moment(birthdate), 'years'),
+        PetAgeUnits: 'Y',
+      })
+      expect(extractPetAge(birthdate, 'D')).toEqual({
+        PetAge: moment().diff(moment(birthdate), 'days'),
+        PetAgeUnits: 'D',
+      })
+      expect(extractPetAge(birthdate, 'M')).toEqual({
+        PetAge: moment().diff(moment(birthdate), 'months'),
+        PetAgeUnits: 'M',
+      })
     })
   })
 })
