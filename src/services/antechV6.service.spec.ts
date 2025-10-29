@@ -414,8 +414,13 @@ describe('AntechV6Service', () => {
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
-        autoSubmitOrder: true,
+        //autoSubmitOrder: true, // Moved to integrationOptions
+        integrationOptions: {
+          ...metadataMock.integrationOptions,
+          autoSubmitOrder: true,
+        },
       } as any)
+
       expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placePreOrder).not.toHaveBeenCalled()
       expect(resp).toEqual(
