@@ -403,7 +403,7 @@ describe('AntechV6Service', () => {
       )
     })
 
-    it('places order when autoSubmitOrder is true', async () => {
+    it('places order when autoSubmitOrder is true in integrationOptions', async () => {
       antechV6ApiServiceMock.placeOrder.mockResolvedValue({
         payload: 'ok',
         status: 200,
@@ -414,7 +414,6 @@ describe('AntechV6Service', () => {
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
-        //autoSubmitOrder: true, // Moved to integrationOptions
         integrationOptions: {
           ...metadataMock.integrationOptions,
           autoSubmitOrder: true,
@@ -432,6 +431,62 @@ describe('AntechV6Service', () => {
       )
       // No submission URI on auto-submitted orders
       expect((resp as any).submissionUri).toBeUndefined()
+    })
+
+    it('places order when autoSubmitOrder is true in metadata', async () => {
+      antechV6ApiServiceMock.placeOrder.mockResolvedValue({
+        payload: 'ok',
+        status: 200,
+        message: 'success',
+        isSuccess: true,
+        requestId: 'r1',
+        Token: 'tok',
+      })
+      const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
+        ...metadataMock,
+        autoSubmitOrder: true,
+      } as any)
+
+      expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.placePreOrder).not.toHaveBeenCalled()
+      expect(resp).toEqual(
+        expect.objectContaining({
+          requisitionId: 'REQ123',
+          externalId: 'REQ123',
+          status: OrderStatus.SUBMITTED,
+        }),
+      )
+      // No submission URI on auto-submitted orders
+      expect((resp as any).submissionUri).toBeUndefined()
+    })
+
+    it('prioritizes autoSubmitOrder from metadata over integrationOptions', async () => {
+      antechV6ApiServiceMock.placeOrder.mockResolvedValue({
+        payload: 'ok',
+        status: 200,
+        message: 'success',
+        isSuccess: true,
+        requestId: 'r1',
+        Token: 'tok',
+      })
+      const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
+        ...metadataMock,
+        autoSubmitOrder: true,
+        integrationOptions: {
+          ...metadataMock.integrationOptions,
+          autoSubmitOrder: false, // Should be overridden by metadata.autoSubmitOrder
+        },
+      } as any)
+
+      expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.placePreOrder).not.toHaveBeenCalled()
+      expect(resp).toEqual(
+        expect.objectContaining({
+          requisitionId: 'REQ123',
+          externalId: 'REQ123',
+          status: OrderStatus.SUBMITTED,
+        }),
+      )
     })
   })
 
