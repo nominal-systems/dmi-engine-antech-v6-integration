@@ -84,8 +84,9 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
     const orderPayload = this.antechV6Mapper.mapCreateOrderPayload(payload, metadata)
 
-    // Determine autoSubmitOrder with priority: metadata > integrationOptions
-    const autoSubmitOrder = metadata.autoSubmitOrder ?? metadata.integrationOptions?.autoSubmitOrder
+    // Allow autoSubmitOrder only if the integration option is enabled
+    const autoSubmitEnabled = metadata.integrationOptions?.autoSubmitEnabled ?? false
+    const autoSubmitOrder = metadata.autoSubmitOrder === true && autoSubmitEnabled === true
 
     if (autoSubmitOrder === true) {
       await this.antechV6Api.placeOrder(

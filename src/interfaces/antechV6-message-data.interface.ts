@@ -18,5 +18,5 @@ export interface AntechV6IntegrationOptions {
   password: string
   clinicId: string
   labId: string
-  autoSubmitOrder?: boolean
+  autoSubmitEnabled?: boolean
 }
