@@ -11,6 +11,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices'
 import { AntechV6ApiModule } from './antechV6-api/antech-v6-api.module'
 import { APP_FILTER } from '@nestjs/core'
 import { RpcExceptionFilter } from './filters/rcp-exception.filter'
+import { RedisCacheService } from './providers/redis-cache.service'
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { RpcExceptionFilter } from './filters/rcp-exception.filter'
     AntechV6Mapper,
     AntechV6Service,
     AntechV6ApiService,
+    RedisCacheService,
     AntechV6OrdersProcessor,
     AntechV6ResultsProcessor,
     {

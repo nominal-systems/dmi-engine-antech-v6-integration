@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { AntechV6ApiService } from './antechV6-api.service'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 import { AntechV6UserCredentials } from '../interfaces/antechV6-api.interface'
+import { RedisCacheService } from '../providers/redis-cache.service'
 
 describe('AntechV6ApiService', () => {
   let service: AntechV6ApiService
@@ -15,6 +16,13 @@ describe('AntechV6ApiService', () => {
           provide: AntechV6ApiHttpService,
           useValue: {
             post: jest.fn(), // Mock the HTTP service
+          },
+        },
+        {
+          provide: RedisCacheService,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
           },
         },
       ],

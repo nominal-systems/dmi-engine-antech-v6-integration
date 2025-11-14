@@ -16,12 +16,17 @@ import {
 import { Attachment, BaseApiService } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
+import { RedisCacheService } from '../providers/redis-cache.service'
 
 @Injectable()
 export class AntechV6ApiService extends BaseApiService {
   private readonly logger = new Logger(AntechV6ApiService.name)
+  private static readonly TEST_GUIDE_CACHE_TTL_SECONDS = 60 * 60
 
-  constructor(private readonly httpService: AntechV6ApiHttpService) {
+  constructor(
+    private readonly httpService: AntechV6ApiHttpService,
+    private readonly cacheService: RedisCacheService,
+  ) {
     super(httpService)
   }
 
@@ -182,19 +187,31 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     params: Record<string, string | number> = {},
   ): Promise<AntechV6TestGuide> {
+    const cacheKey = this.buildTestGuideCacheKey(baseUrl, credentials.ClinicID, params)
+    const cachedGuide = await this.cacheService.get<AntechV6TestGuide>(cacheKey)
+    if (cachedGuide) {
+      return cachedGuide
+    }
+
     const accessToken: AntechV6AccessToken = await this.post<AntechV6AccessToken>(
       `${baseUrl}${AntechV6Endpoints.LOGIN}`,
       credentials,
     )
 
-    return await this.get<AntechV6TestGuide>(`${baseUrl}${AntechV6Endpoints.GET_TEST_GUIDE}`, {
-      params: {
-        accesstoken: accessToken.Token,
-        userId: String(accessToken?.UserInfo?.ID),
-        pageSize: 2500,
-        ...params,
+    const guide = await this.get<AntechV6TestGuide>(
+      `${baseUrl}${AntechV6Endpoints.GET_TEST_GUIDE}`,
+      {
+        params: {
+          accesstoken: accessToken.Token,
+          userId: String(accessToken?.UserInfo?.ID),
+          pageSize: 2500,
+          ...params,
+        },
       },
-    })
+    )
+
+    await this.cacheService.set(cacheKey, guide, AntechV6ApiService.TEST_GUIDE_CACHE_TTL_SECONDS)
+    return guide
   }
 
   async placePreOrder(
@@ -272,5 +289,18 @@ export class AntechV6ApiService extends BaseApiService {
     } catch (error) {
       throw new AntechV6ApiException('Failed to authenticate', error.status, error)
     }
+  }
+
+  private buildTestGuideCacheKey(
+    baseUrl: string,
+    clinicId: string,
+    params: Record<string, string | number>,
+  ): string {
+    const serializedParams = Object.entries(params)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, value]) => `${key}:${value}`)
+      .join('|')
+
+    return `antechV6:testGuide:${baseUrl}:${clinicId}:${serializedParams}`
   }
 }
