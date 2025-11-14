@@ -35,6 +35,7 @@ describe('AntechV6Service', () => {
     getResultStatus: jest.fn(),
     placePreOrder: jest.fn(),
     placeOrder: jest.fn(),
+    getTestGuide: jest.fn(),
     getSpeciesAndBreeds: jest.fn(() => {
       return {
         value: {
@@ -71,6 +72,10 @@ describe('AntechV6Service', () => {
   }
 
   beforeEach(async () => {
+    antechV6ApiServiceMock.getTestGuide.mockResolvedValue({
+      TotalCount: 0,
+      LabResults: [],
+    })
     const module = await Test.createTestingModule({
       providers: [
         AntechV6Service,
@@ -393,6 +398,7 @@ describe('AntechV6Service', () => {
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, metadataMock)
       expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getTestGuide).not.toHaveBeenCalled()
       expect(resp).toEqual(
         expect.objectContaining({
           requisitionId: 'REQ123',
@@ -422,6 +428,7 @@ describe('AntechV6Service', () => {
 
       expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getTestGuide).not.toHaveBeenCalled()
       expect(resp).toEqual(
         expect.objectContaining({
           requisitionId: 'REQ123',
@@ -431,7 +438,15 @@ describe('AntechV6Service', () => {
       )
     })
 
-    it('places an order when autoSubmitEnabled is true in integrationOptions autoSubmitOrder is true in metadata', async () => {
+    it('places an order when autoSubmitEnabled is true in integrationOptions autoSubmitOrder is true in metadata and tests are POC', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValueOnce({
+        TotalCount: 1,
+        LabResults: [
+          {
+            Code: 'SA804',
+          },
+        ],
+      })
       antechV6ApiServiceMock.placeOrder.mockResolvedValue({
         payload: 'ok',
         status: 200,
@@ -451,6 +466,15 @@ describe('AntechV6Service', () => {
 
       expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placePreOrder).not.toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenCalledWith(
+        metadataMock.providerConfiguration.baseUrl,
+        {
+          UserName: metadataMock.integrationOptions.username,
+          Password: metadataMock.integrationOptions.password,
+          ClinicID: metadataMock.integrationOptions.clinicId,
+        },
+        { POC_FLAG: 'Y' },
+      )
       expect(resp).toEqual(
         expect.objectContaining({
           requisitionId: 'REQ123',
@@ -460,6 +484,36 @@ describe('AntechV6Service', () => {
       )
       // No submission URI on auto-submitted orders
       expect((resp as any).submissionUri).toBeUndefined()
+    })
+
+    it('places a pre-order when tests are not POC even if autoSubmitOrder is true', async () => {
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValueOnce({
+        TotalCount: 1,
+        LabResults: [
+          {
+            Code: 'NONPOC',
+          },
+        ],
+      })
+      const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
+        ...metadataMock,
+        autoSubmitOrder: true,
+        integrationOptions: {
+          ...metadataMock.integrationOptions,
+          autoSubmitEnabled: true,
+        },
+      } as any)
+
+      expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
+      expect(resp).toEqual(
+        expect.objectContaining({
+          requisitionId: 'REQ123',
+          externalId: 'REQ123',
+          status: OrderStatus.WAITING_FOR_INPUT,
+        }),
+      )
     })
 
     it('places a pre-order when autoSubmitEnabled is true in integrationOptions and autoSubmitOrder is false in metadata', async () => {
@@ -482,6 +536,7 @@ describe('AntechV6Service', () => {
 
       expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getTestGuide).not.toHaveBeenCalled()
       expect(resp).toEqual(
         expect.objectContaining({
           requisitionId: 'REQ123',
@@ -511,6 +566,7 @@ describe('AntechV6Service', () => {
 
       expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getTestGuide).not.toHaveBeenCalled()
       expect(resp).toEqual(
         expect.objectContaining({
           requisitionId: 'REQ123',
@@ -536,6 +592,7 @@ describe('AntechV6Service', () => {
 
       expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.getTestGuide).not.toHaveBeenCalled()
       expect(resp).toEqual(
         expect.objectContaining({
           requisitionId: 'REQ123',

@@ -6,7 +6,6 @@ import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 
 const EXCLUDED_ENDPOINTS = [
   AntechV6Endpoints.LOGIN,
-  AntechV6Endpoints.GET_TEST_GUIDE,
   AntechV6Endpoints.GET_SPECIES_AND_BREEDS,
 ]
 

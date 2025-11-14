@@ -88,7 +88,17 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     const autoSubmitEnabled = metadata.integrationOptions?.autoSubmitEnabled ?? false
     const autoSubmitOrder = metadata.autoSubmitOrder === true && autoSubmitEnabled === true
 
-    if (autoSubmitOrder === true) {
+    const isPocTestsOnly =
+      autoSubmitOrder === true
+        ? await this.orderContainsOnlyPocTests(orderPayload.OrderCodes, metadata, credentials)
+        : false
+    const shouldSubmitOrder = autoSubmitOrder === true && isPocTestsOnly === true
+
+    this.logger.debug(
+      `Will place ${shouldSubmitOrder ? '' : 'pre-'}order with codes '${orderPayload.OrderCodes?.join(',')}' [autoSubmitOrder=${autoSubmitOrder} autoSubmitEnabled=${autoSubmitEnabled} isPOC=${isPocTestsOnly}]`,
+    )
+
+    if (shouldSubmitOrder === true) {
       await this.antechV6Api.placeOrder(
         metadata.providerConfiguration.baseUrl,
         credentials,
@@ -382,5 +392,26 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     console.log(`payload= ${JSON.stringify(payload, null, 2)}`) // TODO(gb): remove trace
     console.log(`metadata= ${JSON.stringify(metadata, null, 2)}`) // TODO(gb): remove trace
     throw new Error('Method not implemented.')
+  }
+
+  private async orderContainsOnlyPocTests(
+    orderCodes: string[] | undefined,
+    metadata: AntechV6MessageData,
+    credentials: AntechV6UserCredentials,
+  ): Promise<boolean> {
+    if (orderCodes == null || orderCodes.length === 0) {
+      return false
+    }
+
+    const pocTests = await this.antechV6Api.getTestGuide(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      {
+        POC_FLAG: 'Y',
+      },
+    )
+
+    const pocCodes = new Set((pocTests.LabResults || []).map((test) => test.Code))
+    return pocCodes.size > 0 && orderCodes.every((code) => pocCodes.has(code))
   }
 }
