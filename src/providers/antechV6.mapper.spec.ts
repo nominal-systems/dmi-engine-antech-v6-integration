@@ -512,24 +512,14 @@ describe('AntechV6Mapper', () => {
           testResults: expect.any(Array<TestResult>),
         }),
       )
-      expect(result.testResults.length).toBe(3)
+      expect(result.testResults.length).toBe(1)
+      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].name).toBe('Thyroid Profile 3')
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: '502529',
-        name: 'TSH',
-        items: expect.any(Array<TestResultItem>),
-      })
-      expect(result.testResults[1]).toEqual({
-        seq: 1,
-        code: '502473',
-        name: 'Free T4 By Equilibrium Dialysis',
-        items: expect.any(Array<TestResultItem>),
-      })
-      expect(result.testResults[2]).toEqual({
-        seq: 2,
-        code: '502511',
-        name: 'T4',
-        items: expect.any(Array<TestResultItem>),
+        code: '530399',
+        name: 'Thyroid Profile 3',
+        items: [],
       })
     })
 
@@ -545,11 +535,13 @@ describe('AntechV6Mapper', () => {
           testResults: expect.any(Array<TestResult>),
         }),
       )
-      expect(result.testResults.length).toBe(3)
+      expect(result.testResults.length).toBe(1)
+      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].name).toBe('Thyroid Profile 3')
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: '502529',
-        name: 'TSH',
+        code: '530399',
+        name: 'Thyroid Profile 3',
         items: expect.arrayContaining([
           expect.objectContaining({
             code: '4001',
@@ -559,18 +551,7 @@ describe('AntechV6Mapper', () => {
           }),
         ]),
       })
-      expect(result.testResults[1]).toEqual({
-        seq: 1,
-        code: '502473',
-        name: 'Free T4 By Equilibrium Dialysis',
-        items: [],
-      })
-      expect(result.testResults[2]).toEqual({
-        seq: 2,
-        code: '502511',
-        name: 'T4',
-        items: [],
-      })
+      expect(result.testResults[0].items.length).toBe(1)
     })
 
     it('should correctly map Thyroid Profile results items when received for the third time', () => {
@@ -585,39 +566,24 @@ describe('AntechV6Mapper', () => {
           testResults: expect.any(Array<TestResult>),
         }),
       )
-      expect(result.testResults.length).toBe(3)
-      expect(result.testResults[0]).toEqual({
-        seq: 0,
-        code: '502529',
-        name: 'TSH',
-        items: expect.arrayContaining([
+      expect(result.testResults.length).toBe(1)
+      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].name).toBe('Thyroid Profile 3')
+      expect(result.testResults[0].items.length).toBe(2)
+      expect(result.testResults[0].items).toEqual(
+        expect.arrayContaining([
           expect.objectContaining({
             code: '4001',
             name: 'TSH',
             status: 'DONE',
-            seq: 0,
           }),
-        ]),
-      })
-      expect(result.testResults[1]).toEqual({
-        seq: 1,
-        code: '502473',
-        name: 'Free T4 By Equilibrium Dialysis',
-        items: [],
-      })
-      expect(result.testResults[2]).toEqual({
-        seq: 2,
-        code: '502511',
-        name: 'T4',
-        items: expect.arrayContaining([
           expect.objectContaining({
             code: '4022',
             name: 'T4',
             status: 'DONE',
-            seq: 0,
           }),
         ]),
-      })
+      ) 
     })
 
     it('should correctly map Thyroid Profile results items when received for the fourth time', () => {
@@ -632,46 +598,29 @@ describe('AntechV6Mapper', () => {
           testResults: expect.any(Array<TestResult>),
         }),
       )
-      expect(result.testResults.length).toBe(3)
-      expect(result.testResults[0]).toEqual({
-        seq: 0,
-        code: '502529',
-        name: 'TSH',
-        items: expect.arrayContaining([
+      expect(result.testResults.length).toBe(1)
+      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].name).toBe('Thyroid Profile 3')
+      expect(result.testResults[0].items.length).toBe(3)
+      expect(result.testResults[0].items).toEqual(
+        expect.arrayContaining([
           expect.objectContaining({
             code: '4001',
             name: 'TSH',
             status: 'DONE',
-            seq: 0,
           }),
-        ]),
-      })
-      expect(result.testResults[1]).toEqual({
-        seq: 1,
-        code: '502473',
-        name: 'Free T4 By Equilibrium Dialysis',
-        items: expect.arrayContaining([
           expect.objectContaining({
             code: '6386',
             name: 'Free T4 Equilibrium Dialysis',
             status: 'DONE',
-            seq: 0,
           }),
-        ]),
-      })
-      expect(result.testResults[2]).toEqual({
-        seq: 2,
-        code: '502511',
-        name: 'T4',
-        items: expect.arrayContaining([
           expect.objectContaining({
             code: '4022',
             name: 'T4',
             status: 'DONE',
-            seq: 0,
           }),
         ]),
-      })
+      )
     })
   })
 

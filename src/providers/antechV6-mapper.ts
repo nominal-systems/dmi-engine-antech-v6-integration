@@ -33,6 +33,7 @@ import {
   AntechV6PreOrder,
   AntechV6PreOrderPlacement,
   AntechV6Result,
+  AntechV6ResultStatus,
   AntechV6Test,
   AntechV6TestCodeResult,
   AntechV6TestGuide,
@@ -321,15 +322,54 @@ export class AntechV6Mapper {
   }
 
   private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
-    return unitCodeResults
-      .filter(
-        (unitCodeResult) =>
-          !(
-            unitCodeResult.ResultStatus?.toString() === 'F' &&
-            (!unitCodeResult.TestCodeResults || unitCodeResult.TestCodeResults.length === 0)
-          ),
-      )
-      .map(this.mapAntechV6UnitCodeResult, this)
+    const filteredResults = unitCodeResults.filter(
+      (unitCodeResult) =>
+        !(
+          unitCodeResult.ResultStatus?.toString() === 'F' &&
+          (!unitCodeResult.TestCodeResults || unitCodeResult.TestCodeResults.length === 0)
+        ),
+    )
+
+    const testResultGroups = new Map<
+      string,
+      {
+        profileExtId?: string
+        unitCodeExtId?: string
+        orderCode?: string
+        displayName: string
+        items: AntechV6UnitCodeResult[]
+        originalIndex: number
+        leastAdvancedStatus: AntechV6ResultStatus
+      }
+    >()
+
+    filteredResults.forEach((unitCodeResult, idx) => {
+      const key = unitCodeResult.ProfileExtID || unitCodeResult.UnitCodeExtID // We could use OrderCode as a fallback instead of UnitCodeExtID
+      const status = (unitCodeResult.ResultStatus?.toString() || 'I') as AntechV6ResultStatus
+
+      if (!testResultGroups.has(key)) {
+        testResultGroups.set(key, {
+          profileExtId: unitCodeResult.ProfileExtID,
+          unitCodeExtId: unitCodeResult.UnitCodeExtID,
+          orderCode: unitCodeResult.OrderCode,
+          displayName: unitCodeResult.ProfileDisplayName || unitCodeResult.UnitCodeDisplayName,
+          items: [unitCodeResult],
+          originalIndex: idx,
+          leastAdvancedStatus: status,
+        })
+      } else {
+        const group = testResultGroups.get(key)!
+        group.items.push(unitCodeResult)
+
+        group.leastAdvancedStatus = this.combineStatus(group.leastAdvancedStatus, status)
+      }
+    })
+
+    const orderedGroups = Array.from(testResultGroups.values()).sort(
+      (a, b) => a.originalIndex - b.originalIndex,
+    )
+
+    return orderedGroups.map((group) => this.mapGroupToTestResult(group))
   }
 
   private extractTestResultValueX(
@@ -477,5 +517,61 @@ export class AntechV6Mapper {
       veterinarian: extractVeterinarianFromResult(result),
       tests: extractOrderTestCodesFromResult(result),
     }
+  }
+
+  private mapGroupToTestResult(group: {
+    profileExtId?: string
+    unitCodeExtId?: string
+    orderCode?: string
+    displayName: string
+    items: AntechV6UnitCodeResult[]
+    originalIndex: number
+    leastAdvancedStatus: AntechV6ResultStatus
+  }): TestResult {
+    const code = group.profileExtId || group.unitCodeExtId || ''
+    const flattenedTestCodeResults = group.items.flatMap((u) => u.TestCodeResults || [])
+    const testResultItems = flattenedTestCodeResults.map((testCodeResult, idx) =>
+      this.mapAntechV6TestCodeResult(testCodeResult, idx, group.orderCode),
+    )
+
+    return {
+      seq: group.originalIndex,
+      code,
+      name: group.displayName,
+      items: testResultItems.sort((a, b) =>
+        a.seq !== undefined && b.seq !== undefined ? a.seq - b.seq : -1,
+      ),
+    }
+  }
+
+  private combineStatus(
+    firsTestStatus: AntechV6ResultStatus,
+    secondTestStatus: AntechV6ResultStatus,
+  ): AntechV6ResultStatus {
+    if (
+      firsTestStatus === AntechV6ResultStatus.IN_PROGRESS &&
+      secondTestStatus === AntechV6ResultStatus.IN_PROGRESS
+    ) {
+      return AntechV6ResultStatus.IN_PROGRESS
+    }
+    if (
+      firsTestStatus === AntechV6ResultStatus.IN_PROGRESS ||
+      secondTestStatus === AntechV6ResultStatus.IN_PROGRESS
+    ) {
+      return AntechV6ResultStatus.PARTIAL
+    }
+    if (
+      firsTestStatus === AntechV6ResultStatus.PARTIAL ||
+      secondTestStatus === AntechV6ResultStatus.PARTIAL
+    ) {
+      return AntechV6ResultStatus.PARTIAL
+    }
+    if (
+      firsTestStatus === AntechV6ResultStatus.FINAL &&
+      secondTestStatus === AntechV6ResultStatus.FINAL
+    ) {
+      return AntechV6ResultStatus.FINAL
+    }
+    return AntechV6ResultStatus.UPDATED_CORRECTED
   }
 }
