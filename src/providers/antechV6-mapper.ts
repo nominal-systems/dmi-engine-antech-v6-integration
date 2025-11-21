@@ -181,13 +181,9 @@ export class AntechV6Mapper {
         )
       : []
 
-    // Use UnitCodeExtID when OrderCode is SA380, otherwise use OrderCode
     return {
       seq: index,
-      code:
-        unitCodeResult.OrderCode && unitCodeResult.OrderCode !== 'SA380'
-          ? unitCodeResult.OrderCode
-          : unitCodeResult.UnitCodeExtID,
+      code: unitCodeResult.OrderCode ? unitCodeResult.OrderCode : unitCodeResult.UnitCodeExtID,
       name: unitCodeResult.UnitCodeDisplayName,
       items: testResultItems?.sort((a, b) => {
         return a.seq !== undefined && b.seq !== undefined ? a.seq - b.seq : -1
@@ -344,7 +340,7 @@ export class AntechV6Mapper {
     >()
 
     filteredResults.forEach((unitCodeResult, idx) => {
-      const key = unitCodeResult.ProfileExtID || unitCodeResult.UnitCodeExtID // We could use OrderCode as a fallback instead of UnitCodeExtID
+      const key = unitCodeResult.OrderCode || unitCodeResult.UnitCodeExtID
       const status = (unitCodeResult.ResultStatus?.toString() || 'I') as AntechV6ResultStatus
 
       if (!testResultGroups.has(key)) {
@@ -528,8 +524,8 @@ export class AntechV6Mapper {
     originalIndex: number
     leastAdvancedStatus: AntechV6ResultStatus
   }): TestResult {
-    const code = group.profileExtId || group.unitCodeExtId || ''
     const flattenedTestCodeResults = group.items.flatMap((u) => u.TestCodeResults || [])
+    const code = group.orderCode || group.profileExtId || group.unitCodeExtId || ''
     const testResultItems = flattenedTestCodeResults.map((testCodeResult, idx) =>
       this.mapAntechV6TestCodeResult(testCodeResult, idx, group.orderCode),
     )

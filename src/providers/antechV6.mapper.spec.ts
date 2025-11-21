@@ -513,11 +513,11 @@ describe('AntechV6Mapper', () => {
         }),
       )
       expect(result.testResults.length).toBe(1)
-      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].code).toBe('SA380')
       expect(result.testResults[0].name).toBe('Thyroid Profile 3')
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: '530399',
+        code: 'SA380',
         name: 'Thyroid Profile 3',
         items: [],
       })
@@ -536,11 +536,11 @@ describe('AntechV6Mapper', () => {
         }),
       )
       expect(result.testResults.length).toBe(1)
-      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].code).toBe('SA380')
       expect(result.testResults[0].name).toBe('Thyroid Profile 3')
       expect(result.testResults[0]).toEqual({
         seq: 0,
-        code: '530399',
+        code: 'SA380',
         name: 'Thyroid Profile 3',
         items: expect.arrayContaining([
           expect.objectContaining({
@@ -567,7 +567,7 @@ describe('AntechV6Mapper', () => {
         }),
       )
       expect(result.testResults.length).toBe(1)
-      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].code).toBe('SA380')
       expect(result.testResults[0].name).toBe('Thyroid Profile 3')
       expect(result.testResults[0].items.length).toBe(2)
       expect(result.testResults[0].items).toEqual(
@@ -583,7 +583,7 @@ describe('AntechV6Mapper', () => {
             status: 'DONE',
           }),
         ]),
-      ) 
+      )
     })
 
     it('should correctly map Thyroid Profile results items when received for the fourth time', () => {
@@ -599,7 +599,7 @@ describe('AntechV6Mapper', () => {
         }),
       )
       expect(result.testResults.length).toBe(1)
-      expect(result.testResults[0].code).toBe('530399')
+      expect(result.testResults[0].code).toBe('SA380')
       expect(result.testResults[0].name).toBe('Thyroid Profile 3')
       expect(result.testResults[0].items.length).toBe(3)
       expect(result.testResults[0].items).toEqual(
