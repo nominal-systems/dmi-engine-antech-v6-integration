@@ -138,6 +138,20 @@ describe('AntechV6Mapper', () => {
       expect(mapper.mapCreateOrderPayload(payload, metadataMock)).toEqual(expected)
     })
 
+    it('should trim client name whitespace', () => {
+      const payloadWithSpaces = {
+        ...payload,
+        client: {
+          ...payload.client,
+          firstName: '  Marcellus  ',
+          lastName: '  Kerluke  ',
+        },
+      }
+      const result = mapper.mapCreateOrderPayload(payloadWithSpaces as any, metadataMock as any)
+      expect(result.ClientFirstName).toBe('Marcellus')
+      expect(result.ClientLastName).toBe('Kerluke')
+    })
+
     it('should set DoctorID to empty string if missing in payload', () => {
       const payloadNoDoctorId = {
         ...payload,

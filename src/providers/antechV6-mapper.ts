@@ -239,8 +239,8 @@ export class AntechV6Mapper {
   private extractClient(client: ClientPayload): AntechV6Client {
     return {
       ClientID: this.getIdFromIdentifier(PimsIdentifiers.ClientID, client.identifier) || client.id,
-      ClientFirstName: client.firstName ? client.firstName : '',
-      ClientLastName: client.lastName ? client.lastName.slice(0, 20) : '',
+      ClientFirstName: client.firstName ? client.firstName.trim() : '',
+      ClientLastName: client.lastName ? client.lastName.trim().slice(0, 20) : '',
       // TODO(gb): extract client address
       // TODO(gb): extract client contact
     }
