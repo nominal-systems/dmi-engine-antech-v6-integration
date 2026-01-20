@@ -318,6 +318,26 @@ export class AntechV6Mapper {
   }
 
   private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
+    if (process.env.ANTECH_V6_LEGACY_TEST_RESULTS === 'true') {
+      return this.extractTestResultsLegacy(unitCodeResults)
+    }
+
+    return this.extractTestResultsGrouped(unitCodeResults)
+  }
+
+  private extractTestResultsLegacy(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
+    return unitCodeResults
+      .filter(
+        (unitCodeResult) =>
+          !(
+            unitCodeResult.ResultStatus?.toString() === 'F' &&
+            (!unitCodeResult.TestCodeResults || unitCodeResult.TestCodeResults.length === 0)
+          ),
+      )
+      .map(this.mapAntechV6UnitCodeResult, this)
+  }
+
+  private extractTestResultsGrouped(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
     const filteredResults = unitCodeResults.filter(
       (unitCodeResult) =>
         !(
