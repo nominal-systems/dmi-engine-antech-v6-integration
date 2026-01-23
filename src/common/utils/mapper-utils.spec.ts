@@ -1,6 +1,7 @@
-import { extractPetAge } from './mapper-utils'
+import { extractPetAge, extractPetWeight } from './mapper-utils'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
+import { OrderPatient } from '@nominal-systems/dmi-engine-common'
 
 describe('MapperUtils', () => {
   describe('extractPetAge()', () => {
@@ -111,6 +112,52 @@ describe('MapperUtils', () => {
       expect(extractPetAge(birthdate, 'D')).toEqual({ PetAge: days, PetAgeUnits: 'D' })
       const months = moment().diff(moment(birthdate), 'months')
       expect(extractPetAge(birthdate, 'M')).toEqual({ PetAge: months, PetAgeUnits: 'M' })
+    })
+  })
+
+  describe('extractPetWeight()', () => {
+    it('should return the weight as received when it is 0.01 or higher', () => {
+      const patient: Partial<OrderPatient> = {
+        weightMeasurement: 15.5,
+        weightUnits: 'kg',
+      }
+      expect(extractPetWeight(patient as OrderPatient)).toEqual({
+        PetWeight: 15.5,
+        PetWeightUnits: 'kg',
+      })
+    })
+
+    it('should return the weight as received when it is exactly 0.01', () => {
+      const patient: Partial<OrderPatient> = {
+        weightMeasurement: 0.01,
+        weightUnits: 'kg',
+      }
+      expect(extractPetWeight(patient as OrderPatient)).toEqual({
+        PetWeight: 0.01,
+        PetWeightUnits: 'kg',
+      })
+    })
+
+    it('should return minimum weight of 0.01 when weight is less than that', () => {
+      const patient: Partial<OrderPatient> = {
+        weightMeasurement: 0.005,
+        weightUnits: 'kg',
+      }
+      expect(extractPetWeight(patient as OrderPatient)).toEqual({
+        PetWeight: 0.01,
+        PetWeightUnits: 'kg',
+      })
+    })
+
+    it('should enforce minimum weight of 0.01 when weight is zero', () => {
+      const patient: Partial<OrderPatient> = {
+        weightMeasurement: 0,
+        weightUnits: 'kg',
+      }
+      expect(extractPetWeight(patient as OrderPatient)).toEqual({
+        PetWeight: 0.01,
+        PetWeightUnits: 'kg',
+      })
     })
   })
 })
