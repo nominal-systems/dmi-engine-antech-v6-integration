@@ -26,9 +26,15 @@ import {
 import * as path from 'path'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
+import {
+  ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
+  FEATURE_FLAG_PROVIDER,
+  type FeatureFlagProvider,
+} from '../feature-flags/feature-flag.interface'
 
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
+  let featureFlagProviderMock: FeatureFlagProvider
   const metadataMock = {
     integrationOptions: {
       username: 'PIMS_USER',
@@ -44,8 +50,17 @@ describe('AntechV6Mapper', () => {
   }
 
   beforeEach(async () => {
+    featureFlagProviderMock = {
+      isEnabled: jest.fn().mockReturnValue(false),
+    }
     const module = await Test.createTestingModule({
-      providers: [AntechV6Mapper],
+      providers: [
+        AntechV6Mapper,
+        {
+          provide: FEATURE_FLAG_PROVIDER,
+          useValue: featureFlagProviderMock,
+        },
+      ],
     }).compile()
 
     mapper = module.get<AntechV6Mapper>(AntechV6Mapper)
@@ -324,6 +339,103 @@ describe('AntechV6Mapper', () => {
         }),
       )
       expect(result.testResults.length).toBeGreaterThan(0)
+    })
+
+    it('groups test results when the legacy gate is disabled', () => {
+      const unitCodeResults: AntechV6UnitCodeResult[] = [
+        {
+          OrderCode: 'PANEL1',
+          UnitCodeExtID: 'PANEL1',
+          UnitCodeDisplayName: 'Panel 1',
+          ProfileDisplayName: 'Panel 1',
+          ResultStatus: 'F',
+          TestCodeResults: [
+            {
+              Test: 'A',
+              TestCodeExtID: 'A',
+              Result: '1.0',
+              ResultStatus: 'F',
+            },
+          ],
+        } as unknown as AntechV6UnitCodeResult,
+        {
+          OrderCode: 'PANEL1',
+          UnitCodeExtID: 'PANEL1',
+          UnitCodeDisplayName: 'Panel 1',
+          ProfileDisplayName: 'Panel 1',
+          ResultStatus: 'F',
+          TestCodeResults: [
+            {
+              Test: 'B',
+              TestCodeExtID: 'B',
+              Result: '2.0',
+              ResultStatus: 'F',
+            },
+          ],
+        } as unknown as AntechV6UnitCodeResult,
+      ]
+
+      const result = mapper.mapAntechV6Result({
+        ID: 1,
+        ClinicAccessionID: 'order-1',
+        LabAccessionID: 'lab-1',
+        PendingTestCount: 0,
+        TotalTestCount: 2,
+        UnitCodeResults: unitCodeResults,
+      } as AntechV6Result)
+
+      expect(result.testResults.length).toBe(1)
+      expect(result.testResults[0].items.length).toBe(2)
+    })
+
+    it('uses legacy test result extraction when the legacy gate is enabled', () => {
+      ;(featureFlagProviderMock.isEnabled as jest.Mock).mockImplementation(
+        (flag: string) => flag === ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
+      )
+
+      const unitCodeResults: AntechV6UnitCodeResult[] = [
+        {
+          OrderCode: 'PANEL1',
+          UnitCodeExtID: 'PANEL1',
+          UnitCodeDisplayName: 'Panel 1',
+          ProfileDisplayName: 'Panel 1',
+          ResultStatus: 'F',
+          TestCodeResults: [
+            {
+              Test: 'A',
+              TestCodeExtID: 'A',
+              Result: '1.0',
+              ResultStatus: 'F',
+            },
+          ],
+        } as unknown as AntechV6UnitCodeResult,
+        {
+          OrderCode: 'PANEL1',
+          UnitCodeExtID: 'PANEL1',
+          UnitCodeDisplayName: 'Panel 1',
+          ProfileDisplayName: 'Panel 1',
+          ResultStatus: 'F',
+          TestCodeResults: [
+            {
+              Test: 'B',
+              TestCodeExtID: 'B',
+              Result: '2.0',
+              ResultStatus: 'F',
+            },
+          ],
+        } as unknown as AntechV6UnitCodeResult,
+      ]
+
+      const result = mapper.mapAntechV6Result({
+        ID: 1,
+        ClinicAccessionID: 'order-1',
+        LabAccessionID: 'lab-1',
+        PendingTestCount: 0,
+        TotalTestCount: 2,
+        UnitCodeResults: unitCodeResults,
+      } as AntechV6Result)
+
+      expect(result.testResults.length).toBe(2)
     })
 
     it('should map orphan results', () => {

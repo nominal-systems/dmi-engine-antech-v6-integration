@@ -3,7 +3,7 @@ import { AntechV6OrdersProcessor } from './processors/antechV6-orders.processor'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { AntechV6Service } from './services/antechV6.service'
 import { AntechV6ApiService } from './antechV6-api/antechV6-api.service'
-import { DynamicModule, Module } from '@nestjs/common'
+import { type DynamicModule, Module, type ModuleMetadata, type Provider } from '@nestjs/common'
 import { AntechV6ResultsProcessor } from './processors/antechV6-results.processor'
 import { AntechV6Controller } from './controllers/antechV6.controller'
 import { AntechV6Mapper } from './providers/antechV6-mapper'
@@ -11,6 +11,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices'
 import { AntechV6ApiModule } from './antechV6-api/antech-v6-api.module'
 import { APP_FILTER } from '@nestjs/core'
 import { RpcExceptionFilter } from './filters/rcp-exception.filter'
+import { EnvFeatureFlagProvider } from './feature-flags/env-feature-flag.provider'
+import { FEATURE_FLAG_PROVIDER } from './feature-flags/feature-flag.interface'
 
 @Module({
   imports: [
@@ -51,9 +53,20 @@ import { RpcExceptionFilter } from './filters/rcp-exception.filter'
   exports: [BullModule],
 })
 export class AntechV6Module {
-  static register(): DynamicModule {
+  static register(options: AntechV6ModuleOptions = {}): DynamicModule {
+    const featureFlagProvider: Provider =
+      options.featureFlagProvider ?? ({ provide: FEATURE_FLAG_PROVIDER, useClass: EnvFeatureFlagProvider } satisfies Provider)
+
     return {
       module: AntechV6Module,
+      imports: [...(options.imports ?? [])],
+      providers: [featureFlagProvider, ...(options.providers ?? [])],
     }
   }
+}
+
+export interface AntechV6ModuleOptions {
+  imports?: ModuleMetadata['imports']
+  providers?: Provider[]
+  featureFlagProvider?: Provider
 }

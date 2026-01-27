@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, Optional } from '@nestjs/common'
 import {
   Client,
   ClientPayload,
@@ -58,9 +58,20 @@ import {
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
+import {
+  ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
+  FEATURE_FLAG_PROVIDER,
+  type FeatureFlagProvider,
+} from '../feature-flags/feature-flag.interface'
 
 @Injectable()
 export class AntechV6Mapper {
+  constructor(
+    @Optional()
+    @Inject(FEATURE_FLAG_PROVIDER)
+    private readonly featureFlags?: FeatureFlagProvider,
+  ) {}
+
   mapCreateOrderPayload(
     payload: CreateOrderPayload,
     metadata: AntechV6MessageData,
@@ -318,7 +329,8 @@ export class AntechV6Mapper {
   }
 
   private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
-    if (process.env.ANTECH_V6_LEGACY_TEST_RESULTS === 'true') {
+    const legacyEnabled = this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG) ?? false
+    if (legacyEnabled) {
       return this.extractTestResultsLegacy(unitCodeResults)
     }
 
