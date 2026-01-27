@@ -55,7 +55,8 @@ import { FEATURE_FLAG_PROVIDER } from './feature-flags/feature-flag.interface'
 export class AntechV6Module {
   static register(options: AntechV6ModuleOptions = {}): DynamicModule {
     const featureFlagProvider: Provider =
-      options.featureFlagProvider ?? ({ provide: FEATURE_FLAG_PROVIDER, useClass: EnvFeatureFlagProvider } satisfies Provider)
+      options.featureFlagProvider ??
+      ({ provide: FEATURE_FLAG_PROVIDER, useClass: EnvFeatureFlagProvider } satisfies Provider)
 
     return {
       module: AntechV6Module,
