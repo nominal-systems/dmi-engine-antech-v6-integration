@@ -329,7 +329,7 @@ export class AntechV6Mapper {
   }
 
   private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
-    const legacyEnabled = this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG) ?? false
+    const legacyEnabled = this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG) ?? true
     if (legacyEnabled) {
       return this.extractTestResultsLegacy(unitCodeResults)
     }
