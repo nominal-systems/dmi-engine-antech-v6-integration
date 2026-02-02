@@ -1,4 +1,4 @@
-import { Inject, Injectable, Optional } from '@nestjs/common'
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common'
 import {
   Client,
   ClientPayload,
@@ -67,6 +67,8 @@ import {
 
 @Injectable()
 export class AntechV6Mapper {
+  private readonly logger = new Logger(AntechV6Mapper.name)
+
   constructor(
     @Optional()
     @Inject(FEATURE_FLAG_PROVIDER)
@@ -335,6 +337,11 @@ export class AntechV6Mapper {
   ): TestResult[] {
     const useGroupedResults =
       this.featureFlags?.isEnabled(ANTECH_V6_GROUPED_RESULTS_FLAG, context) ?? false
+
+    this.logger.debug(
+      `Feature flag "${ANTECH_V6_GROUPED_RESULTS_FLAG}" for clinicId=${context?.clinicId}: ${useGroupedResults}`,
+    )
+
     if (useGroupedResults) {
       return this.extractTestResultsGrouped(unitCodeResults)
     }
