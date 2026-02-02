@@ -1,4 +1,4 @@
- import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import Statsig from 'statsig-node'
 import { type FeatureFlagContext, type FeatureFlagProvider } from './feature-flag.interface'
 
