@@ -27,7 +27,7 @@ import * as path from 'path'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
 import {
-  ANTECH_V6_GROUPED_RESULTS_FLAG,
+  ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
   FEATURE_FLAG_PROVIDER,
   type FeatureFlagProvider,
 } from '../feature-flags/feature-flag.interface'
@@ -392,7 +392,7 @@ describe('AntechV6Mapper', () => {
 
     it('uses legacy test result extraction when the grouped flag is disabled', () => {
       ;(featureFlagProviderMock.isEnabled as jest.Mock).mockImplementation(
-        (flag: string) => flag !== ANTECH_V6_GROUPED_RESULTS_FLAG,
+        (flag: string) => flag !== ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
       )
 
       const unitCodeResults: AntechV6UnitCodeResult[] = [

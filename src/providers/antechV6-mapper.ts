@@ -59,7 +59,7 @@ import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
 import {
-  ANTECH_V6_GROUPED_RESULTS_FLAG,
+  ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
   FEATURE_FLAG_PROVIDER,
   type FeatureFlagContext,
   type FeatureFlagProvider,
@@ -336,10 +336,10 @@ export class AntechV6Mapper {
     context?: FeatureFlagContext,
   ): TestResult[] {
     const useGroupedResults =
-      this.featureFlags?.isEnabled(ANTECH_V6_GROUPED_RESULTS_FLAG, context) ?? false
+      this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG, context) ?? false
 
     this.logger.debug(
-      `Feature flag "${ANTECH_V6_GROUPED_RESULTS_FLAG}" for clinicId=${context?.clinicId}: ${useGroupedResults}`,
+      `Feature flag "${ANTECH_V6_LEGACY_TEST_RESULTS_FLAG}" for clinicId=${context?.clinicId}: ${useGroupedResults}`,
     )
 
     if (useGroupedResults) {
