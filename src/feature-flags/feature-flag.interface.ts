@@ -2,6 +2,8 @@ export const FEATURE_FLAG_PROVIDER = 'FEATURE_FLAG_PROVIDER'
 
 export interface FeatureFlagContext {
   userID?: string
+  clinicId?: string
+  integrationId?: string
   custom?: Record<string, unknown>
 }
 

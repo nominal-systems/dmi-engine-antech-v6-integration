@@ -11,7 +11,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices'
 import { AntechV6ApiModule } from './antechV6-api/antech-v6-api.module'
 import { APP_FILTER } from '@nestjs/core'
 import { RpcExceptionFilter } from './filters/rcp-exception.filter'
-import { EnvFeatureFlagProvider } from './feature-flags/env-feature-flag.provider'
+import { StatsigFeatureFlagProvider } from './feature-flags/statsig-feature-flag.provider'
 import { FEATURE_FLAG_PROVIDER } from './feature-flags/feature-flag.interface'
 
 @Module({
@@ -56,7 +56,7 @@ export class AntechV6Module {
   static register(options: AntechV6ModuleOptions = {}): DynamicModule {
     const featureFlagProvider: Provider =
       options.featureFlagProvider ??
-      ({ provide: FEATURE_FLAG_PROVIDER, useClass: EnvFeatureFlagProvider } satisfies Provider)
+      ({ provide: FEATURE_FLAG_PROVIDER, useClass: StatsigFeatureFlagProvider } satisfies Provider)
 
     return {
       module: AntechV6Module,

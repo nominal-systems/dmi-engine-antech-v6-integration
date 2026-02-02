@@ -61,6 +61,7 @@ import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-
 import {
   ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
   FEATURE_FLAG_PROVIDER,
+  type FeatureFlagContext,
   type FeatureFlagProvider,
 } from '../feature-flags/feature-flag.interface'
 
@@ -169,13 +170,13 @@ export class AntechV6Mapper {
     })
   }
 
-  mapAntechV6Result(result: AntechV6Result): Result {
+  mapAntechV6Result(result: AntechV6Result, context?: FeatureFlagContext): Result {
     const mappedResult: Result = {
       id: String(result.ID),
       orderId: result.ClinicAccessionID,
       accession: result.LabAccessionID,
       status: this.extractResultStatus(result),
-      testResults: this.extractTestResults(result.UnitCodeResults),
+      testResults: this.extractTestResults(result.UnitCodeResults, context),
     }
 
     if (isOrphanResult(result)) {
@@ -328,8 +329,12 @@ export class AntechV6Mapper {
     return status
   }
 
-  private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
-    const legacyEnabled = this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG) ?? false
+  private extractTestResults(
+    unitCodeResults: AntechV6UnitCodeResult[],
+    context?: FeatureFlagContext,
+  ): TestResult[] {
+    const legacyEnabled =
+      this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG, context) ?? false
     if (legacyEnabled) {
       return this.extractTestResultsLegacy(unitCodeResults)
     }
