@@ -440,6 +440,53 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults.length).toBe(2)
     })
 
+    it('defaults to legacy test result extraction when no feature flag provider is set', () => {
+      const localMapper = new AntechV6Mapper()
+      const unitCodeResults: AntechV6UnitCodeResult[] = [
+        {
+          OrderCode: 'PANEL1',
+          UnitCodeExtID: 'PANEL1',
+          UnitCodeDisplayName: 'Panel 1',
+          ProfileDisplayName: 'Panel 1',
+          ResultStatus: 'F',
+          TestCodeResults: [
+            {
+              Test: 'A',
+              TestCodeExtID: 'A',
+              Result: '1.0',
+              ResultStatus: 'F',
+            },
+          ],
+        } as unknown as AntechV6UnitCodeResult,
+        {
+          OrderCode: 'PANEL1',
+          UnitCodeExtID: 'PANEL1',
+          UnitCodeDisplayName: 'Panel 1',
+          ProfileDisplayName: 'Panel 1',
+          ResultStatus: 'F',
+          TestCodeResults: [
+            {
+              Test: 'B',
+              TestCodeExtID: 'B',
+              Result: '2.0',
+              ResultStatus: 'F',
+            },
+          ],
+        } as unknown as AntechV6UnitCodeResult,
+      ]
+
+      const result = localMapper.mapAntechV6Result({
+        ID: 1,
+        ClinicAccessionID: 'order-1',
+        LabAccessionID: 'lab-1',
+        PendingTestCount: 0,
+        TotalTestCount: 2,
+        UnitCodeResults: unitCodeResults,
+      } as AntechV6Result)
+
+      expect(result.testResults.length).toBe(2)
+    })
+
     it('should map orphan results', () => {
       const orphanResult: AntechV6Result = {
         ID: 1324,
