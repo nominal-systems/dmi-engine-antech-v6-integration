@@ -341,7 +341,7 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults.length).toBeGreaterThan(0)
     })
 
-    it('groups test results when the grouped flag is enabled', () => {
+    it('groups test results when the legacy test results flag is enabled', () => {
       ;(featureFlagProviderMock.isEnabled as jest.Mock).mockReturnValue(true)
 
       const unitCodeResults: AntechV6UnitCodeResult[] = [
@@ -390,7 +390,7 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults[0].items.length).toBe(2)
     })
 
-    it('uses legacy test result extraction when the grouped flag is disabled', () => {
+    it('uses legacy test result extraction when the legacy test results flag is disabled', () => {
       ;(featureFlagProviderMock.isEnabled as jest.Mock).mockImplementation(
         (flag: string) => flag !== ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
       )

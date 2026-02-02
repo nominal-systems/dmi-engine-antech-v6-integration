@@ -335,14 +335,14 @@ export class AntechV6Mapper {
     unitCodeResults: AntechV6UnitCodeResult[],
     context?: FeatureFlagContext,
   ): TestResult[] {
-    const useGroupedResults =
+    const useLegacyTestResults =
       this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG, context) ?? false
 
     this.logger.debug(
-      `Feature flag "${ANTECH_V6_LEGACY_TEST_RESULTS_FLAG}" for clinicId=${context?.clinicId}: ${useGroupedResults}`,
+      `Feature flag "${ANTECH_V6_LEGACY_TEST_RESULTS_FLAG}" for clinicId=${context?.clinicId}: ${useLegacyTestResults}`,
     )
 
-    if (useGroupedResults) {
+    if (useLegacyTestResults) {
       return this.extractTestResultsGrouped(unitCodeResults)
     }
 
