@@ -59,7 +59,7 @@ import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
 import {
-  ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
+  ANTECH_V6_GROUPED_RESULTS_FLAG,
   FEATURE_FLAG_PROVIDER,
   type FeatureFlagContext,
   type FeatureFlagProvider,
@@ -333,13 +333,13 @@ export class AntechV6Mapper {
     unitCodeResults: AntechV6UnitCodeResult[],
     context?: FeatureFlagContext,
   ): TestResult[] {
-    const legacyEnabled =
-      this.featureFlags?.isEnabled(ANTECH_V6_LEGACY_TEST_RESULTS_FLAG, context) ?? false
-    if (legacyEnabled) {
-      return this.extractTestResultsLegacy(unitCodeResults)
+    const useGroupedResults =
+      this.featureFlags?.isEnabled(ANTECH_V6_GROUPED_RESULTS_FLAG, context) ?? false
+    if (useGroupedResults) {
+      return this.extractTestResultsGrouped(unitCodeResults)
     }
 
-    return this.extractTestResultsGrouped(unitCodeResults)
+    return this.extractTestResultsLegacy(unitCodeResults)
   }
 
   private extractTestResultsLegacy(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {

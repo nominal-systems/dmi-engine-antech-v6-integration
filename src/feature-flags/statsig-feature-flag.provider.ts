@@ -27,7 +27,7 @@ export class StatsigFeatureFlagProvider implements FeatureFlagProvider, OnModule
 
   isEnabled(flag: string, context?: FeatureFlagContext): boolean {
     if (!this.initialized) {
-      this.logger.debug(`Statsig not initialized, flag "${flag}" returning false`)
+      this.logger.debug(`Statsig not initialized, flag "${flag}" returning false (legacy path)`)
       return false
     }
 

@@ -27,7 +27,7 @@ import * as path from 'path'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
 import {
-  ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
+  ANTECH_V6_GROUPED_RESULTS_FLAG,
   FEATURE_FLAG_PROVIDER,
   type FeatureFlagProvider,
 } from '../feature-flags/feature-flag.interface'
@@ -341,7 +341,9 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults.length).toBeGreaterThan(0)
     })
 
-    it('groups test results when the legacy gate is disabled', () => {
+    it('groups test results when the grouped flag is enabled', () => {
+      ;(featureFlagProviderMock.isEnabled as jest.Mock).mockReturnValue(true)
+
       const unitCodeResults: AntechV6UnitCodeResult[] = [
         {
           OrderCode: 'PANEL1',
@@ -388,9 +390,9 @@ describe('AntechV6Mapper', () => {
       expect(result.testResults[0].items.length).toBe(2)
     })
 
-    it('uses legacy test result extraction when the legacy gate is enabled', () => {
+    it('uses legacy test result extraction when the grouped flag is disabled', () => {
       ;(featureFlagProviderMock.isEnabled as jest.Mock).mockImplementation(
-        (flag: string) => flag === ANTECH_V6_LEGACY_TEST_RESULTS_FLAG,
+        (flag: string) => flag !== ANTECH_V6_GROUPED_RESULTS_FLAG,
       )
 
       const unitCodeResults: AntechV6UnitCodeResult[] = [
@@ -627,6 +629,8 @@ describe('AntechV6Mapper', () => {
     })
 
     it('should correctly map Thyroid Profile results items when first received', () => {
+      ;(featureFlagProviderMock.isEnabled as jest.Mock).mockReturnValue(true)
+
       const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_1[0]
       const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
@@ -650,6 +654,8 @@ describe('AntechV6Mapper', () => {
     })
 
     it('should correctly map Thyroid Profile results items when received for the second time', () => {
+      ;(featureFlagProviderMock.isEnabled as jest.Mock).mockReturnValue(true)
+
       const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_2[0]
       const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
@@ -681,6 +687,8 @@ describe('AntechV6Mapper', () => {
     })
 
     it('should correctly map Thyroid Profile results items when received for the third time', () => {
+      ;(featureFlagProviderMock.isEnabled as jest.Mock).mockReturnValue(true)
+
       const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_3[0]
       const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
@@ -713,6 +721,8 @@ describe('AntechV6Mapper', () => {
     })
 
     it('should correctly map Thyroid Profile results items when received for the fourth time', () => {
+      ;(featureFlagProviderMock.isEnabled as jest.Mock).mockReturnValue(true)
+
       const thyroidProfileResult: AntechV6Result = thyroidResultsResponse_4[0]
       const result: Result = mapper.mapAntechV6Result(thyroidProfileResult)
       expect(result).toEqual(
