@@ -183,7 +183,6 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     )
 
     const featureFlagContext = {
-      userID: metadata.integrationOptions.clinicId,
       clinicId: metadata.integrationOptions.clinicId,
       integrationId: (payload as unknown as { integrationId?: string })?.integrationId,
       custom: {
