@@ -20,6 +20,10 @@ export class AntechV6ApiException extends RpcException {
       this._errors.unshift(error.options?.value?.Message)
     }
 
+    if (error.options?.value?.detail !== undefined) {
+      this._errors.unshift(error.options?.value?.detail)
+    }
+
     if (error.message !== undefined) {
       this._errors.unshift(error.message)
     }
