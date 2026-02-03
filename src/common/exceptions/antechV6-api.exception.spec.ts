@@ -58,4 +58,28 @@ describe('AntechV6ApiException', () => {
     expect(exception.errors).toContain('PetWeightUnits: The PetWeightUnits field is required.')
     expect(exception.errors).toContain('One or more validation errors occurred.')
   })
+
+  it('should extract Message from nested value object (500 errors)', () => {
+    const error = {
+      message: 'Failed to POST https://api.healthtracks.com/LabOrders/v6/PreOrderPlacement',
+      options: {
+        value: {
+          Data: null,
+          StatusCode: 0,
+          HttpStatusCode: 500,
+          Message: 'Internal server error',
+          InnerExceptionMessage: '',
+          Error: null,
+          ClientData: null,
+        },
+        statusCode: 500,
+        contentType: 'application/json',
+      },
+    }
+
+    const exception = new AntechV6ApiException('Failed to place order', 500, error)
+
+    expect(exception.errors).toContain('Internal server error')
+    expect(exception.statusCode).toBe(500)
+  })
 })
