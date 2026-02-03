@@ -1,40 +1,35 @@
 import { AntechV6ApiException } from './antechV6-api.exception'
 
 describe('AntechV6ApiException', () => {
-  it('should extract detail from API error response', () => {
-    const apiErrorResponse = {
-      type: 'https://www.rfc-editor.org/rfc/rfc9110.html#status.400',
-      message: 'Validation Failed',
-      status: 400,
-      detail: "PetWeight: 'PetWeight' must be greater than zero.",
-      errorDetails: {
-        PetWeight: ["'PetWeight' must be greater than zero."],
-      },
-      isSuccess: false,
-      requestId: 'b62f12d4-dc8f-41b7-99de-265e87a7ba52',
-    }
-
+  it('should extract detail from HttpException options', () => {
     const error = {
-      status: 400,
+      message: 'Failed to POST https://Api-pims.antechdiagnostics.com/LabOrders/v6/Order',
       options: {
-        value: apiErrorResponse,
+        type: 'https://www.rfc-editor.org/rfc/rfc9110.html#status.400',
+        message: 'Validation Failed',
+        status: 400,
+        detail: 'POCValidation: POC validation errors: Only IHD order codes are supported.',
+        errorDetails: {
+          POCValidation: ['POC validation errors: Only IHD order codes are supported.'],
+        },
+        isSuccess: false,
+        requestId: 'd6d8a10a-f634-43a3-9bdc-d7447940e053',
       },
     }
 
     const exception = new AntechV6ApiException('Failed to place order', 400, error)
 
-    expect(exception.errors).toContain("PetWeight: 'PetWeight' must be greater than zero.")
+    expect(exception.errors).toContain(
+      'POCValidation: POC validation errors: Only IHD order codes are supported.',
+    )
     expect(exception.statusCode).toBe(400)
   })
 
   it('should extract both Message and detail when both are present', () => {
     const error = {
-      status: 400,
       options: {
-        value: {
-          Message: 'General validation error',
-          detail: 'Specific field error',
-        },
+        Message: 'General validation error',
+        detail: 'Specific field error',
       },
     }
 
@@ -42,5 +37,25 @@ describe('AntechV6ApiException', () => {
 
     expect(exception.errors).toContain('General validation error')
     expect(exception.errors).toContain('Specific field error')
+  })
+
+  it('should extract validation errors from errors object format', () => {
+    const error = {
+      message: 'Failed to POST https://Api-pims.antechdiagnostics.com/LabOrders/v6/Order',
+      options: {
+        type: 'https://tools.ietf.org/html/rfc9110#section-15.5.1',
+        title: 'One or more validation errors occurred.',
+        status: 400,
+        errors: {
+          PetWeightUnits: ['The PetWeightUnits field is required.'],
+        },
+        traceId: '00-aa886e2d1eda6053422196184331be66-6e96804a20b7bf0e-01',
+      },
+    }
+
+    const exception = new AntechV6ApiException('Failed to place order', 400, error)
+
+    expect(exception.errors).toContain('PetWeightUnits: The PetWeightUnits field is required.')
+    expect(exception.errors).toContain('One or more validation errors occurred.')
   })
 })
