@@ -65,8 +65,9 @@ export function extractPetWeight(
     !isNullOrUndefinedOrEmpty(patient.weightMeasurement) &&
     !isNullOrUndefinedOrEmpty(patient.weightUnits)
   ) {
+    const petWeight = patient.weightMeasurement! < 0.01 ? 0.01 : patient.weightMeasurement
     return {
-      PetWeight: patient.weightMeasurement,
+      PetWeight: petWeight,
       PetWeightUnits: patient.weightUnits,
     }
   } else {
