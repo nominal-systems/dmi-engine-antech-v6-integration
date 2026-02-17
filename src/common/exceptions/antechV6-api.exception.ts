@@ -16,8 +16,34 @@ export class AntechV6ApiException extends RpcException {
       this._errors.unshift(error.options)
     }
 
+    if (error.options?.detail !== undefined) {
+      this._errors.unshift(error.options.detail)
+    }
+
+    if (error.options?.Message !== undefined) {
+      this._errors.unshift(error.options.Message)
+    }
+
+    if (error.options?.errors !== undefined && typeof error.options.errors === 'object') {
+      for (const [field, messages] of Object.entries(error.options.errors)) {
+        if (Array.isArray(messages)) {
+          for (const msg of messages) {
+            this._errors.unshift(`${field}: ${msg}`)
+          }
+        }
+      }
+    }
+
+    if (error.options?.title !== undefined) {
+      this._errors.unshift(error.options.title)
+    }
+
     if (error.options?.value?.Message !== undefined) {
       this._errors.unshift(error.options?.value?.Message)
+    }
+
+    if (error.options?.value?.detail !== undefined) {
+      this._errors.unshift(error.options?.value?.detail)
     }
 
     if (error.message !== undefined) {

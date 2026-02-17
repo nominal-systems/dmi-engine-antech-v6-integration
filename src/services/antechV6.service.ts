@@ -182,8 +182,19 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       credentials,
     )
 
+    const featureFlagContext = {
+      clinicId: metadata.integrationOptions.clinicId,
+      integrationId: (payload as unknown as { integrationId?: string })?.integrationId,
+      custom: {
+        clinicId: metadata.integrationOptions.clinicId,
+        integrationId: (payload as unknown as { integrationId?: string })?.integrationId,
+      },
+    }
+
     return {
-      results: allResults.map((result) => this.antechV6Mapper.mapAntechV6Result(result)),
+      results: allResults.map((result) =>
+        this.antechV6Mapper.mapAntechV6Result(result, featureFlagContext),
+      ),
     }
   }
 

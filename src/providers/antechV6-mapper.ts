@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common'
 import {
   Client,
   ClientPayload,
@@ -58,9 +58,23 @@ import {
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
+import {
+  ANTECH_V6_GROUPED_TEST_RESULTS_FLAG,
+  FEATURE_FLAG_PROVIDER,
+  type FeatureFlagContext,
+  type FeatureFlagProvider,
+} from '../feature-flags/feature-flag.interface'
 
 @Injectable()
 export class AntechV6Mapper {
+  private readonly logger = new Logger(AntechV6Mapper.name)
+
+  constructor(
+    @Optional()
+    @Inject(FEATURE_FLAG_PROVIDER)
+    private readonly featureFlags?: FeatureFlagProvider,
+  ) {}
+
   mapCreateOrderPayload(
     payload: CreateOrderPayload,
     metadata: AntechV6MessageData,
@@ -158,13 +172,13 @@ export class AntechV6Mapper {
     })
   }
 
-  mapAntechV6Result(result: AntechV6Result): Result {
+  mapAntechV6Result(result: AntechV6Result, context?: FeatureFlagContext): Result {
     const mappedResult: Result = {
       id: String(result.ID),
       orderId: result.ClinicAccessionID,
       accession: result.LabAccessionID,
       status: this.extractResultStatus(result),
-      testResults: this.extractTestResults(result.UnitCodeResults),
+      testResults: this.extractTestResults(result.UnitCodeResults, context),
     }
 
     if (isOrphanResult(result)) {
@@ -317,7 +331,44 @@ export class AntechV6Mapper {
     return status
   }
 
-  private extractTestResults(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
+  private extractTestResults(
+    unitCodeResults: AntechV6UnitCodeResult[],
+    context?: FeatureFlagContext,
+  ): TestResult[] {
+    const groupedResultsFlagContext: FeatureFlagContext | undefined = context
+      ? { clinicId: context.clinicId }
+      : undefined
+
+    const useGroupedResults =
+      this.featureFlags?.isEnabled(
+        ANTECH_V6_GROUPED_TEST_RESULTS_FLAG,
+        groupedResultsFlagContext,
+      ) ?? false
+
+    this.logger.debug(
+      `Statsig flag "${ANTECH_V6_GROUPED_TEST_RESULTS_FLAG}" for clinicId=${context?.clinicId}: ${useGroupedResults}`,
+    )
+
+    if (useGroupedResults) {
+      return this.extractTestResultsGrouped(unitCodeResults)
+    }
+
+    return this.extractTestResultsLegacy(unitCodeResults)
+  }
+
+  private extractTestResultsLegacy(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
+    return unitCodeResults
+      .filter(
+        (unitCodeResult) =>
+          !(
+            unitCodeResult.ResultStatus?.toString() === 'F' &&
+            (!unitCodeResult.TestCodeResults || unitCodeResult.TestCodeResults.length === 0)
+          ),
+      )
+      .map(this.mapAntechV6UnitCodeResult, this)
+  }
+
+  private extractTestResultsGrouped(unitCodeResults: AntechV6UnitCodeResult[]): TestResult[] {
     const filteredResults = unitCodeResults.filter(
       (unitCodeResult) =>
         !(
