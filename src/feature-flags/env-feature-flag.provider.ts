@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import {
   ANTECH_V6_GROUPED_TEST_RESULTS_FLAG,
-  ANTECH_V6_STATSIG_TEST_LOG_FLAG,
   type FeatureFlagContext,
   type FeatureFlagProvider,
 } from './feature-flag.interface'
@@ -12,8 +11,6 @@ export class EnvFeatureFlagProvider implements FeatureFlagProvider {
     switch (flag) {
       case ANTECH_V6_GROUPED_TEST_RESULTS_FLAG:
         return process.env.ANTECH_V6_GROUPED_TEST_RESULTS === 'true'
-      case ANTECH_V6_STATSIG_TEST_LOG_FLAG:
-        return process.env.ANTECH_V6_STATSIG_TEST_LOG === 'true'
       default:
         return false
     }

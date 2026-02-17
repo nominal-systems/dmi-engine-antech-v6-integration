@@ -335,11 +335,18 @@ export class AntechV6Mapper {
     unitCodeResults: AntechV6UnitCodeResult[],
     context?: FeatureFlagContext,
   ): TestResult[] {
+    const groupedResultsFlagContext: FeatureFlagContext | undefined = context
+      ? { clinicId: context.clinicId }
+      : undefined
+
     const useGroupedResults =
-      this.featureFlags?.isEnabled(ANTECH_V6_GROUPED_TEST_RESULTS_FLAG, context) ?? false
+      this.featureFlags?.isEnabled(
+        ANTECH_V6_GROUPED_TEST_RESULTS_FLAG,
+        groupedResultsFlagContext,
+      ) ?? false
 
     this.logger.debug(
-      `Statsig flag "${ANTECH_V6_GROUPED_TEST_RESULTS_FLAG}" for clinicId=${context?.clinicId}, integrationId=${context?.integrationId}: ${useGroupedResults}`,
+      `Statsig flag "${ANTECH_V6_GROUPED_TEST_RESULTS_FLAG}" for clinicId=${context?.clinicId}: ${useGroupedResults}`,
     )
 
     if (useGroupedResults) {
