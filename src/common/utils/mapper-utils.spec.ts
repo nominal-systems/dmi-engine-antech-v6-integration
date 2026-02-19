@@ -116,7 +116,7 @@ describe('MapperUtils', () => {
   })
 
   describe('extractPetWeight()', () => {
-    it('should return the weight as received when it is 0.01 or higher', () => {
+    it('should return the weight as received', () => {
       const patient: Partial<OrderPatient> = {
         weightMeasurement: 15.5,
         weightUnits: 'kg',
@@ -127,37 +127,23 @@ describe('MapperUtils', () => {
       })
     })
 
-    it('should return the weight as received when it is exactly 0.01', () => {
-      const patient: Partial<OrderPatient> = {
-        weightMeasurement: 0.01,
-        weightUnits: 'kg',
-      }
-      expect(extractPetWeight(patient as OrderPatient)).toEqual({
-        PetWeight: 0.01,
-        PetWeightUnits: 'kg',
-      })
-    })
-
-    it('should return minimum weight of 0.01 when weight is less than that', () => {
+    it('should return the weight as received when it is a small non-zero value', () => {
       const patient: Partial<OrderPatient> = {
         weightMeasurement: 0.005,
         weightUnits: 'kg',
       }
       expect(extractPetWeight(patient as OrderPatient)).toEqual({
-        PetWeight: 0.01,
+        PetWeight: 0.005,
         PetWeightUnits: 'kg',
       })
     })
 
-    it('should enforce minimum weight of 0.01 when weight is zero', () => {
+    it('should return empty object when weight is zero', () => {
       const patient: Partial<OrderPatient> = {
         weightMeasurement: 0,
         weightUnits: 'kg',
       }
-      expect(extractPetWeight(patient as OrderPatient)).toEqual({
-        PetWeight: 0.01,
-        PetWeightUnits: 'kg',
-      })
+      expect(extractPetWeight(patient as OrderPatient)).toEqual({})
     })
   })
 })

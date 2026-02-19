@@ -63,11 +63,11 @@ export function extractPetWeight(
 ): Pick<AntechV6Pet, 'PetWeight' | 'PetWeightUnits'> {
   if (
     !isNullOrUndefinedOrEmpty(patient.weightMeasurement) &&
+    patient.weightMeasurement !== 0 &&
     !isNullOrUndefinedOrEmpty(patient.weightUnits)
   ) {
-    const petWeight = patient.weightMeasurement! < 0.01 ? 0.01 : patient.weightMeasurement
     return {
-      PetWeight: petWeight,
+      PetWeight: patient.weightMeasurement,
       PetWeightUnits: patient.weightUnits,
     }
   } else {
