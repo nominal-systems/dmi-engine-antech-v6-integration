@@ -180,6 +180,7 @@ export class AntechV6ApiService extends BaseApiService {
   async getTestGuide(
     baseUrl: string,
     credentials: AntechV6UserCredentials,
+    params: Record<string, string | number> = {},
   ): Promise<AntechV6TestGuide> {
     const accessToken: AntechV6AccessToken = await this.post<AntechV6AccessToken>(
       `${baseUrl}${AntechV6Endpoints.LOGIN}`,
@@ -191,6 +192,7 @@ export class AntechV6ApiService extends BaseApiService {
         accesstoken: accessToken.Token,
         userId: String(accessToken?.UserInfo?.ID),
         pageSize: 2500,
+        ...params,
       },
     })
   }
