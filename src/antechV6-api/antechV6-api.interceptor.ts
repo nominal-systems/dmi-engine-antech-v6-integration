@@ -4,10 +4,7 @@ import { AxiosResponse } from 'axios'
 import { AntechV6Endpoints } from '../interfaces/antechV6-api.interface'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 
-const EXCLUDED_ENDPOINTS = [
-  AntechV6Endpoints.LOGIN,
-  AntechV6Endpoints.GET_SPECIES_AND_BREEDS,
-]
+const EXCLUDED_ENDPOINTS = [AntechV6Endpoints.LOGIN, AntechV6Endpoints.GET_SPECIES_AND_BREEDS]
 
 export class AntechV6ApiInterceptor extends AxiosInterceptor {
   constructor(httpService: AntechV6ApiHttpService, client) {
