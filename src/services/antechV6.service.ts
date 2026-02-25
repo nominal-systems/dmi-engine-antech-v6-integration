@@ -414,13 +414,21 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       return false
     }
 
-    const pocTests = await this.antechV6Api.getTestGuide(
-      metadata.providerConfiguration.baseUrl,
-      credentials,
-      { POC_FLAG: 'Y' },
-    )
+    try {
+      const pocTests = await this.antechV6Api.getTestGuide(
+        metadata.providerConfiguration.baseUrl,
+        credentials,
+        { POC_FLAG: 'Y' },
+      )
 
-    const pocCodes = new Set((pocTests.LabResults || []).map((test) => test.Code))
-    return pocCodes.size > 0 && orderCodes.every((code) => pocCodes.has(code))
+      const pocCodes = new Set((pocTests.LabResults || []).map((test) => test.Code))
+      return pocCodes.size > 0 && orderCodes.every((code) => pocCodes.has(code))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      this.logger.warn(
+        `Failed to fetch POC tests from test guide; defaulting to pre-order flow. Error: ${message}`,
+      )
+      return false
+    }
   }
 }
