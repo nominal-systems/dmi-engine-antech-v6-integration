@@ -204,13 +204,16 @@ export class AntechV6ApiService extends BaseApiService {
   ): Promise<AntechV6PreOrderPlacement & AntechV6AccessToken> {
     try {
       const { Token } = await this.authenticate(baseUrl, credentials)
-      const preOrderPlacement: AntechV6PreOrderPlacement =
-        await this.doPost<AntechV6PreOrderPlacement>(
-          credentials,
-          baseUrl,
-          AntechV6Endpoints.PLACE_PRE_ORDER,
-          preOrder,
-        )
+      const preOrderPlacement = await this.post<AntechV6PreOrderPlacement>(
+        `${baseUrl}${AntechV6Endpoints.PLACE_PRE_ORDER}`,
+        preOrder,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            accessToken: Token,
+          },
+        },
+      )
       return {
         ...preOrderPlacement,
         Token,
@@ -227,11 +230,15 @@ export class AntechV6ApiService extends BaseApiService {
   ): Promise<AntechV6OrderPlacement & AntechV6AccessToken> {
     try {
       const { Token } = await this.authenticate(baseUrl, credentials)
-      const orderPlacement = await this.doPost<AntechV6OrderPlacement>(
-        credentials,
-        baseUrl,
-        AntechV6Endpoints.PLACE_ORDER,
+      const orderPlacement = await this.post<AntechV6OrderPlacement>(
+        `${baseUrl}${AntechV6Endpoints.PLACE_ORDER}`,
         order,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            accessToken: Token,
+          },
+        },
       )
       return {
         ...orderPlacement,
