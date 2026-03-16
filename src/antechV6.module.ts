@@ -9,8 +9,6 @@ import { AntechV6Controller } from './controllers/antechV6.controller'
 import { AntechV6Mapper } from './providers/antechV6-mapper'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { AntechV6ApiModule } from './antechV6-api/antech-v6-api.module'
-import { APP_FILTER } from '@nestjs/core'
-import { RpcExceptionFilter } from './filters/rcp-exception.filter'
 import { StatsigFeatureFlagProvider } from './feature-flags/statsig-feature-flag.provider'
 import { FEATURE_FLAG_PROVIDER } from './feature-flags/feature-flag.interface'
 
@@ -44,10 +42,6 @@ import { FEATURE_FLAG_PROVIDER } from './feature-flags/feature-flag.interface'
     AntechV6ApiService,
     AntechV6OrdersProcessor,
     AntechV6ResultsProcessor,
-    {
-      provide: APP_FILTER,
-      useClass: RpcExceptionFilter,
-    },
   ],
   controllers: [AntechV6Controller],
   exports: [BullModule],

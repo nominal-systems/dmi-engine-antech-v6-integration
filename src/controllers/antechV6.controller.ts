@@ -1,4 +1,4 @@
-import { Controller, Logger } from '@nestjs/common'
+import { Controller, Logger, UseFilters } from '@nestjs/common'
 import {
   ApiEvent,
   Breed,
@@ -23,8 +23,10 @@ import { MessagePattern } from '@nestjs/microservices'
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { PROVIDER_NAME } from '../constants/provider-name.constant'
 import { AntechV6Service } from '../services/antechV6.service'
+import { RpcExceptionFilter } from '../filters/rcp-exception.filter'
 
 @Controller('engine/antech-v6')
+@UseFilters(RpcExceptionFilter)
 export class AntechV6Controller
   implements
     ProviderOrderCreation,
