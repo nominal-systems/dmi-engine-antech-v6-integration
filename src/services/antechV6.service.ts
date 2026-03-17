@@ -103,6 +103,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         metadata.providerConfiguration.baseUrl,
         credentials,
         orderPayload as AntechV6Order,
+        metadata.integrationId,
       )
       return this.antechV6Mapper.mapAntechV6Order(orderPayload)
     }
@@ -112,6 +113,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         metadata.providerConfiguration.baseUrl,
         credentials,
         orderPayload,
+        metadata.integrationId,
       )
 
     return this.antechV6Mapper.mapAntechV6PreOrder(orderPayload, preOrderPlacement, metadata)
@@ -136,6 +138,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       metadata.providerConfiguration.baseUrl,
       credentials,
       false,
+      metadata.integrationId,
     )
 
     const orders: Order[] = []
@@ -144,6 +147,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         metadata.providerConfiguration.baseUrl,
         credentials,
         { ClinicAccessionID: orderStatus.ClinicAccessionID },
+        metadata.integrationId,
       )
 
       const order =
@@ -161,6 +165,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
           metadata.providerConfiguration.baseUrl,
           credentials,
           orderStatus.ClinicAccessionID,
+          metadata.integrationId,
         )
         if (manifest != null) {
           order.manifest = manifest
@@ -190,6 +195,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     const allResults: AntechV6Result[] = await this.antechV6Api.getAllResults(
       metadata.providerConfiguration.baseUrl,
       credentials,
+      metadata.integrationId,
     )
 
     const featureFlagContext = {
@@ -251,6 +257,8 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
     const testGuide: AntechV6TestGuide = await this.antechV6Api.getTestGuide(
       metadata.providerConfiguration.baseUrl,
       credentials,
+      {},
+      metadata.integrationId,
     )
 
     return this.antechV6Mapper.mapAntechV6TestGuide(testGuide)
@@ -301,6 +309,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       await this.antechV6Api.getSpeciesAndBreeds(
         metadata.providerConfiguration.baseUrl,
         credentials,
+        metadata.integrationId,
       )
     const items: Species[] = antechV6SpeciesAndBreeds.value.data.map((species) => ({
       name: species.name,
@@ -327,6 +336,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       await this.antechV6Api.getSpeciesAndBreeds(
         metadata.providerConfiguration.baseUrl,
         credentials,
+        metadata.integrationId,
       )
     const getBreeds = (data: AntechV6SpeciesAndBreeds): Breed[] => {
       return data.value.data.flatMap((species) =>
@@ -357,6 +367,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       metadata.providerConfiguration.baseUrl,
       credentials,
       payload.ids,
+      metadata.integrationId,
     )
   }
 
@@ -369,7 +380,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
     await this.antechV6Api.acknowledgeOrders(metadata.providerConfiguration.baseUrl, credentials, [
       payload.id,
-    ])
+    ], metadata.integrationId)
   }
 
   async acknowledgeResults(payload: IdsPayload, metadata: AntechV6MessageData): Promise<void> {
@@ -383,6 +394,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       metadata.providerConfiguration.baseUrl,
       credentials,
       payload.ids,
+      metadata.integrationId,
     )
   }
 
@@ -395,7 +407,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
     await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, [
       payload.id,
-    ])
+    ], metadata.integrationId)
   }
 
   createRequisitionId(payload: NullPayloadPayload, metadata: AntechV6MessageData): string {
@@ -419,6 +431,7 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
         metadata.providerConfiguration.baseUrl,
         credentials,
         { POC_FLAG: 'Y' },
+        metadata.integrationId,
       )
 
       const pocCodes = new Set((pocTests.LabResults || []).map((test) => test.Code))
