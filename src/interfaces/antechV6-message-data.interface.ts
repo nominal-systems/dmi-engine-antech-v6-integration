@@ -1,5 +1,6 @@
 import { IMetadata } from '@nominal-systems/dmi-engine-common'
 export interface AntechV6MessageData<Payload = any> extends IMetadata {
+  integrationId?: string
   providerConfiguration: AntechV6ProviderConfiguration
   integrationOptions: AntechV6IntegrationOptions
   autoSubmitOrder?: boolean

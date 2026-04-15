@@ -17,7 +17,8 @@ export class AntechV6OrdersProcessor {
 
   @Process()
   async fetchOrders(job: Job<AntechV6MessageData>) {
-    const { payload, ...metadata } = job.data
+    const { payload, ...rest } = job.data
+    const metadata: AntechV6MessageData = { ...rest, integrationId: payload?.integrationId }
     this.logger.debug(`Fetching orders for integration ${payload.integrationId}`)
     try {
       const orders = await this.antechV6Service.getBatchOrders(payload, metadata)
