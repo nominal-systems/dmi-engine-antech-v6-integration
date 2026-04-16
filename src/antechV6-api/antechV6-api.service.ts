@@ -75,9 +75,13 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     integrationId?: string,
   ): Promise<AntechV6AccessToken> {
-    return await this.post<AntechV6AccessToken>(`${baseUrl}${AntechV6Endpoints.LOGIN}`, credentials, {
-      metadata: { integrationId },
-    } as any)
+    return await this.post<AntechV6AccessToken>(
+      `${baseUrl}${AntechV6Endpoints.LOGIN}`,
+      credentials,
+      {
+        metadata: { integrationId },
+      } as any,
+    )
   }
 
   async getOrderStatus(
@@ -283,11 +287,17 @@ export class AntechV6ApiService extends BaseApiService {
     labAccessionIds: string[] = [],
     integrationId?: string,
   ): Promise<void> {
-    await this.doPost(credentials, baseUrl, AntechV6Endpoints.ACKNOWLEDGE_STATUS, {
-      serviceType: 'labResult',
-      clinicId: credentials.ClinicID,
-      labAccessionsIds: [...new Set(labAccessionIds)],
-    }, { integrationId })
+    await this.doPost(
+      credentials,
+      baseUrl,
+      AntechV6Endpoints.ACKNOWLEDGE_STATUS,
+      {
+        serviceType: 'labResult',
+        clinicId: credentials.ClinicID,
+        labAccessionsIds: [...new Set(labAccessionIds)],
+      },
+      { integrationId },
+    )
   }
 
   async acknowledgeOrders(
@@ -296,11 +306,17 @@ export class AntechV6ApiService extends BaseApiService {
     clinicAccessionIds: string[] = [],
     integrationId?: string,
   ): Promise<void> {
-    await this.doPost(credentials, baseUrl, AntechV6Endpoints.ACKNOWLEDGE_STATUS, {
-      serviceType: 'labOrder',
-      clinicId: credentials.ClinicID,
-      clinicAccessionIds: [...new Set(clinicAccessionIds)],
-    }, { integrationId })
+    await this.doPost(
+      credentials,
+      baseUrl,
+      AntechV6Endpoints.ACKNOWLEDGE_STATUS,
+      {
+        serviceType: 'labOrder',
+        clinicId: credentials.ClinicID,
+        clinicAccessionIds: [...new Set(clinicAccessionIds)],
+      },
+      { integrationId },
+    )
   }
 
   async testAuth(baseUrl: string, credentials: AntechV6UserCredentials): Promise<void> {

@@ -378,9 +378,12 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    await this.antechV6Api.acknowledgeOrders(metadata.providerConfiguration.baseUrl, credentials, [
-      payload.id,
-    ], metadata.integrationId)
+    await this.antechV6Api.acknowledgeOrders(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      [payload.id],
+      metadata.integrationId,
+    )
   }
 
   async acknowledgeResults(payload: IdsPayload, metadata: AntechV6MessageData): Promise<void> {
@@ -405,9 +408,12 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       ClinicID: metadata.integrationOptions.clinicId,
     }
 
-    await this.antechV6Api.acknowledgeResults(metadata.providerConfiguration.baseUrl, credentials, [
-      payload.id,
-    ], metadata.integrationId)
+    await this.antechV6Api.acknowledgeResults(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      [payload.id],
+      metadata.integrationId,
+    )
   }
 
   createRequisitionId(payload: NullPayloadPayload, metadata: AntechV6MessageData): string {
