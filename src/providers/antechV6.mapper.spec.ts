@@ -1082,17 +1082,22 @@ describe('AntechV6Mapper', () => {
       expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
     })
 
-    it('should return COMPLETED if TotalTestCount is 0', () => {
-      const result: AntechV6Result = { PendingTestCount: 0, TotalTestCount: 0 } as AntechV6Result
-      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
+    it('should return PENDING for a placeholder result with TotalTestCount=0 and empty UnitCodeResults', () => {
+      const result: AntechV6Result = {
+        PendingTestCount: 0,
+        TotalTestCount: 0,
+        UnitCodeResults: [],
+      } as unknown as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PENDING)
     })
 
     it('should handle undefined PendingTestCount and TotalTestCount safely', () => {
       const result: AntechV6Result = {
         PendingTestCount: undefined,
         TotalTestCount: undefined,
-      } as AntechV6Result
-      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.COMPLETED)
+        UnitCodeResults: [],
+      } as unknown as AntechV6Result
+      expect(mapper.extractResultStatus(result)).toBe(ResultStatus.PENDING)
 
       const result_1: AntechV6Result = {
         PendingTestCount: undefined,

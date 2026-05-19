@@ -11,7 +11,7 @@ import {
 } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
-import { AntechV6OrderStatus } from '../interfaces/antechV6-api.interface'
+import { AntechV6OrderStatus, AntechV6Result } from '../interfaces/antechV6-api.interface'
 
 describe('AntechV6Service', () => {
   let service: AntechV6Service
@@ -33,6 +33,7 @@ describe('AntechV6Service', () => {
   const antechV6ApiServiceMock = {
     getOrderStatus: jest.fn(),
     getResultStatus: jest.fn(),
+    getAllResults: jest.fn(),
     placePreOrder: jest.fn(),
     placeOrder: jest.fn(),
     getTestGuide: jest.fn(),
@@ -652,6 +653,65 @@ describe('AntechV6Service', () => {
             },
           ],
           hash: expect.any(String),
+        }),
+      )
+    })
+  })
+
+  describe('getBatchResults()', () => {
+    const payloadMock = {
+      integrationId: 'integration-id',
+    } as unknown as NullPayloadPayload
+
+    it('should filter out placeholder results with no tests yet', async () => {
+      const placeholder: Partial<AntechV6Result> = {
+        ID: 329199547,
+        ClinicAccessionID: '13476-VOY-7054486890',
+        LabAccessionID: 'NYEA02240122',
+        OrderStatus: AntechV6OrderStatus.Partial,
+        PendingTestCount: 0,
+        TotalTestCount: 0,
+        CorrectedTestCount: 0,
+        Corrected: '',
+        UnitCodeResults: [],
+      }
+      antechV6ApiServiceMock.getAllResults.mockResolvedValue([placeholder])
+
+      const response = await service.getBatchResults(payloadMock, metadataMock)
+
+      expect(response.results).toEqual([])
+    })
+
+    it('should map results that have content', async () => {
+      const result: Partial<AntechV6Result> = {
+        ID: 1,
+        ClinicAccessionID: 'ACC-1',
+        LabAccessionID: 'LAB-1',
+        OrderStatus: AntechV6OrderStatus.Final,
+        PendingTestCount: 0,
+        TotalTestCount: 1,
+        Corrected: '',
+        UnitCodeResults: [
+          {
+            UnitCodeExtID: 'UC1',
+            OrderCode: 'OC1',
+            UnitCodeDisplayName: 'Unit 1',
+            ProfileDisplayName: 'Profile 1',
+            TestCodeResults: [],
+            ResultStatus: 'F',
+          },
+        ] as any,
+      }
+      antechV6ApiServiceMock.getAllResults.mockResolvedValue([result])
+
+      const response = await service.getBatchResults(payloadMock, metadataMock)
+
+      expect(response.results).toHaveLength(1)
+      expect(response.results[0]).toEqual(
+        expect.objectContaining({
+          id: '1',
+          orderId: 'ACC-1',
+          accession: 'LAB-1',
         }),
       )
     })

@@ -140,6 +140,12 @@ export function isOrphanResult(result: AntechV6Result): boolean {
   return isNullOrUndefinedOrEmpty(result.ClinicAccessionID)
 }
 
+export function isPlaceholderResult(result: AntechV6Result): boolean {
+  const totalTestCount = result.TotalTestCount ?? 0
+  const unitCodeResultsCount = result.UnitCodeResults?.length ?? 0
+  return totalTestCount === 0 && unitCodeResultsCount === 0
+}
+
 export function extractPatientFromResult(result: AntechV6Result): Patient {
   return {
     name: result.Pet.Name || '',
