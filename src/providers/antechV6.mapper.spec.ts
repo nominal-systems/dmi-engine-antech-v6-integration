@@ -197,6 +197,44 @@ describe('AntechV6Mapper', () => {
         ClientLastName: 'EktesabiKhajooeikerm',
       })
     })
+
+    it('should strip characters not allowed by the Antech API from the client name', () => {
+      const clientPayload = {
+        id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+        firstName: 'Roger "Doc"',
+        lastName: 'O\'Brien-Smith.',
+        isStaff: false,
+      }
+
+      const result = (mapper as any).extractClient(clientPayload)
+      expect(result.ClientFirstName).toBe('Roger Doc')
+      expect(result.ClientLastName).toBe("O'Brien-Smith")
+    })
+
+    it('should transliterate accented characters in the client name', () => {
+      const clientPayload = {
+        id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+        firstName: 'Árbol',
+        lastName: 'ñandú',
+        isStaff: false,
+      }
+
+      const result = (mapper as any).extractClient(clientPayload)
+      expect(result.ClientFirstName).toBe('Arbol')
+      expect(result.ClientLastName).toBe('nandu')
+    })
+
+    it('should sanitize the client name before truncating the last name', () => {
+      const clientPayload = {
+        id: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+        firstName: 'Ashkan',
+        lastName: 'Éktesabi"Khajooeikermani',
+        isStaff: false,
+      }
+
+      const result = (mapper as any).extractClient(clientPayload)
+      expect(result.ClientLastName).toBe('EktesabiKhajooeikerm')
+    })
   })
 
   describe('mapAntechV6TestGuide()', () => {
