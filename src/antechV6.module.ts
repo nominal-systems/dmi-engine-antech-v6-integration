@@ -1,5 +1,7 @@
 import { BullModule } from '@nestjs/bull'
 import { AntechV6OrdersProcessor } from './processors/antechV6-orders.processor'
+import { APP_INTERCEPTOR } from '@nestjs/core'
+import { IntegrationContextInterceptor } from '@nominal-systems/dmi-engine-common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { AntechV6Service } from './services/antechV6.service'
 import { AntechV6ApiService } from './antechV6-api/antechV6-api.service'
@@ -42,6 +44,10 @@ import { FEATURE_FLAG_PROVIDER } from './feature-flags/feature-flag.interface'
     AntechV6ApiService,
     AntechV6OrdersProcessor,
     AntechV6ResultsProcessor,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: IntegrationContextInterceptor,
+    },
   ],
   controllers: [AntechV6Controller],
   exports: [BullModule],
