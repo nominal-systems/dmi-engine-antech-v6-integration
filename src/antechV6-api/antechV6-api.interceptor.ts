@@ -12,6 +12,28 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
     this.provider = PROVIDER_NAME
   }
 
+  // TRF/PDF downloads (GET_ORDER_TRF) are binary bodies; emitting them as raw_data
+  // stores them inline in the external_requests collection and fills the provider's
+  // Cosmos logical partition (error 1014). Keep the audit record (url, status,
+  // accession ids) but replace the body with a small stub.
+  protected handleResponse(url: string, body: any, response: AxiosResponse): any {
+    return super.handleResponse(url, this.redactBinaryBody(body, response), response)
+  }
+
+  public redactBinaryBody(body: any, response: AxiosResponse): any {
+    const contentType = String(response.headers?.['content-type'] ?? '')
+    const isBinary = Buffer.isBuffer(body) || body instanceof ArrayBuffer
+    if (!isBinary && !contentType.includes('application/pdf')) {
+      return body
+    }
+
+    return {
+      contentType: contentType !== '' ? contentType : 'application/octet-stream',
+      byteLength: isBinary ? body.byteLength : Buffer.byteLength(String(body), 'binary'),
+      bodyOmitted: true,
+    }
+  }
+
   public filter(url: string, body: any, response: AxiosResponse): boolean {
     if (response.status >= 400) {
       return true

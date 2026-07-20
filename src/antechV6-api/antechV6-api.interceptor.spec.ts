@@ -43,4 +43,92 @@ describe('AntechV6ApiInterceptor.filter()', () => {
       expect(interceptor.filter(url, response.data, response)).toBe(true)
     })
   })
+
+  describe('redactBinaryBody()', () => {
+    const pdfResponse = (data: any): AxiosResponse =>
+      ({
+        headers: { 'content-type': 'application/pdf' },
+        request: { method: 'GET' },
+        data,
+      }) as unknown as AxiosResponse
+
+    it('should replace Buffer bodies with a stub', () => {
+      const body = Buffer.from('%PDF-1.4 fake pdf content')
+      expect(interceptor.redactBinaryBody(body, pdfResponse(body))).toEqual({
+        contentType: 'application/pdf',
+        byteLength: body.byteLength,
+        bodyOmitted: true,
+      })
+    })
+
+    it('should replace ArrayBuffer bodies with a stub', () => {
+      const body = new ArrayBuffer(16)
+      expect(interceptor.redactBinaryBody(body, pdfResponse(body))).toEqual({
+        contentType: 'application/pdf',
+        byteLength: 16,
+        bodyOmitted: true,
+      })
+    })
+
+    it('should replace application/pdf string bodies with a stub', () => {
+      const body = '%PDF-1.4 fake pdf content'
+      expect(interceptor.redactBinaryBody(body, pdfResponse(body))).toEqual({
+        contentType: 'application/pdf',
+        byteLength: Buffer.byteLength(body, 'binary'),
+        bodyOmitted: true,
+      })
+    })
+
+    it('should default the stub content type when the header is missing', () => {
+      const body = Buffer.from('binary blob')
+      const response = { request: { method: 'GET' } } as unknown as AxiosResponse
+      expect(interceptor.redactBinaryBody(body, response)).toEqual({
+        contentType: 'application/octet-stream',
+        byteLength: body.byteLength,
+        bodyOmitted: true,
+      })
+    })
+
+    it('should pass JSON bodies through unchanged', () => {
+      const body = { LabOrders: [], LabResults: [] }
+      const response = {
+        headers: { 'content-type': 'application/json' },
+        request: { method: 'GET' },
+      } as unknown as AxiosResponse
+      expect(interceptor.redactBinaryBody(body, response)).toBe(body)
+    })
+  })
+
+  describe('handleResponse()', () => {
+    it('should emit redacted raw_data for TRF/PDF downloads', () => {
+      const clientMock = { emit: jest.fn() }
+      const trfInterceptor = new AntechV6ApiInterceptor(
+        {} as AntechV6ApiHttpService,
+        clientMock as any,
+      )
+      const body = Buffer.from('%PDF-1.4 fake pdf content')
+      const url = `${AntechV6Endpoints.GET_ORDER_TRF}/VOY-12345`
+      const response = {
+        status: 200,
+        headers: { 'content-type': 'application/pdf' },
+        request: { method: 'GET', headers: {} },
+        config: { data: undefined, metadata: {} },
+      } as unknown as AxiosResponse
+
+      // protected in the base class — invoked via cast, as the axios hook would
+      ;(trfInterceptor as any).handleResponse(url, body, response)
+
+      expect(clientMock.emit).toHaveBeenCalledWith(
+        'raw_data',
+        expect.objectContaining({
+          url,
+          body: {
+            contentType: 'application/pdf',
+            byteLength: body.byteLength,
+            bodyOmitted: true,
+          },
+        }),
+      )
+    })
+  })
 })
