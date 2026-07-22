@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
+import { CACHE_MANAGER, CacheStore } from '@nestjs/cache-manager'
 import {
   AntechV6AccessToken,
   AntechV6Endpoints,
@@ -17,11 +18,18 @@ import { Attachment, BaseApiService } from '@nominal-systems/dmi-engine-common'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
 
+// The Antech v6 auth response does not indicate any expiry time, but the token
+// has been tested to be valid for more than 12 hours.
+const ACCESS_TOKEN_TTL = 12 * 60 * 60 * 1000
+
 @Injectable()
 export class AntechV6ApiService extends BaseApiService {
   private readonly logger = new Logger(AntechV6ApiService.name)
 
-  constructor(private readonly httpService: AntechV6ApiHttpService) {
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: CacheStore,
+    private readonly httpService: AntechV6ApiHttpService,
+  ) {
     super(httpService)
   }
 
@@ -67,8 +75,25 @@ export class AntechV6ApiService extends BaseApiService {
   private async authenticate(
     baseUrl: string,
     credentials: AntechV6UserCredentials,
+    useCache = true,
   ): Promise<AntechV6AccessToken> {
-    return await this.post<AntechV6AccessToken>(`${baseUrl}${AntechV6Endpoints.LOGIN}`, credentials)
+    let accessToken: AntechV6AccessToken | undefined = undefined
+    const key = `access_token-${credentials.UserName}-${credentials.ClinicID}`
+    if (useCache) {
+      accessToken = await this.cacheManager.get<AntechV6AccessToken>(key)
+    }
+    if (!accessToken) {
+      accessToken = await this.post<AntechV6AccessToken>(
+        `${baseUrl}${AntechV6Endpoints.LOGIN}`,
+        credentials,
+      )
+      this.logger.debug(`Got new token: ${accessToken.Token.slice(-4)}`)
+      if (useCache) {
+        await this.cacheManager.set(key, accessToken, ACCESS_TOKEN_TTL)
+        this.logger.debug(`Saved new token '${key}' in cache (ttl: ${ACCESS_TOKEN_TTL / 1000}s)`)
+      }
+    }
+    return accessToken
   }
 
   async getOrderStatus(
@@ -182,10 +207,7 @@ export class AntechV6ApiService extends BaseApiService {
     credentials: AntechV6UserCredentials,
     params: Record<string, string | number> = {},
   ): Promise<AntechV6TestGuide> {
-    const accessToken: AntechV6AccessToken = await this.post<AntechV6AccessToken>(
-      `${baseUrl}${AntechV6Endpoints.LOGIN}`,
-      credentials,
-    )
+    const accessToken: AntechV6AccessToken = await this.authenticate(baseUrl, credentials)
 
     return await this.get<AntechV6TestGuide>(`${baseUrl}${AntechV6Endpoints.GET_TEST_GUIDE}`, {
       params: {
