@@ -7,6 +7,10 @@ import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interfa
 import { AntechV6Service } from '../services/antechV6.service'
 import { ClientProxy } from '@nestjs/microservices'
 
+// @Process() concurrency is read at class-decoration time, before Nest's DI
+// container exists, so it can't come from ConfigService - read process.env directly.
+const RESULTS_CONCURRENCY = Math.max(1, parseInt(process.env.ANTECH_V6_RESULTS_CONCURRENCY ?? '1', 10) || 1)
+
 @Processor(`${PROVIDER_NAME}.results`)
 export class AntechV6ResultsProcessor {
   private readonly logger = new Logger(AntechV6ResultsProcessor.name)
@@ -16,7 +20,7 @@ export class AntechV6ResultsProcessor {
     @Inject('API_SERVICE') private readonly apiClient: ClientProxy,
   ) {}
 
-  @Process()
+  @Process({ concurrency: RESULTS_CONCURRENCY })
   async fetchResults(job: Job<AntechV6MessageData>) {
     const { payload, ...metadata } = job.data
     await runWithRequestContext({ integrationId: payload.integrationId }, async () => {
