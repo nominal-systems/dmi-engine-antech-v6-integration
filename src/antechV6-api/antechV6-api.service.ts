@@ -297,7 +297,7 @@ export class AntechV6ApiService extends BaseApiService {
 
   async testAuth(baseUrl: string, credentials: AntechV6UserCredentials): Promise<void> {
     try {
-      await this.authenticate(baseUrl, credentials)
+      await this.authenticate(baseUrl, credentials, false)
     } catch (error) {
       throw new AntechV6ApiException('Failed to authenticate', error.status, error)
     }
