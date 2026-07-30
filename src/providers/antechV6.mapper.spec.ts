@@ -831,6 +831,7 @@ describe('AntechV6Mapper', () => {
           value: 3.3,
           units: 'g/dL',
         },
+        units: 'g/dL',
         referenceRange: [
           {
             type: ReferenceRangeType.NORMAL,
@@ -865,6 +866,7 @@ describe('AntechV6Mapper', () => {
           value: 128,
           units: 'IU/L',
         },
+        units: 'IU/L',
         interpretation: {
           code: TestResultItemInterpretationCode.HIGH,
           text: 'H',
@@ -927,6 +929,7 @@ describe('AntechV6Mapper', () => {
           value: 13.8,
           units: 'UG/dL',
         },
+        units: 'UG/dL',
         referenceRange: [
           {
             type: ReferenceRangeType.NORMAL,
@@ -935,6 +938,63 @@ describe('AntechV6Mapper', () => {
           },
         ],
       })
+    })
+    it('should preserve the unit for non-numeric (comparator) results', () => {
+      const testCodeResult = {
+        TestCodeID: '51001',
+        TestCodeResultID: '7533583999',
+        Result: '< 20',
+        Range: '0-229',
+        TestCodeExtID: '51001',
+        Test: 'ALP',
+        Unit: 'U/l',
+        UnitCodeID: '800599099',
+        ReportComments: [],
+      }
+      expect(mapper.mapAntechV6TestCodeResult(testCodeResult, 0)).toEqual({
+        seq: 0,
+        code: '51001',
+        name: 'ALP',
+        status: 'DONE',
+        valueString: '< 20',
+        units: 'U/l',
+        referenceRange: [
+          {
+            type: ReferenceRangeType.NORMAL,
+            text: '0-229',
+            low: 0,
+            high: 229,
+          },
+        ],
+      })
+    })
+    it('should omit units when Antech sends no Unit', () => {
+      const testCodeResult = {
+        TestCodeID: '51100',
+        TestCodeResultID: '7533584000',
+        Result: '1.2',
+        Range: '',
+        TestCodeExtID: '51100',
+        Test: 'Na/K',
+        UnitCodeID: '800599100',
+        ReportComments: [],
+      }
+      const result = mapper.mapAntechV6TestCodeResult(testCodeResult, 0)
+      expect(result).not.toHaveProperty('units')
+    })
+    it('should omit units when Antech sends an empty Unit', () => {
+      const testCodeResult = {
+        TestCodeID: '51101',
+        TestCodeResultID: '7533584001',
+        Result: '****',
+        TestCodeExtID: '51101',
+        Test: 'Est Osm',
+        Unit: '',
+        UnitCodeID: '800599101',
+        ReportComments: [],
+      }
+      const result = mapper.mapAntechV6TestCodeResult(testCodeResult, 0)
+      expect(result).not.toHaveProperty('units')
     })
   })
 
