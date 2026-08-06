@@ -41,6 +41,9 @@ import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exceptio
 export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
   private readonly logger = new Logger(AntechV6Service.name)
 
+  private static readonly POC_CACHE_TTL_MS = 60 * 60 * 1000
+  private readonly pocCodeCache = new Map<string, { codes: Set<string>; expiresAt: number }>()
+
   constructor(
     private readonly antechV6Api: AntechV6ApiService,
     private readonly antechV6Mapper: AntechV6Mapper,
@@ -138,6 +141,12 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       false,
     )
 
+    // In-house (point-of-care) orders have no TRF. Antech's test guide is the source of truth for
+    // which codes are POC; the IhdMnemonic configuration is kept as a fallback and an override.
+    const pocCodes = await this.getPocCodes(metadata.providerConfiguration.baseUrl, credentials)
+    const isInHouse = (mn: string): boolean =>
+      pocCodes?.has(mn) === true || IhdMnemonic.includes(mn)
+
     const orders: Order[] = []
     for (const orderStatus of orderStatusResponse.LabOrders) {
       const resultStatusResponse = await this.antechV6Api.getResultStatus(
@@ -154,9 +163,13 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
             )
           : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
 
-      const orderMnemonics = [...(orderStatus.LabTests || []).map((t) => t.Mnemonic)]
+      const orderMnemonics = (orderStatus.LabTests || []).map((t) => t.Mnemonic)
 
-      if (!orderMnemonics.some((mn) => IhdMnemonic.includes(mn))) {
+      // A TRF accompanies the physical sample sent to the reference lab, so one exists only if at
+      // least one test on the order is not in-house. Skip the call when every test is in-house.
+      const inHouseOnly = orderMnemonics.length > 0 && orderMnemonics.every(isInHouse)
+
+      if (!inHouseOnly) {
         const manifest: Attachment | undefined = await this.antechV6Api.getOrderTrf(
           metadata.providerConfiguration.baseUrl,
           credentials,
@@ -414,21 +427,47 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       return false
     }
 
-    try {
-      const pocTests = await this.antechV6Api.getTestGuide(
-        metadata.providerConfiguration.baseUrl,
-        credentials,
-        { POC_FLAG: 'Y' },
-      )
+    const pocCodes = await this.getPocCodes(metadata.providerConfiguration.baseUrl, credentials)
+    if (pocCodes == null) {
+      // Test guide unavailable: keep the existing conservative default of the pre-order flow.
+      return false
+    }
 
-      const pocCodes = new Set((pocTests.LabResults || []).map((test) => test.Code))
-      return pocCodes.size > 0 && orderCodes.every((code) => pocCodes.has(code))
+    return orderCodes.every((code) => pocCodes.has(code))
+  }
+
+  /**
+   * Point-of-care (in-house) test codes for a clinic, per Antech's test guide (POC_FLAG=Y).
+   * Cached because the guide is a 2500-row fetch preceded by a login, and callers reach for it on
+   * every polled batch and every auto-submitted order.
+   * Returns undefined when the guide is unavailable so callers can fall back to configuration.
+   */
+  private async getPocCodes(
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+  ): Promise<Set<string> | undefined> {
+    const cacheKey = `${baseUrl}|${credentials.ClinicID}`
+    const cached = this.pocCodeCache.get(cacheKey)
+    if (cached != null && cached.expiresAt > Date.now()) {
+      return cached.codes
+    }
+
+    try {
+      const pocTests = await this.antechV6Api.getTestGuide(baseUrl, credentials, { POC_FLAG: 'Y' })
+      const codes = new Set((pocTests.LabResults || []).map((test) => test.Code))
+      if (codes.size === 0) {
+        return undefined
+      }
+
+      this.pocCodeCache.set(cacheKey, {
+        codes,
+        expiresAt: Date.now() + AntechV6Service.POC_CACHE_TTL_MS,
+      })
+      return codes
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      this.logger.warn(
-        `Failed to fetch POC tests from test guide; defaulting to pre-order flow. Error: ${message}`,
-      )
-      return false
+      this.logger.warn(`Failed to fetch POC tests from test guide: ${message}`)
+      return undefined
     }
   }
 }

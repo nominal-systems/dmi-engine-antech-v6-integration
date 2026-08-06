@@ -373,6 +373,127 @@ describe('AntechV6Service', () => {
       expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
       expect(orders[0].manifest).toBeUndefined()
     })
+    it('should skip the TRF when every test is point-of-care per the test guide', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValue({
+        TotalCount: 2,
+        LabResults: [{ Code: 'HDC-1' }, { Code: 'HDC-29' }],
+      })
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC200',
+            LabTests: [
+              {
+                CodeType: 'U',
+                CodeID: 20001,
+                Mnemonic: 'HDC-1',
+                DisplayName: 'Internal Organ Function',
+                Price: 0,
+              },
+            ],
+          },
+        ],
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({ LabResults: [] })
+
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+
+      expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
+      expect(orders[0].manifest).toBeUndefined()
+    })
+    it('should fetch the TRF when an order mixes point-of-care and reference lab tests', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValue({
+        TotalCount: 1,
+        LabResults: [{ Code: 'HDC-1' }],
+      })
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC201',
+            LabTests: [
+              {
+                CodeType: 'U',
+                CodeID: 20001,
+                Mnemonic: 'HDC-1',
+                DisplayName: 'Internal Organ Function',
+                Price: 0,
+              },
+              {
+                CodeType: 'U',
+                CodeID: 30001,
+                Mnemonic: 'BANT805',
+                DisplayName: 'Chemistry Panel',
+                Price: 45.5,
+              },
+            ],
+          },
+        ],
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({ LabResults: [] })
+
+      await service.getBatchOrders(payloadMock, metadataMock)
+
+      expect(antechV6ApiServiceMock.getOrderTrf).toHaveBeenCalled()
+    })
+    it('should fall back to the configured IhdMnemonic when the test guide is unavailable', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockRejectedValue(new Error('test guide unavailable'))
+      const metadataWithSkip = {
+        ...metadataMock,
+        providerConfiguration: {
+          ...metadataMock.providerConfiguration,
+          IhdMnemonic: ['HHEM-1'],
+        },
+      }
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC202',
+            LabTests: [
+              {
+                CodeType: 'U',
+                CodeID: 10001,
+                Mnemonic: 'HHEM-1',
+                DisplayName: 'In-house Hematology',
+                Price: 0,
+              },
+            ],
+          },
+        ],
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({ LabResults: [] })
+
+      await service.getBatchOrders(payloadMock, metadataWithSkip)
+
+      expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
+    })
+    it('should fetch the point-of-care test guide once across batches', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValue({
+        TotalCount: 1,
+        LabResults: [{ Code: 'HDC-1' }],
+      })
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: [
+          {
+            ClinicAccessionID: 'ACC203',
+            LabTests: [
+              {
+                CodeType: 'U',
+                CodeID: 20001,
+                Mnemonic: 'HDC-1',
+                DisplayName: 'Internal Organ Function',
+                Price: 0,
+              },
+            ],
+          },
+        ],
+      })
+      antechV6ApiServiceMock.getResultStatus.mockResolvedValue({ LabResults: [] })
+
+      await service.getBatchOrders(payloadMock, metadataMock)
+      await service.getBatchOrders(payloadMock, metadataMock)
+
+      expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('createOrder()', () => {
