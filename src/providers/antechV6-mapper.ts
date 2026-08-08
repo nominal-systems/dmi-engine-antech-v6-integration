@@ -54,6 +54,7 @@ import {
   isOrphanResult,
   mapPatientSex,
   mapTestCodeResultStatus,
+  sanitizeName,
 } from '../common/utils/mapper-utils'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
@@ -253,8 +254,8 @@ export class AntechV6Mapper {
   private extractClient(client: ClientPayload): AntechV6Client {
     return {
       ClientID: this.getIdFromIdentifier(PimsIdentifiers.ClientID, client.identifier) || client.id,
-      ClientFirstName: client.firstName ? client.firstName.trim() : '',
-      ClientLastName: client.lastName ? client.lastName.trim().slice(0, 20) : '',
+      ClientFirstName: client.firstName ? sanitizeName(client.firstName) : '',
+      ClientLastName: client.lastName ? sanitizeName(client.lastName).slice(0, 20) : '',
       // TODO(gb): extract client address
       // TODO(gb): extract client contact
     }
