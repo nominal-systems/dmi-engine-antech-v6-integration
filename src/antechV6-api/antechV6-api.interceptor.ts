@@ -67,11 +67,6 @@ export class AntechV6ApiInterceptor extends AxiosInterceptor {
   }
 
   public debug(url: string, body: any, response: AxiosResponse): boolean {
-    // TODO(gb): remove when access token caching is implemented: https://github.com/nominal-systems/dmi-engine-antech-v6-integration/issues/2
-    if (url.includes(AntechV6Endpoints.LOGIN)) {
-      return false
-    }
-
     return true
   }
 
