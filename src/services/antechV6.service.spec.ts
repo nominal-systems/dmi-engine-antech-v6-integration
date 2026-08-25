@@ -623,12 +623,77 @@ describe('AntechV6Service', () => {
       )
     })
 
-    it('places a pre-order when autoSubmitOrder is true and POC lookup fails', async () => {
+    it('falls back to IhdMnemonic and places an order when POC lookup fails and all codes are in IhdMnemonic', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockRejectedValueOnce(new Error('request timeout'))
+      antechV6ApiServiceMock.placeOrder.mockResolvedValue({
+        payload: 'ok',
+        status: 200,
+        message: 'success',
+        isSuccess: true,
+        requestId: 'r1',
+        Token: 'tok',
+      })
+      const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
+        ...metadataMock,
+        autoSubmitOrder: true,
+        providerConfiguration: {
+          ...metadataMock.providerConfiguration,
+          IhdMnemonic: ['SA804', 'HHEM-1'],
+        },
+        integrationOptions: {
+          ...metadataMock.integrationOptions,
+          autoSubmitEnabled: true,
+        },
+      } as any)
+
+      expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.placePreOrder).not.toHaveBeenCalled()
+      expect(resp).toEqual(
+        expect.objectContaining({
+          requisitionId: 'REQ123',
+          externalId: 'REQ123',
+          status: OrderStatus.SUBMITTED,
+        }),
+      )
+    })
+
+    it('places a pre-order when POC lookup fails and IhdMnemonic is empty', async () => {
       antechV6ApiServiceMock.getTestGuide.mockRejectedValueOnce(new Error('request timeout'))
       antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
         autoSubmitOrder: true,
+        providerConfiguration: {
+          ...metadataMock.providerConfiguration,
+          IhdMnemonic: [],
+        },
+        integrationOptions: {
+          ...metadataMock.integrationOptions,
+          autoSubmitEnabled: true,
+        },
+      } as any)
+
+      expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
+      expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
+      expect(resp).toEqual(
+        expect.objectContaining({
+          requisitionId: 'REQ123',
+          externalId: 'REQ123',
+          status: OrderStatus.WAITING_FOR_INPUT,
+        }),
+      )
+    })
+
+    it('places a pre-order when POC lookup fails and order codes are not all in IhdMnemonic', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockRejectedValueOnce(new Error('request timeout'))
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
+        ...metadataMock,
+        autoSubmitOrder: true,
+        providerConfiguration: {
+          ...metadataMock.providerConfiguration,
+          IhdMnemonic: ['HHEM-1'],
+        },
         integrationOptions: {
           ...metadataMock.integrationOptions,
           autoSubmitEnabled: true,

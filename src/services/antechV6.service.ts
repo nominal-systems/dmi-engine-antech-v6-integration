@@ -429,8 +429,8 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
     const pocCodes = await this.getPocCodes(metadata.providerConfiguration.baseUrl, credentials)
     if (pocCodes == null) {
-      // Test guide unavailable: keep the existing conservative default of the pre-order flow.
-      return false
+      const { IhdMnemonic = [] } = metadata.providerConfiguration
+      return IhdMnemonic.length > 0 && orderCodes.every((code) => IhdMnemonic.includes(code))
     }
 
     return orderCodes.every((code) => pocCodes.has(code))
