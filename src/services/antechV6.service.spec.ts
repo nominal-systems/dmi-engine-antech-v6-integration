@@ -494,6 +494,36 @@ describe('AntechV6Service', () => {
 
       expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenCalledTimes(1)
     })
+    it('fetches the point-of-care test guide per lab when labId differs', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValue({
+        TotalCount: 1,
+        LabResults: [{ Code: 'HDC-1' }],
+      })
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({ LabOrders: [] })
+
+      await service.getBatchOrders(payloadMock, {
+        ...metadataMock,
+        integrationOptions: { ...metadataMock.integrationOptions, labId: '1' },
+      } as any)
+      await service.getBatchOrders(payloadMock, {
+        ...metadataMock,
+        integrationOptions: { ...metadataMock.integrationOptions, labId: '2' },
+      } as any)
+
+      expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenCalledTimes(2)
+      expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenNthCalledWith(
+        1,
+        metadataMock.providerConfiguration.baseUrl,
+        expect.anything(),
+        { POC_FLAG: 'Y', LabID: 1 },
+      )
+      expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenNthCalledWith(
+        2,
+        metadataMock.providerConfiguration.baseUrl,
+        expect.anything(),
+        { POC_FLAG: 'Y', LabID: 2 },
+      )
+    })
   })
 
   describe('createOrder()', () => {
@@ -586,7 +616,7 @@ describe('AntechV6Service', () => {
           Password: metadataMock.integrationOptions.password,
           ClinicID: metadataMock.integrationOptions.clinicId,
         },
-        { POC_FLAG: 'Y' },
+        { POC_FLAG: 'Y', LabID: 1 },
       )
       expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placePreOrder).not.toHaveBeenCalled()
@@ -684,6 +714,42 @@ describe('AntechV6Service', () => {
       )
     })
 
+    it('queries the test guide without LabID when integration options have no labId', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValueOnce({
+        TotalCount: 1,
+        LabResults: [{ Code: 'SA804' }],
+      })
+      antechV6ApiServiceMock.placeOrder.mockResolvedValueOnce({
+        payload: 'ok',
+        status: 200,
+        message: 'success',
+        isSuccess: true,
+        requestId: 'r1',
+        Token: 'tok',
+      })
+      const metadataWithoutLabId = {
+        ...metadataMock,
+        autoSubmitOrder: true,
+        integrationOptions: {
+          username: 'PIMS_USER',
+          password: 'devtest',
+          clinicId: '140039',
+          autoSubmitEnabled: true,
+        },
+        providerConfiguration: {
+          ...metadataMock.providerConfiguration,
+          IhdMnemonic: [],
+        },
+      } as any
+
+      await service.createOrder(createOrderPayload, metadataWithoutLabId)
+
+      expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenCalledWith(
+        metadataMock.providerConfiguration.baseUrl,
+        expect.not.objectContaining({ LabID: expect.anything() }),
+        { POC_FLAG: 'Y' },
+      )
+    })
     it('places a pre-order when POC lookup fails and order codes are not all in IhdMnemonic', async () => {
       antechV6ApiServiceMock.getTestGuide.mockRejectedValueOnce(new Error('request timeout'))
       antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
@@ -791,6 +857,27 @@ describe('AntechV6Service', () => {
           externalId: 'REQ123',
           status: OrderStatus.WAITING_FOR_INPUT,
         }),
+      )
+    })
+  })
+
+  describe('getServices()', () => {
+    it('fetches the test guide with LabID from integration options', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValueOnce({
+        TotalCount: 1,
+        LabResults: [{ Code: 'HDC-1' }],
+      })
+
+      await service.getServices(nullPayloadMock, metadataMock as any)
+
+      expect(antechV6ApiServiceMock.getTestGuide).toHaveBeenCalledWith(
+        metadataMock.providerConfiguration.baseUrl,
+        {
+          UserName: metadataMock.integrationOptions.username,
+          Password: metadataMock.integrationOptions.password,
+          ClinicID: metadataMock.integrationOptions.clinicId,
+        },
+        { LabID: 1 },
       )
     })
   })

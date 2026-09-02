@@ -65,6 +65,14 @@ import {
   type FeatureFlagProvider,
 } from '../feature-flags/feature-flag.interface'
 
+/**
+ * Parses the integration `labId` into a positive integer, or `undefined` when missing or invalid.
+ */
+export const parseLabId = (labId?: string): number | undefined => {
+  const parsed = Number.parseInt(labId ?? '', 10)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
 @Injectable()
 export class AntechV6Mapper {
   private readonly logger = new Logger(AntechV6Mapper.name)
@@ -227,9 +235,8 @@ export class AntechV6Mapper {
   }
 
   private extractLabId(metadata: AntechV6MessageData): Pick<AntechV6PreOrder, 'LabID'> {
-    return {
-      LabID: parseInt(metadata.integrationOptions.labId),
-    }
+    const labId = parseLabId(metadata.integrationOptions.labId)
+    return labId !== undefined ? { LabID: labId } : {}
   }
 
   private extractClinicId(metadata: AntechV6MessageData): Pick<AntechV6PreOrder, 'ClinicID'> {

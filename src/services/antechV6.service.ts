@@ -34,7 +34,7 @@ import {
   AntechV6TestGuide,
   AntechV6UserCredentials,
 } from '../interfaces/antechV6-api.interface'
-import { AntechV6Mapper } from '../providers/antechV6-mapper'
+import { AntechV6Mapper, parseLabId } from '../providers/antechV6-mapper'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
 
 @Injectable()
@@ -143,7 +143,11 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
 
     // In-house (point-of-care) orders have no TRF. Antech's test guide is the source of truth for
     // which codes are POC; the IhdMnemonic configuration is kept as a fallback and an override.
-    const pocCodes = await this.getPocCodes(metadata.providerConfiguration.baseUrl, credentials)
+    const pocCodes = await this.getPocCodes(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      metadata.integrationOptions.labId,
+    )
     const isInHouse = (mn: string): boolean =>
       pocCodes?.has(mn) === true || IhdMnemonic.includes(mn)
 
@@ -261,9 +265,13 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       ClinicID: metadata.integrationOptions.clinicId,
     }
 
+    const labId = parseLabId(metadata.integrationOptions.labId)
     const testGuide: AntechV6TestGuide = await this.antechV6Api.getTestGuide(
       metadata.providerConfiguration.baseUrl,
       credentials,
+      {
+        ...(labId !== undefined && { LabID: labId }),
+      },
     )
 
     return this.antechV6Mapper.mapAntechV6TestGuide(testGuide)
@@ -427,7 +435,11 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       return false
     }
 
-    const pocCodes = await this.getPocCodes(metadata.providerConfiguration.baseUrl, credentials)
+    const pocCodes = await this.getPocCodes(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      metadata.integrationOptions.labId,
+    )
     if (pocCodes == null) {
       const { IhdMnemonic = [] } = metadata.providerConfiguration
       return IhdMnemonic.length > 0 && orderCodes.every((code) => IhdMnemonic.includes(code))
@@ -445,17 +457,27 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
   private async getPocCodes(
     baseUrl: string,
     credentials: AntechV6UserCredentials,
+    labId?: string,
   ): Promise<Set<string> | undefined> {
-    const cacheKey = `${baseUrl}|${credentials.ClinicID}`
+    const parsedLabId = parseLabId(labId)
+    const cacheKey = `${baseUrl}|${credentials.ClinicID}|${parsedLabId ?? 'default'}`
     const cached = this.pocCodeCache.get(cacheKey)
     if (cached != null && cached.expiresAt > Date.now()) {
       return cached.codes
     }
 
     try {
-      const pocTests = await this.antechV6Api.getTestGuide(baseUrl, credentials, { POC_FLAG: 'Y' })
+      const pocTests = await this.antechV6Api.getTestGuide(baseUrl, credentials, {
+        POC_FLAG: 'Y',
+        ...(parsedLabId !== undefined && { LabID: parsedLabId }),
+      })
       const codes = new Set((pocTests.LabResults || []).map((test) => test.Code))
       if (codes.size === 0) {
+        if (parsedLabId !== undefined) {
+          this.logger.warn(
+            `Test guide returned no POC tests for clinic ${credentials.ClinicID} (LabID=${parsedLabId}) — verify the labId integration option`,
+          )
+        }
         return undefined
       }
 
