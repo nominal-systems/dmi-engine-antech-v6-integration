@@ -13,9 +13,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices'
 import { AntechV6ApiModule } from './antechV6-api/antech-v6-api.module'
 import { StatsigFeatureFlagProvider } from './feature-flags/statsig-feature-flag.provider'
 import { FEATURE_FLAG_PROVIDER } from './feature-flags/feature-flag.interface'
+import { CacheModule } from '@nestjs/cache-manager'
 
 @Module({
   imports: [
+    CacheModule.register({
+      ttl: 12 * 60 * 60 * 1000,
+    }),
     ClientsModule.registerAsync([
       {
         name: 'API_SERVICE',
