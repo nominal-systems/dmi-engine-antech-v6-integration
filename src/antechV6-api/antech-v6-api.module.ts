@@ -11,7 +11,9 @@ import { AntechV6ApiInterceptor } from './antechV6-api.interceptor'
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    HttpModule.register({}),
+    HttpModule.register({
+      timeout: 60000,
+    }),
     ClientsModule.registerAsync([
       {
         name: 'API_SERVICE',

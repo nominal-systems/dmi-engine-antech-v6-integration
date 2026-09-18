@@ -373,6 +373,36 @@ describe('AntechV6Service', () => {
       expect(antechV6ApiServiceMock.getOrderTrf).not.toHaveBeenCalled()
       expect(orders[0].manifest).toBeUndefined()
     })
+    it('fans out per-order requests in parallel, bounded by a concurrency limit', async () => {
+      const orderCount = 8
+      antechV6ApiServiceMock.getOrderStatus.mockResolvedValue({
+        LabOrders: Array.from({ length: orderCount }, (_, i) => ({
+          ClinicAccessionID: `ACC${i}`,
+          LabTests: [],
+        })),
+      })
+
+      let active = 0
+      let maxActive = 0
+      antechV6ApiServiceMock.getResultStatus.mockImplementation(() => {
+        active++
+        maxActive = Math.max(maxActive, active)
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            active--
+            resolve({ LabResults: [] })
+          }, 20)
+        })
+      })
+
+      const orders: Order[] = await service.getBatchOrders(payloadMock, metadataMock)
+
+      expect(maxActive).toBeGreaterThan(1)
+      expect(maxActive).toBeLessThan(orderCount)
+      expect(orders.map((o) => o.externalId)).toEqual(
+        Array.from({ length: orderCount }, (_, i) => `ACC${i}`),
+      )
+    })
     it('should skip the TRF when every test is point-of-care per the test guide', async () => {
       antechV6ApiServiceMock.getTestGuide.mockResolvedValue({
         TotalCount: 2,
