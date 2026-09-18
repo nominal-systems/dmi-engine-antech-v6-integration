@@ -9,7 +9,10 @@ import { ClientProxy } from '@nestjs/microservices'
 
 // @Process() concurrency is read at class-decoration time, before Nest's DI
 // container exists, so it can't come from ConfigService - read process.env directly.
-const ORDERS_CONCURRENCY = Math.max(1, parseInt(process.env.ANTECH_V6_ORDERS_CONCURRENCY ?? '1', 10) || 1)
+const ORDERS_CONCURRENCY = Math.max(
+  1,
+  parseInt(process.env.ANTECH_V6_ORDERS_CONCURRENCY ?? '1', 10) || 1,
+)
 
 @Processor(`${PROVIDER_NAME}.orders`)
 export class AntechV6OrdersProcessor {

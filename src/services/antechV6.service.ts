@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
+import pLimit = require('p-limit')
 import {
   Attachment,
   BaseProviderService,
@@ -26,6 +27,7 @@ import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interfa
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import {
   AntechV6AccessToken,
+  AntechV6LabOrderStatus,
   AntechV6Order,
   AntechV6PetSex,
   AntechV6PreOrderPlacement,
@@ -36,6 +38,11 @@ import {
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
+
+const GET_BATCH_ORDERS_CONCURRENCY = Math.max(
+  1,
+  parseInt(process.env.ANTECH_V6_GET_BATCH_ORDERS_CONCURRENCY ?? '3', 10) || 3,
+)
 
 @Injectable()
 export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
@@ -138,43 +145,59 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       false,
     )
 
-    const orders: Order[] = []
-    for (const orderStatus of orderStatusResponse.LabOrders) {
-      const resultStatusResponse = await this.antechV6Api.getResultStatus(
-        metadata.providerConfiguration.baseUrl,
-        credentials,
-        { ClinicAccessionID: orderStatus.ClinicAccessionID },
-      )
-
-      const order =
-        resultStatusResponse.LabResults.length > 0
-          ? mergePicks(
-              this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus),
-              this.antechV6Mapper.mapAntechV6ResultStatus(resultStatusResponse.LabResults[0]),
-            )
-          : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
-
-      const orderMnemonics = [...(orderStatus.LabTests || []).map((t) => t.Mnemonic)]
-
-      if (!orderMnemonics.some((mn) => IhdMnemonic.includes(mn))) {
-        const manifest: Attachment | undefined = await this.antechV6Api.getOrderTrf(
-          metadata.providerConfiguration.baseUrl,
-          credentials,
-          orderStatus.ClinicAccessionID,
-        )
-        if (manifest != null) {
-          order.manifest = manifest
-        }
-      }
-
-      if (resultStatusResponse.LabResults.length === 0) {
-        this.logger.warn(`Couldn't find result status for order ${orderStatus.ClinicAccessionID}`)
-      }
-
-      orders.push(order)
-    }
+    const limit = pLimit(GET_BATCH_ORDERS_CONCURRENCY)
+    const orders: Order[] = await Promise.all(
+      orderStatusResponse.LabOrders.map((orderStatus) =>
+        limit(() =>
+          this.fetchBatchOrder(
+            orderStatus,
+            IhdMnemonic,
+            metadata.providerConfiguration.baseUrl,
+            credentials,
+          ),
+        ),
+      ),
+    )
 
     return orders
+  }
+
+  private async fetchBatchOrder(
+    orderStatus: AntechV6LabOrderStatus,
+    ihdMnemonic: string[],
+    baseUrl: string,
+    credentials: AntechV6UserCredentials,
+  ): Promise<Order> {
+    const resultStatusResponse = await this.antechV6Api.getResultStatus(baseUrl, credentials, {
+      ClinicAccessionID: orderStatus.ClinicAccessionID,
+    })
+
+    const order =
+      resultStatusResponse.LabResults.length > 0
+        ? mergePicks(
+            this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus),
+            this.antechV6Mapper.mapAntechV6ResultStatus(resultStatusResponse.LabResults[0]),
+          )
+        : (this.antechV6Mapper.mapAntechV6OrderStatus(orderStatus) as unknown as Order)
+
+    const orderMnemonics = [...(orderStatus.LabTests || []).map((t) => t.Mnemonic)]
+
+    if (!orderMnemonics.some((mn) => ihdMnemonic.includes(mn))) {
+      const manifest: Attachment | undefined = await this.antechV6Api.getOrderTrf(
+        baseUrl,
+        credentials,
+        orderStatus.ClinicAccessionID,
+      )
+      if (manifest != null) {
+        order.manifest = manifest
+      }
+    }
+
+    if (resultStatusResponse.LabResults.length === 0) {
+      this.logger.warn(`Couldn't find result status for order ${orderStatus.ClinicAccessionID}`)
+    }
+
+    return order
   }
 
   async getBatchResults(
