@@ -1,7 +1,8 @@
-import { extractPetAge, extractPetWeight } from './mapper-utils'
+import { extractPetAge, extractPetWeight, isPlaceholderResult } from './mapper-utils'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
 import { OrderPatient } from '@nominal-systems/dmi-engine-common'
+import { AntechV6Result } from '../../interfaces/antechV6-api.interface'
 
 describe('MapperUtils', () => {
   describe('extractPetAge()', () => {
@@ -144,6 +145,37 @@ describe('MapperUtils', () => {
         weightUnits: 'kg',
       }
       expect(extractPetWeight(patient as OrderPatient)).toEqual({})
+    })
+  })
+
+  describe('isPlaceholderResult()', () => {
+    it('returns true when TotalTestCount is 0 and UnitCodeResults is empty', () => {
+      const result = {
+        TotalTestCount: 0,
+        UnitCodeResults: [],
+      } as unknown as AntechV6Result
+      expect(isPlaceholderResult(result)).toBe(true)
+    })
+
+    it('returns true when TotalTestCount and UnitCodeResults are missing', () => {
+      const result = {} as unknown as AntechV6Result
+      expect(isPlaceholderResult(result)).toBe(true)
+    })
+
+    it('returns false when TotalTestCount is greater than 0', () => {
+      const result = {
+        TotalTestCount: 2,
+        UnitCodeResults: [],
+      } as unknown as AntechV6Result
+      expect(isPlaceholderResult(result)).toBe(false)
+    })
+
+    it('returns false when UnitCodeResults is non-empty', () => {
+      const result = {
+        TotalTestCount: 0,
+        UnitCodeResults: [{ OrderCode: 'X' }],
+      } as unknown as AntechV6Result
+      expect(isPlaceholderResult(result)).toBe(false)
     })
   })
 })
