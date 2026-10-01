@@ -228,6 +228,7 @@ export class AntechV6Mapper {
       name: testCodeResult.Test,
       status: mapTestCodeResultStatus(testCodeResult.ResultStatus),
       ...this.extractTestResultValueX(testCodeResult),
+      ...this.extractTestResultUnits(testCodeResult),
       ...this.extractTestResultInterpretation(testCodeResult),
       ...this.extractTestResultReferenceRange(testCodeResult),
       ...this.extractTestResultNotes(testCodeResult),
@@ -434,6 +435,17 @@ export class AntechV6Mapper {
         valueString: testCodeResult.Result || '',
       }
     }
+  }
+
+  private extractTestResultUnits(
+    testCodeResult: AntechV6TestCodeResult,
+  ): Pick<TestResultItem, 'units'> {
+    if (!isNullOrUndefinedOrEmpty(testCodeResult.Unit)) {
+      return { units: testCodeResult.Unit }
+    }
+    // Omitted when Antech sends no Unit → dmi-api delivers it as null,
+    // consistent with how valueQuantity appears as null with no numeric value.
+    return {}
   }
 
   private extractTestResultInterpretation(
