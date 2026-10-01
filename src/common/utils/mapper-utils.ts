@@ -97,6 +97,25 @@ export function mapTestCodeResultStatus(status?: string): TestResultItemStatus {
   }
 }
 
+/**
+ * Sanitizes a name for submission to the Antech V6 API.
+ *
+ * Antech's API spec only allows alphanumeric characters, single quotes and dashes in names
+ * (plus spaces). Accented letters are transliterated to their ASCII base (e.g. `Árbol` -> `Arbol`,
+ * `ñandú` -> `Nandu`) via Unicode NFD normalization, and any remaining disallowed character
+ * (e.g. double quotes) is removed. Resulting double spaces are collapsed and the result is trimmed.
+ *
+ * @see https://github.com/nominal-systems/dmi-api/issues/300
+ */
+export function sanitizeName(name: string): string {
+  return name
+    .normalize('NFD') // decompose accented letters into base letter + diacritic mark
+    .replace(/\p{Diacritic}/gu, '') // drop the diacritic marks, keeping the ASCII base letter
+    .replace(/[^A-Za-z0-9 '-]/g, '') // remove any character Antech does not allow
+    .replace(/\s+/g, ' ') // collapse whitespace introduced by removed characters
+    .trim()
+}
+
 export function generateClinicAccessionId(clinicId: string, pimsId: string): string {
   if (clinicId === undefined) {
     throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
