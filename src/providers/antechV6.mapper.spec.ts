@@ -204,7 +204,7 @@ describe('AntechV6Mapper', () => {
       BreedID: 370,
       OrderCodes: ['SA804', 'CAC655S'],
     }
-    // The API service hands back the placement together with the token it was placed with
+    // Carries a token, so the tests can check that none of it reaches the URI
     const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken = {
       Value: 'ok',
       Token: 'dummy-access-token',

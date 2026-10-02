@@ -109,8 +109,8 @@ export class AntechV6Mapper {
       requisitionId: preOrder.ClinicAccessionID,
       externalId: preOrder.ClinicAccessionID,
       status: OrderStatus.WAITING_FOR_INPUT,
-      // No access token in the link: it is stored in the order record, and the user finalizing the
-      // pre-order uses their own Antech UI session.
+      // Opens Antech's test guide for this accession; finishing the draft needs the user's own
+      // Antech UI login. No access token in it: this URI is stored in the order record.
       submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}`,
     }
   }

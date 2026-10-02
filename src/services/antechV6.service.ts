@@ -26,7 +26,6 @@ import {
 import { AntechV6MessageData } from '../interfaces/antechV6-message-data.interface'
 import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import {
-  AntechV6AccessToken,
   AntechV6LabOrderStatus,
   AntechV6Order,
   AntechV6PetSex,
@@ -117,12 +116,11 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       return this.antechV6Mapper.mapAntechV6Order(orderPayload)
     }
 
-    const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken =
-      await this.antechV6Api.placePreOrder(
-        metadata.providerConfiguration.baseUrl,
-        credentials,
-        orderPayload,
-      )
+    const preOrderPlacement: AntechV6PreOrderPlacement = await this.antechV6Api.placePreOrder(
+      metadata.providerConfiguration.baseUrl,
+      credentials,
+      orderPayload,
+    )
 
     return this.antechV6Mapper.mapAntechV6PreOrder(orderPayload, preOrderPlacement, metadata)
   }

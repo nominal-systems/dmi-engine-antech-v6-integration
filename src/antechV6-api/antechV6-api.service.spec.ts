@@ -7,6 +7,7 @@ import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 import {
   AntechV6AccessToken,
   AntechV6Endpoints,
+  AntechV6PreOrder,
   AntechV6UserCredentials,
 } from '../interfaces/antechV6-api.interface'
 
@@ -232,9 +233,64 @@ describe('AntechV6ApiService', () => {
 
       const result = await service.placeOrder(baseUrl, credentials, {} as any)
 
-      expect(result).toEqual({ ...orderPlacement, Token: freshToken.Token })
+      expect(result).toEqual(orderPlacement)
       expect(cacheManager.set).toHaveBeenCalledWith(cacheKey, freshToken, TOKEN_TTL_MS)
       expect(placeCalls).toBe(2)
+      // The retried placement was sent with the fresh token
+      expect(service['post']).toHaveBeenLastCalledWith(
+        `${baseUrl}${AntechV6Endpoints.PLACE_ORDER}`,
+        {},
+        expect.objectContaining({
+          headers: expect.objectContaining({ accessToken: freshToken.Token }),
+        }),
+      )
+    })
+  })
+
+  describe('placePreOrder()', () => {
+    const baseUrl = 'https://api.example.test'
+    const credentials: AntechV6UserCredentials = {
+      UserName: 'PIMS_USER',
+      Password: 'devtest',
+      ClinicID: '140138',
+    }
+    const loginToken: AntechV6AccessToken = { Token: 'dummy-login-token', UserInfo: { ID: 123 } }
+    const preOrder = { ClinicID: '140138', ClinicAccessionID: 'ACC-1' } as AntechV6PreOrder
+    const preOrderPlacement = { Value: 'ok' }
+
+    beforeEach(() => {
+      // No cached token, so placing the pre-order logs in first
+      jest.spyOn(cacheManager as any, 'get').mockResolvedValue(undefined as any)
+      jest.spyOn(service as any, 'post').mockImplementation(async (...args: any[]) => {
+        const url = args[0] as string
+        return url.endsWith(AntechV6Endpoints.LOGIN) ? loginToken : preOrderPlacement
+      })
+    })
+
+    it('sends the pre-order with the login token in the accessToken header', async () => {
+      await service.placePreOrder(baseUrl, credentials, preOrder)
+
+      expect(service['post']).toHaveBeenCalledWith(
+        `${baseUrl}${AntechV6Endpoints.LOGIN}`,
+        credentials,
+      )
+      expect(service['post']).toHaveBeenLastCalledWith(
+        `${baseUrl}${AntechV6Endpoints.PLACE_PRE_ORDER}`,
+        preOrder,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            accessToken: loginToken.Token,
+          },
+        },
+      )
+    })
+
+    it('returns the placement without the access token', async () => {
+      const result = await service.placePreOrder(baseUrl, credentials, preOrder)
+
+      expect(result).toEqual(preOrderPlacement)
+      expect(result).not.toHaveProperty('Token')
     })
   })
 })
