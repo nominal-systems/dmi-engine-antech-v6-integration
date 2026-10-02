@@ -584,7 +584,7 @@ describe('AntechV6Service', () => {
           requisitionId: 'REQ123',
           externalId: 'REQ123',
           status: OrderStatus.WAITING_FOR_INPUT,
-          submissionUri: expect.any(String),
+          submissionUri: `${metadataMock.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=REQ123`,
         }),
       )
     })

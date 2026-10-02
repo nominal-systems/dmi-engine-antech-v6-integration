@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing'
 import {
   CreateOrderPayload,
   FileUtils,
+  OrderStatus,
   ReferenceRangeType,
   Result,
   ResultStatus,
@@ -11,10 +12,12 @@ import {
 } from '@nominal-systems/dmi-engine-common'
 import {
   AntechV6AbnormalFlag,
+  AntechV6AccessToken,
   AntechV6LabResultStatus,
   AntechV6OrderStatus,
   AntechV6PetSex,
   AntechV6PreOrder,
+  AntechV6PreOrderPlacement,
   AntechV6Result,
   AntechV6TestGuide,
   AntechV6UnitCodeResult,
@@ -178,6 +181,52 @@ describe('AntechV6Mapper', () => {
 
       const result = mapper.mapCreateOrderPayload(payloadNoDoctorId, metadataMock)
       expect(result.DoctorID).toBe('')
+    })
+  })
+
+  describe('mapAntechV6PreOrder()', () => {
+    const preOrder: AntechV6PreOrder = {
+      LabID: 1,
+      ClinicID: '140039',
+      ClinicAccessionID: 'VCHOSJW1',
+      ClientID: '80ea84f3-86cf-4b56-a6be-2ff6c50d7274',
+      ClientFirstName: 'Marcellus',
+      ClientLastName: 'Kerluke',
+      DoctorID: '99',
+      DoctorFirstName: 'Neva',
+      DoctorLastName: 'Klein',
+      PetID: 'GILBERT',
+      PetName: 'Gilbert',
+      PetSex: AntechV6PetSex.UNKNOWN,
+      PetAge: 1,
+      PetAgeUnits: 'Y',
+      SpeciesID: DEFAULT_PET_SPECIES,
+      BreedID: 370,
+      OrderCodes: ['SA804', 'CAC655S'],
+    }
+    // The API service hands back the placement together with the token it was placed with
+    const preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken = {
+      Value: 'ok',
+      Token: 'dummy-access-token',
+    }
+
+    it('should map a pre-order to an order waiting for input with a test guide link', () => {
+      expect(mapper.mapAntechV6PreOrder(preOrder, preOrderPlacement, metadataMock)).toEqual({
+        requisitionId: 'VCHOSJW1',
+        externalId: 'VCHOSJW1',
+        status: OrderStatus.WAITING_FOR_INPUT,
+        submissionUri: `${metadataMock.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=VCHOSJW1`,
+      })
+    })
+
+    it('should not put the access token in the submission URI', () => {
+      const { submissionUri } = mapper.mapAntechV6PreOrder(
+        preOrder,
+        preOrderPlacement,
+        metadataMock,
+      )
+      expect(submissionUri).not.toMatch(/accesstoken/i)
+      expect(submissionUri).not.toContain(preOrderPlacement.Token)
     })
   })
 
