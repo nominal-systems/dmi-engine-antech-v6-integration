@@ -22,7 +22,6 @@ import {
   VeterinarianPayload,
 } from '@nominal-systems/dmi-engine-common'
 import {
-  AntechV6AccessToken,
   AntechV6Client,
   AntechV6Doctor,
   AntechV6LabOrderStatus,
@@ -103,14 +102,16 @@ export class AntechV6Mapper {
 
   mapAntechV6PreOrder(
     preOrder: AntechV6PreOrder,
-    preOrderPlacement: AntechV6PreOrderPlacement & AntechV6AccessToken,
+    preOrderPlacement: AntechV6PreOrderPlacement,
     metadata: AntechV6MessageData,
   ): OrderCreatedResponse {
     return {
       requisitionId: preOrder.ClinicAccessionID,
       externalId: preOrder.ClinicAccessionID,
       status: OrderStatus.WAITING_FOR_INPUT,
-      submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}&accessToken=${preOrderPlacement.Token}`,
+      // Opens Antech's test guide for this accession; finishing the draft needs the user's own
+      // Antech UI login. No access token in it: this URI is stored in the order record.
+      submissionUri: `${metadata.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=${preOrder.ClinicAccessionID}`,
     }
   }
 

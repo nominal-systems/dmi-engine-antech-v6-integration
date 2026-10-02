@@ -575,7 +575,7 @@ describe('AntechV6Service', () => {
     } as unknown as CreateOrderPayload
 
     it('places a pre-order by default', async () => {
-      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok' })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, metadataMock)
       expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalled()
       expect(antechV6ApiServiceMock.placeOrder).not.toHaveBeenCalled()
@@ -584,7 +584,7 @@ describe('AntechV6Service', () => {
           requisitionId: 'REQ123',
           externalId: 'REQ123',
           status: OrderStatus.WAITING_FOR_INPUT,
-          submissionUri: expect.any(String),
+          submissionUri: `${metadataMock.providerConfiguration.uiBaseUrl}/testGuide?ClinicAccessionID=REQ123`,
         }),
       )
     })
@@ -596,7 +596,6 @@ describe('AntechV6Service', () => {
         message: 'success',
         isSuccess: true,
         requestId: 'r1',
-        Token: 'tok',
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
@@ -628,7 +627,6 @@ describe('AntechV6Service', () => {
         message: 'success',
         isSuccess: true,
         requestId: 'r1',
-        Token: 'tok',
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
@@ -662,7 +660,7 @@ describe('AntechV6Service', () => {
     })
 
     it('places a pre-order when autoSubmitOrder is true but tests are not POC', async () => {
-      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok' })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
         autoSubmitOrder: true,
@@ -691,7 +689,6 @@ describe('AntechV6Service', () => {
         message: 'success',
         isSuccess: true,
         requestId: 'r1',
-        Token: 'tok',
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
@@ -719,7 +716,7 @@ describe('AntechV6Service', () => {
 
     it('places a pre-order when POC lookup fails and IhdMnemonic is empty', async () => {
       antechV6ApiServiceMock.getTestGuide.mockRejectedValueOnce(new Error('request timeout'))
-      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok' })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
         autoSubmitOrder: true,
@@ -755,7 +752,6 @@ describe('AntechV6Service', () => {
         message: 'success',
         isSuccess: true,
         requestId: 'r1',
-        Token: 'tok',
       })
       const metadataWithoutLabId = {
         ...metadataMock,
@@ -782,7 +778,7 @@ describe('AntechV6Service', () => {
     })
     it('places a pre-order when POC lookup fails and order codes are not all in IhdMnemonic', async () => {
       antechV6ApiServiceMock.getTestGuide.mockRejectedValueOnce(new Error('request timeout'))
-      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok' })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
         autoSubmitOrder: true,
@@ -814,7 +810,6 @@ describe('AntechV6Service', () => {
         message: 'success',
         isSuccess: true,
         requestId: 'r1',
-        Token: 'tok',
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
@@ -843,7 +838,6 @@ describe('AntechV6Service', () => {
         message: 'success',
         isSuccess: true,
         requestId: 'r1',
-        Token: 'tok',
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,
@@ -872,7 +866,6 @@ describe('AntechV6Service', () => {
         message: 'success',
         isSuccess: true,
         requestId: 'r1',
-        Token: 'tok',
       })
       const resp: OrderCreatedResponse = await service.createOrder(createOrderPayload, {
         ...metadataMock,

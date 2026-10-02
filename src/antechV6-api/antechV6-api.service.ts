@@ -262,10 +262,10 @@ export class AntechV6ApiService extends BaseApiService {
     baseUrl: string,
     credentials: AntechV6UserCredentials,
     preOrder: AntechV6PreOrder,
-  ): Promise<AntechV6PreOrderPlacement & AntechV6AccessToken> {
+  ): Promise<AntechV6PreOrderPlacement> {
     try {
       return await this.withAuthentication(baseUrl, credentials, async ({ Token }) => {
-        const preOrderPlacement = await this.post<AntechV6PreOrderPlacement>(
+        return await this.post<AntechV6PreOrderPlacement>(
           `${baseUrl}${AntechV6Endpoints.PLACE_PRE_ORDER}`,
           preOrder,
           {
@@ -275,10 +275,6 @@ export class AntechV6ApiService extends BaseApiService {
             },
           },
         )
-        return {
-          ...preOrderPlacement,
-          Token,
-        }
       })
     } catch (error) {
       throw new AntechV6ApiException('Failed to place pre-order', error.status, error)
@@ -289,10 +285,10 @@ export class AntechV6ApiService extends BaseApiService {
     baseUrl: string,
     credentials: AntechV6UserCredentials,
     order: AntechV6Order,
-  ): Promise<AntechV6OrderPlacement & AntechV6AccessToken> {
+  ): Promise<AntechV6OrderPlacement> {
     try {
       return await this.withAuthentication(baseUrl, credentials, async ({ Token }) => {
-        const orderPlacement = await this.post<AntechV6OrderPlacement>(
+        return await this.post<AntechV6OrderPlacement>(
           `${baseUrl}${AntechV6Endpoints.PLACE_ORDER}`,
           order,
           {
@@ -302,10 +298,6 @@ export class AntechV6ApiService extends BaseApiService {
             },
           },
         )
-        return {
-          ...orderPlacement,
-          Token,
-        }
       })
     } catch (error) {
       throw new AntechV6ApiException('Failed to place order', error.status, error)
