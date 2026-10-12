@@ -38,6 +38,7 @@ import {
 } from '../interfaces/antechV6-api.interface'
 import { AntechV6Mapper, parseLabId } from '../providers/antechV6-mapper'
 import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exception'
+import { isPlaceholderResult } from '../common/utils/mapper-utils'
 
 const GET_BATCH_ORDERS_CONCURRENCY = Math.max(
   1,
@@ -243,8 +244,18 @@ export class AntechV6Service extends BaseProviderService<AntechV6MessageData> {
       },
     }
 
+    const resultsWithContent = allResults.filter((result) => {
+      if (isPlaceholderResult(result)) {
+        this.logger.debug(
+          `Skipping placeholder result LabAccessionID=${result.LabAccessionID} ClinicAccessionID=${result.ClinicAccessionID} (no tests yet)`,
+        )
+        return false
+      }
+      return true
+    })
+
     return {
-      results: allResults.map((result) =>
+      results: resultsWithContent.map((result) =>
         this.antechV6Mapper.mapAntechV6Result(result, featureFlagContext),
       ),
     }

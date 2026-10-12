@@ -52,6 +52,7 @@ import {
   extractVeterinarianFromResult,
   generateClinicAccessionId,
   isOrphanResult,
+  isPlaceholderResult,
   mapPatientSex,
   mapTestCodeResultStatus,
 } from '../common/utils/mapper-utils'
@@ -314,6 +315,14 @@ export class AntechV6Mapper {
     let resultTotalCount = result.TotalTestCount ?? 0
     const status = ResultStatus.PENDING
 
+    if (result.Corrected !== undefined && result.Corrected !== '') {
+      return ResultStatus.REVISED
+    }
+
+    if (isPlaceholderResult(result)) {
+      return ResultStatus.PENDING
+    }
+
     // Filter out completed tests without results
     const filteredUnitCodeResults =
       result.UnitCodeResults?.filter(
@@ -323,10 +332,6 @@ export class AntechV6Mapper {
       ) ?? []
 
     resultTotalCount -= filteredUnitCodeResults.length
-
-    if (result.Corrected !== undefined && result.Corrected !== '') {
-      return ResultStatus.REVISED
-    }
 
     if (resultPendingCount > 0 && resultPendingCount < resultTotalCount) {
       return ResultStatus.PARTIAL
