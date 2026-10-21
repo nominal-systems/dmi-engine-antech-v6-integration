@@ -179,6 +179,72 @@ describe('AntechV6Mapper', () => {
       const result = mapper.mapCreateOrderPayload(payloadNoDoctorId, metadataMock)
       expect(result.DoctorID).toBe('')
     })
+
+    it('should fit every name to the characters Antech allows', () => {
+      const payloadWithSymbols = {
+        ...payload,
+        patient: { ...payload.patient, name: 'Rex Jr.' },
+        client: { ...payload.client, firstName: 'Roger "Doc"', lastName: 'O\u2019Brien & Sons' },
+        veterinarian: { ...payload.veterinarian, firstName: 'José', lastName: 'Smith (DVM)' },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadWithSymbols, metadataMock)
+      expect(result.ClientFirstName).toBe("Roger 'Doc'")
+      expect(result.ClientLastName).toBe("O'Brien - Sons")
+      expect(result.DoctorFirstName).toBe('Jose')
+      expect(result.DoctorLastName).toBe('Smith -DVM-')
+      expect(result.PetName).toBe('Rex Jr-')
+    })
+
+    it('should truncate every name to the length Antech accepts', () => {
+      const payloadWithLongNames = {
+        ...payload,
+        patient: { ...payload.patient, name: 'P'.repeat(33) },
+        client: { ...payload.client, firstName: 'F'.repeat(21), lastName: 'L'.repeat(21) },
+        veterinarian: {
+          ...payload.veterinarian,
+          firstName: 'D'.repeat(31),
+          lastName: 'V'.repeat(31),
+        },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadWithLongNames, metadataMock)
+      expect(result.ClientFirstName).toBe('F'.repeat(20))
+      expect(result.ClientLastName).toBe('L'.repeat(20))
+      expect(result.DoctorFirstName).toBe('D'.repeat(30))
+      expect(result.DoctorLastName).toBe('V'.repeat(30))
+      expect(result.PetName).toBe('P'.repeat(32))
+    })
+
+    it('should leave a name that is at its length limit whole', () => {
+      const payloadAtLimit = {
+        ...payload,
+        patient: { ...payload.patient, name: 'P'.repeat(32) },
+        client: { ...payload.client, firstName: 'F'.repeat(20), lastName: 'L'.repeat(20) },
+        veterinarian: {
+          ...payload.veterinarian,
+          firstName: 'D'.repeat(30),
+          lastName: 'V'.repeat(30),
+        },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadAtLimit, metadataMock)
+      expect(result.ClientFirstName).toBe('F'.repeat(20))
+      expect(result.ClientLastName).toBe('L'.repeat(20))
+      expect(result.DoctorFirstName).toBe('D'.repeat(30))
+      expect(result.DoctorLastName).toBe('V'.repeat(30))
+      expect(result.PetName).toBe('P'.repeat(32))
+    })
+
+    it('should leave DoctorLastName unset when the veterinarian has no last name', () => {
+      const payloadNoDoctorLastName = {
+        ...payload,
+        veterinarian: { ...payload.veterinarian, lastName: undefined },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadNoDoctorLastName, metadataMock)
+      expect(result.DoctorLastName).toBeUndefined()
+    })
   })
 
   describe('extractClient()', () => {

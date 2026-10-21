@@ -1,4 +1,4 @@
-import { extractPetAge, extractPetWeight } from './mapper-utils'
+import { extractPetAge, extractPetWeight, sanitizeName } from './mapper-utils'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
 import { OrderPatient } from '@nominal-systems/dmi-engine-common'
@@ -144,6 +144,50 @@ describe('MapperUtils', () => {
         weightUnits: 'kg',
       }
       expect(extractPetWeight(patient as OrderPatient)).toEqual({})
+    })
+  })
+
+  describe('sanitizeName()', () => {
+    it('should keep letters, digits, spaces, single quotes and dashes as they are', () => {
+      expect(sanitizeName("Mary-Kate O'Brien 3", 50)).toBe("Mary-Kate O'Brien 3")
+    })
+
+    it('should replace double quotes with single quotes', () => {
+      expect(sanitizeName('Roger "Doc"', 50)).toBe("Roger 'Doc'")
+    })
+
+    it('should replace typographic quotes with single quotes', () => {
+      expect(sanitizeName('O’Brien', 50)).toBe("O'Brien")
+      expect(sanitizeName('“Doc” ‘Jr’', 50)).toBe("'Doc' 'Jr'")
+    })
+
+    it('should drop the accent from an accented letter', () => {
+      expect(sanitizeName('José Ñandú', 50)).toBe('Jose Nandu')
+      expect(sanitizeName('Zoë Françoise', 50)).toBe('Zoe Francoise')
+    })
+
+    it('should replace any other character with a dash', () => {
+      expect(sanitizeName('Smith & Jones', 50)).toBe('Smith - Jones')
+      expect(sanitizeName('St. John', 50)).toBe('St- John')
+      expect(sanitizeName('Rex (2)/Max_1', 50)).toBe('Rex -2--Max-1')
+      expect(sanitizeName('Strauß', 50)).toBe('Strau-')
+    })
+
+    it('should collapse whitespace and trim', () => {
+      expect(sanitizeName('  Mary \t\n Ann Lee  ', 50)).toBe('Mary Ann Lee')
+    })
+
+    it('should truncate to the maximum length after sanitizing', () => {
+      expect(sanitizeName('Éktesabi"Khajooeikermani', 20)).toBe("Ektesabi'Khajooeiker")
+    })
+
+    it('should not leave a trailing space where it truncates', () => {
+      expect(sanitizeName('Abcdefghijklmnopqrs Tuv', 20)).toBe('Abcdefghijklmnopqrs')
+    })
+
+    it('should return an empty string for an empty or blank name', () => {
+      expect(sanitizeName('', 20)).toBe('')
+      expect(sanitizeName('   ', 20)).toBe('')
     })
   })
 })

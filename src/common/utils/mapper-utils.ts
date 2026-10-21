@@ -97,6 +97,25 @@ export function mapTestCodeResultStatus(status?: string): TestResultItemStatus {
   }
 }
 
+/**
+ * Fits a name to what Antech allows: letters, digits, spaces, `'` and `-`, at most `maxLength` long.
+ * Accented letters lose their accent (`José` -> `Jose`), double quotes and typographic quotes become
+ * `'` (`Roger "Doc"` -> `Roger 'Doc'`, `O’Brien` -> `O'Brien`), and any other character becomes `-`
+ * (`Smith & Jones` -> `Smith - Jones`). Runs of whitespace collapse to one space, and the result is
+ * trimmed after truncating so a cut never leaves a trailing space.
+ */
+export function sanitizeName(name: string, maxLength: number): string {
+  return name
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '') // the accents NFD split off their letters
+    .replace(/["“”„‟‘’‚‛]/g, "'")
+    .replace(/\s+/g, ' ')
+    .replace(/[^A-Za-z0-9 '-]/g, '-')
+    .trim()
+    .slice(0, maxLength)
+    .trim()
+}
+
 export function generateClinicAccessionId(clinicId: string, pimsId: string): string {
   if (clinicId === undefined) {
     throw new AntechV6ApiException('Error while generating a Clinic Accession ID', 400, {
