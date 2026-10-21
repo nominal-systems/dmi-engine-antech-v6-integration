@@ -1,8 +1,10 @@
 import { AntechV6Mapper } from './antechV6-mapper'
+import { Logger } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import {
   CreateOrderPayload,
   FileUtils,
+  OrderStatus,
   ReferenceRangeType,
   Result,
   ResultStatus,
@@ -11,6 +13,7 @@ import {
 } from '@nominal-systems/dmi-engine-common'
 import {
   AntechV6AbnormalFlag,
+  AntechV6LabOrderStatus,
   AntechV6LabResultStatus,
   AntechV6OrderStatus,
   AntechV6PetSex,
@@ -554,6 +557,20 @@ describe('AntechV6Mapper', () => {
         }),
       )
     })
+
+    it('should map the order status of an orphan result from the string Antech sends', () => {
+      const orphanResult: AntechV6Result = JSON.parse(
+        `{"ID":1325,"LabAccessionID":"XXXXX","ClinicAccessionID":"","OrderStatus":"In Progress","UnitCodeResults":[],"Pet":{"Id":"","Name":"Bruce"},"Client":{"Id":"","FirstName":"","LastName":""},"Doctor":{"Id":"","FirstName":"Not Stated"}}`,
+      )
+      const result: Result = mapper.mapAntechV6Result(orphanResult)
+      expect(result).toHaveProperty('order')
+      expect(result.order).toEqual(
+        expect.objectContaining({
+          externalId: 'XXXXX',
+          status: OrderStatus.PARTIAL,
+        }),
+      )
+    })
   })
 
   describe('mapAntechV6UnitCodeResult()', () => {
@@ -995,6 +1012,62 @@ describe('AntechV6Mapper', () => {
       }
       const result = mapper.mapAntechV6TestCodeResult(testCodeResult, 0)
       expect(result).not.toHaveProperty('units')
+    })
+  })
+
+  describe('mapAntechV6OrderStatus()', () => {
+    // Parsed from JSON text, as the wire delivers it: OrderStatus is the string Antech sends.
+    const labOrderStatus = (orderStatus: string): AntechV6LabOrderStatus =>
+      JSON.parse(
+        `{"ClinicAccessionID":"ACC-1","OrderDate":"2024-03-27T06:42:58","CreatedDate":"2024-03-27T06:42:58","OrderStatus":${JSON.stringify(orderStatus)},"LabAccessionID":"LAB-1","LabTests":[{"CodeType":"U","CodeID":12687,"Mnemonic":"SA804","DisplayName":"Chemistry Panel w/SDMA","Price":49.51}],"AddOnTests":[]}`,
+      )
+
+    let warnSpy: jest.SpyInstance
+
+    beforeEach(() => {
+      warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined)
+    })
+
+    afterEach(() => {
+      warnSpy.mockRestore()
+    })
+
+    it.each([
+      ['Draft', OrderStatus.ACCEPTED],
+      ['Submitted', OrderStatus.SUBMITTED],
+      ['Received', OrderStatus.PARTIAL],
+      ['In Progress', OrderStatus.PARTIAL],
+      ['Partial', OrderStatus.PARTIAL],
+      ['Resulted', OrderStatus.COMPLETED],
+      ['Final', OrderStatus.COMPLETED],
+      ['Expired', OrderStatus.CANCELLED],
+      ['Canceled', OrderStatus.CANCELLED],
+    ])("should map Antech OrderStatus '%s' to %s", (wire, expected) => {
+      expect(mapper.mapAntechV6OrderStatus(labOrderStatus(wire)).status).toBe(expected)
+    })
+
+    it('should map the accession and the ordered tests', () => {
+      expect(mapper.mapAntechV6OrderStatus(labOrderStatus('Received'))).toEqual({
+        externalId: 'ACC-1',
+        status: OrderStatus.PARTIAL,
+        tests: [{ code: 'SA804' }],
+        editable: false,
+      })
+    })
+
+    it('should default an unknown OrderStatus to SUBMITTED and log a warning naming it', () => {
+      expect(mapper.mapAntechV6OrderStatus(labOrderStatus('Bogus')).status).toBe(
+        OrderStatus.SUBMITTED,
+      )
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+      const [message] = warnSpy.mock.calls[0]
+      expect(message).toEqual(expect.stringContaining('Bogus'))
+      expect(message).toEqual(expect.stringContaining(OrderStatus.SUBMITTED))
+    })
+
+    it('should not log a warning for a known OrderStatus', () => {
+      mapper.mapAntechV6OrderStatus(labOrderStatus('Final'))
+      expect(warnSpy).not.toHaveBeenCalled()
     })
   })
 

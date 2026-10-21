@@ -538,6 +538,7 @@ export class AntechV6Mapper {
       case AntechV6OrderStatus.Submitted:
         return OrderStatus.SUBMITTED
       case AntechV6OrderStatus.Received:
+      case AntechV6OrderStatus.InProgress:
       case AntechV6OrderStatus.Partial:
         return OrderStatus.PARTIAL
       case AntechV6OrderStatus.Resulted:
@@ -547,6 +548,9 @@ export class AntechV6Mapper {
       case AntechV6OrderStatus.Canceled:
         return OrderStatus.CANCELLED
       default:
+        this.logger.warn(
+          `Unmapped Antech V6 order status '${String(orderStatus)}', defaulting to ${OrderStatus.SUBMITTED}`,
+        )
         return OrderStatus.SUBMITTED
     }
   }
