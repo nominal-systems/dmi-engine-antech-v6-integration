@@ -148,8 +148,11 @@ describe('MapperUtils', () => {
   })
 
   describe('sanitizeName()', () => {
-    it('should keep letters, digits, spaces, single quotes and dashes as they are', () => {
+    it('should leave a name that already fits unchanged', () => {
       expect(sanitizeName("Mary-Kate O'Brien 3", 50)).toBe("Mary-Kate O'Brien 3")
+      expect(sanitizeName('  Mary  Ann  ', 50)).toBe('  Mary  Ann  ')
+      expect(sanitizeName('   ', 20)).toBe('   ')
+      expect(sanitizeName('', 20)).toBe('')
     })
 
     it('should replace double quotes with single quotes', () => {
@@ -164,6 +167,7 @@ describe('MapperUtils', () => {
     it('should drop the accent from an accented letter', () => {
       expect(sanitizeName('José Ñandú', 50)).toBe('Jose Nandu')
       expect(sanitizeName('Zoë Françoise', 50)).toBe('Zoe Francoise')
+      expect(sanitizeName('José', 50)).toBe('Jose')
     })
 
     it('should replace any other character with a dash', () => {
@@ -173,21 +177,23 @@ describe('MapperUtils', () => {
       expect(sanitizeName('Strauß', 50)).toBe('Strau-')
     })
 
-    it('should collapse whitespace and trim', () => {
-      expect(sanitizeName('  Mary \t\n Ann Lee  ', 50)).toBe('Mary Ann Lee')
+    it('should replace each character with one dash, whatever its encoding', () => {
+      expect(sanitizeName('Rex \u{1F436}', 50)).toBe('Rex -')
+      expect(sanitizeName('김민준', 50)).toBe('---')
+    })
+
+    it('should turn tabs, line breaks and no-break spaces into spaces', () => {
+      expect(sanitizeName('Mary\tAnn\nLee Jo', 50)).toBe('Mary Ann Lee Jo')
     })
 
     it('should truncate to the maximum length after sanitizing', () => {
-      expect(sanitizeName('Éktesabi"Khajooeikermani', 20)).toBe("Ektesabi'Khajooeiker")
+      expect(sanitizeName('Ábcdefghij"Klmnopqrstuv', 20)).toBe("Abcdefghij'Klmnopqrs")
+      expect(sanitizeName('é'.repeat(25), 20)).toBe('e'.repeat(20))
+      expect(sanitizeName('\u{1F436}'.repeat(25), 20)).toBe('-'.repeat(20))
     })
 
     it('should not leave a trailing space where it truncates', () => {
       expect(sanitizeName('Abcdefghijklmnopqrs Tuv', 20)).toBe('Abcdefghijklmnopqrs')
-    })
-
-    it('should return an empty string for an empty or blank name', () => {
-      expect(sanitizeName('', 20)).toBe('')
-      expect(sanitizeName('   ', 20)).toBe('')
     })
   })
 })

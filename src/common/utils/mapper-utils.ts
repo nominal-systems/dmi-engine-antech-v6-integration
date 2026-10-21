@@ -100,20 +100,20 @@ export function mapTestCodeResultStatus(status?: string): TestResultItemStatus {
 /**
  * Fits a name to what Antech allows: letters, digits, spaces, `'` and `-`, at most `maxLength` long.
  * Accented letters lose their accent (`José` -> `Jose`), double quotes and typographic quotes become
- * `'` (`Roger "Doc"` -> `Roger 'Doc'`, `O’Brien` -> `O'Brien`), and any other character becomes `-`
- * (`Smith & Jones` -> `Smith - Jones`). Runs of whitespace collapse to one space, and the result is
- * trimmed after truncating so a cut never leaves a trailing space.
+ * `'` (`Roger "Doc"` -> `Roger 'Doc'`, `O’Brien` -> `O'Brien`), tabs, line breaks and no-break
+ * spaces become a space, and any other character becomes one `-` (`Smith & Jones` -> `Smith - Jones`).
+ * The cut comes last, so it counts what is actually sent, and it never leaves a trailing space.
+ * A name that already fits comes back unchanged.
  */
 export function sanitizeName(name: string, maxLength: number): string {
-  return name
+  const fitted = name
     .normalize('NFD')
     .replace(/\p{M}/gu, '') // the accents NFD split off their letters
+    .normalize('NFC') // re-joins what NFD split that was not an accent, e.g. a Hangul syllable
     .replace(/["“”„‟‘’‚‛]/g, "'")
-    .replace(/\s+/g, ' ')
-    .replace(/[^A-Za-z0-9 '-]/g, '-')
-    .trim()
-    .slice(0, maxLength)
-    .trim()
+    .replace(/[^\S ]/g, ' ')
+    .replace(/[^A-Za-z0-9 '-]/gu, '-') // `u`: one dash per character, emoji included
+  return fitted.length > maxLength ? fitted.slice(0, maxLength).trimEnd() : fitted
 }
 
 export function generateClinicAccessionId(clinicId: string, pimsId: string): string {

@@ -245,6 +245,44 @@ describe('AntechV6Mapper', () => {
       const result = mapper.mapCreateOrderPayload(payloadNoDoctorLastName, metadataMock)
       expect(result.DoctorLastName).toBeUndefined()
     })
+
+    it('should leave PetName unset when the patient has no name', () => {
+      const payloadNoPetName = {
+        ...payload,
+        patient: { ...payload.patient, name: undefined },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadNoPetName, metadataMock)
+      expect(result.PetName).toBeUndefined()
+    })
+
+    it('should pass a null DoctorLastName and PetName through as null', () => {
+      const payloadNullNames = {
+        ...payload,
+        patient: { ...payload.patient, name: null },
+        veterinarian: { ...payload.veterinarian, lastName: null },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadNullNames, metadataMock)
+      expect(result.DoctorLastName).toBeNull()
+      expect(result.PetName).toBeNull()
+    })
+
+    it('should send names that already fit exactly as given', () => {
+      const payloadFitting = {
+        ...payload,
+        patient: { ...payload.patient, name: ' Rex  Jr ' },
+        client: { ...payload.client, firstName: "Mary-Kate  O'Neil", lastName: 'Van  Dyke' },
+        veterinarian: { ...payload.veterinarian, firstName: ' Ann', lastName: 'Lee  Smith ' },
+      } as unknown as CreateOrderPayload
+
+      const result = mapper.mapCreateOrderPayload(payloadFitting, metadataMock)
+      expect(result.ClientFirstName).toBe("Mary-Kate  O'Neil")
+      expect(result.ClientLastName).toBe('Van  Dyke')
+      expect(result.DoctorFirstName).toBe(' Ann')
+      expect(result.DoctorLastName).toBe('Lee  Smith ')
+      expect(result.PetName).toBe(' Rex  Jr ')
+    })
   })
 
   describe('extractClient()', () => {
