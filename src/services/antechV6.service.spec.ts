@@ -13,6 +13,10 @@ import { AntechV6ApiService } from '../antechV6-api/antechV6-api.service'
 import { AntechV6Mapper } from '../providers/antechV6-mapper'
 import { AntechV6OrderStatus } from '../interfaces/antechV6-api.interface'
 
+/* A status as the wire delivers it: a plain string parsed from JSON text, never an enum member. */
+const wireStatus = (orderStatus: string): AntechV6OrderStatus =>
+  JSON.parse(JSON.stringify(orderStatus))
+
 describe('AntechV6Service', () => {
   let service: AntechV6Service
   const metadataMock = {
@@ -120,7 +124,7 @@ describe('AntechV6Service', () => {
             ClinicAccessionID: 'SHIUBBT1054',
             OrderDate: '2024-03-27T06:42:58',
             CreatedDate: '2024-03-27T06:42:58',
-            OrderStatus: AntechV6OrderStatus.Submitted,
+            OrderStatus: wireStatus('Submitted'),
             LabAccessionID: 'IREA00025940',
             LabTests: [
               {

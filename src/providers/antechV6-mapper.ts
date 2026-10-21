@@ -127,7 +127,7 @@ export class AntechV6Mapper {
   ): Pick<Order, 'externalId' | 'status' | 'tests' | 'editable'> {
     return {
       externalId: orderStatus.ClinicAccessionID,
-      status: this.mapOrderStatus(orderStatus.OrderStatus),
+      status: this.mapOrderStatus(orderStatus.OrderStatus, orderStatus.ClinicAccessionID),
       tests: orderStatus.LabTests.map((test) => {
         return {
           code: test.Mnemonic,
@@ -531,7 +531,7 @@ export class AntechV6Mapper {
     return {}
   }
 
-  private mapOrderStatus(orderStatus: AntechV6OrderStatus): OrderStatus {
+  private mapOrderStatus(orderStatus: AntechV6OrderStatus, accessionId: string): OrderStatus {
     switch (orderStatus) {
       case AntechV6OrderStatus.Draft:
         return OrderStatus.ACCEPTED
@@ -549,7 +549,7 @@ export class AntechV6Mapper {
         return OrderStatus.CANCELLED
       default:
         this.logger.warn(
-          `Unmapped Antech V6 order status '${String(orderStatus)}', defaulting to ${OrderStatus.SUBMITTED}`,
+          `Unmapped Antech V6 order status '${String(orderStatus)}' on order ${accessionId}, defaulting to ${OrderStatus.SUBMITTED}`,
         )
         return OrderStatus.SUBMITTED
     }
@@ -574,7 +574,7 @@ export class AntechV6Mapper {
   private extractOrderFromResult(result: AntechV6Result): Order {
     return {
       externalId: result.LabAccessionID,
-      status: this.mapOrderStatus(result.OrderStatus),
+      status: this.mapOrderStatus(result.OrderStatus, result.LabAccessionID),
       patient: extractPatientFromResult(result),
       client: extractClientFromResult(result),
       veterinarian: extractVeterinarianFromResult(result),

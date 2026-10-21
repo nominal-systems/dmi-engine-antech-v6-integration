@@ -35,6 +35,10 @@ import {
   type FeatureFlagProvider,
 } from '../feature-flags/feature-flag.interface'
 
+/* A status as the wire delivers it: a plain string parsed from JSON text, never an enum member. */
+const wireStatus = (orderStatus: string): AntechV6OrderStatus =>
+  JSON.parse(JSON.stringify(orderStatus))
+
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
   let featureFlagProviderMock: FeatureFlagProvider
@@ -495,7 +499,7 @@ describe('AntechV6Mapper', () => {
         ID: 1324,
         LabAccessionID: 'XXXXX',
         ClinicAccessionID: '',
-        OrderStatus: AntechV6OrderStatus.Final,
+        OrderStatus: wireStatus('Final'),
         UnitCodeResults: [],
         Pet: {
           Id: '',
@@ -529,7 +533,7 @@ describe('AntechV6Mapper', () => {
         ID: 1324,
         LabAccessionID: 'XXXXX',
         ClinicAccessionID: '',
-        OrderStatus: AntechV6OrderStatus.Final,
+        OrderStatus: wireStatus('Final'),
         UnitCodeResults: [],
         Pet: {
           Id: '',
@@ -570,6 +574,21 @@ describe('AntechV6Mapper', () => {
           status: OrderStatus.PARTIAL,
         }),
       )
+    })
+
+    it('should default an unknown OrderStatus on an orphan result and name the lab accession in the warning', () => {
+      const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined)
+      try {
+        const orphanResult: AntechV6Result = JSON.parse(
+          `{"ID":1326,"LabAccessionID":"LAB-ORPHAN","ClinicAccessionID":"","OrderStatus":"Bogus","UnitCodeResults":[],"Pet":{"Id":"","Name":"Bruce"},"Client":{"Id":"","FirstName":"","LastName":""},"Doctor":{"Id":"","FirstName":"Not Stated"}}`,
+        )
+        const result: Result = mapper.mapAntechV6Result(orphanResult)
+        expect(result.order?.status).toBe(OrderStatus.SUBMITTED)
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(warnSpy.mock.calls[0][0]).toEqual(expect.stringContaining('LAB-ORPHAN'))
+      } finally {
+        warnSpy.mockRestore()
+      }
     })
   })
 
@@ -1062,7 +1081,17 @@ describe('AntechV6Mapper', () => {
       expect(warnSpy).toHaveBeenCalledTimes(1)
       const [message] = warnSpy.mock.calls[0]
       expect(message).toEqual(expect.stringContaining('Bogus'))
+      expect(message).toEqual(expect.stringContaining('ACC-1'))
       expect(message).toEqual(expect.stringContaining(OrderStatus.SUBMITTED))
+    })
+
+    it('should default a missing OrderStatus to SUBMITTED and log a warning naming the order', () => {
+      const withoutStatus: AntechV6LabOrderStatus = JSON.parse(
+        `{"ClinicAccessionID":"ACC-2","OrderDate":"2024-03-27T06:42:58","CreatedDate":"2024-03-27T06:42:58","LabAccessionID":"LAB-2","LabTests":[],"AddOnTests":[]}`,
+      )
+      expect(mapper.mapAntechV6OrderStatus(withoutStatus).status).toBe(OrderStatus.SUBMITTED)
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+      expect(warnSpy.mock.calls[0][0]).toEqual(expect.stringContaining('ACC-2'))
     })
 
     it('should not log a warning for a known OrderStatus', () => {
