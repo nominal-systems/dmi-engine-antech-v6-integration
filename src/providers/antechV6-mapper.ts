@@ -54,9 +54,11 @@ import {
   isOrphanResult,
   mapPatientSex,
   mapTestCodeResultStatus,
+  sanitizeName,
 } from '../common/utils/mapper-utils'
 import { DEFAULT_PET_SPECIES } from '../constants/default-pet-species'
 import { DEFAULT_PET_BREED } from '../constants/default-pet-breed'
+import { NAME_MAX_LENGTH } from '../constants/name-max-length.constant'
 import { TEST_RESULT_SEQUENCING_MAP } from '../constants/test-result-sequencing-map.constant'
 import {
   ANTECH_V6_GROUPED_TEST_RESULTS_FLAG,
@@ -261,8 +263,12 @@ export class AntechV6Mapper {
   private extractClient(client: ClientPayload): AntechV6Client {
     return {
       ClientID: this.getIdFromIdentifier(PimsIdentifiers.ClientID, client.identifier) || client.id,
-      ClientFirstName: client.firstName ? client.firstName.trim() : '',
-      ClientLastName: client.lastName ? client.lastName.trim().slice(0, 20) : '',
+      ClientFirstName: client.firstName
+        ? sanitizeName(client.firstName.trim(), NAME_MAX_LENGTH.ClientFirstName)
+        : '',
+      ClientLastName: client.lastName
+        ? sanitizeName(client.lastName.trim(), NAME_MAX_LENGTH.ClientLastName)
+        : '',
       // TODO(gb): extract client address
       // TODO(gb): extract client contact
     }
@@ -274,8 +280,12 @@ export class AntechV6Mapper {
         this.getIdFromIdentifier(PimsIdentifiers.VeterinarianID, veterinarian.identifier) ||
         veterinarian.id ||
         '',
-      DoctorFirstName: veterinarian.firstName ? veterinarian.firstName : '',
-      DoctorLastName: veterinarian.lastName,
+      DoctorFirstName: veterinarian.firstName
+        ? sanitizeName(veterinarian.firstName, NAME_MAX_LENGTH.DoctorFirstName)
+        : '',
+      DoctorLastName: veterinarian.lastName
+        ? sanitizeName(veterinarian.lastName, NAME_MAX_LENGTH.DoctorLastName)
+        : veterinarian.lastName,
       // TODO(gb): extract doctor contact
     }
   }
@@ -284,7 +294,7 @@ export class AntechV6Mapper {
     const petAgeUnits = (process.env.ANTECH_V6_PET_AGE_UNITS as 'Y' | 'M' | 'W' | 'D') || 'Y'
     return {
       PetID: this.getIdFromIdentifier(PimsIdentifiers.PatientID, patient.identifier) || patient.id,
-      PetName: patient.name,
+      PetName: patient.name ? sanitizeName(patient.name, NAME_MAX_LENGTH.PetName) : patient.name,
       PetSex: mapPatientSex(patient.sex),
       ...extractPetAge(patient.birthdate, petAgeUnits),
       ...extractPetWeight(patient),

@@ -1,4 +1,4 @@
-import { extractPetAge, extractPetWeight } from './mapper-utils'
+import { extractPetAge, extractPetWeight, sanitizeName } from './mapper-utils'
 import { DEFAULT_PET_AGE } from '../../constants/default-pet-age'
 import * as moment from 'moment'
 import { OrderPatient } from '@nominal-systems/dmi-engine-common'
@@ -144,6 +144,56 @@ describe('MapperUtils', () => {
         weightUnits: 'kg',
       }
       expect(extractPetWeight(patient as OrderPatient)).toEqual({})
+    })
+  })
+
+  describe('sanitizeName()', () => {
+    it('should leave a name that already fits unchanged', () => {
+      expect(sanitizeName("Mary-Kate O'Brien 3", 50)).toBe("Mary-Kate O'Brien 3")
+      expect(sanitizeName('  Mary  Ann  ', 50)).toBe('  Mary  Ann  ')
+      expect(sanitizeName('   ', 20)).toBe('   ')
+      expect(sanitizeName('', 20)).toBe('')
+    })
+
+    it('should replace double quotes with single quotes', () => {
+      expect(sanitizeName('Roger "Doc"', 50)).toBe("Roger 'Doc'")
+    })
+
+    it('should replace typographic quotes with single quotes', () => {
+      expect(sanitizeName('O’Brien', 50)).toBe("O'Brien")
+      expect(sanitizeName('“Doc” ‘Jr’', 50)).toBe("'Doc' 'Jr'")
+    })
+
+    it('should drop the accent from an accented letter', () => {
+      expect(sanitizeName('José Ñandú', 50)).toBe('Jose Nandu')
+      expect(sanitizeName('Zoë Françoise', 50)).toBe('Zoe Francoise')
+      expect(sanitizeName('José', 50)).toBe('Jose')
+    })
+
+    it('should replace any other character with a dash', () => {
+      expect(sanitizeName('Smith & Jones', 50)).toBe('Smith - Jones')
+      expect(sanitizeName('St. John', 50)).toBe('St- John')
+      expect(sanitizeName('Rex (2)/Max_1', 50)).toBe('Rex -2--Max-1')
+      expect(sanitizeName('Strauß', 50)).toBe('Strau-')
+    })
+
+    it('should replace each character with one dash, whatever its encoding', () => {
+      expect(sanitizeName('Rex \u{1F436}', 50)).toBe('Rex -')
+      expect(sanitizeName('김민준', 50)).toBe('---')
+    })
+
+    it('should turn tabs, line breaks and no-break spaces into spaces', () => {
+      expect(sanitizeName('Mary\tAnn\nLee Jo', 50)).toBe('Mary Ann Lee Jo')
+    })
+
+    it('should truncate to the maximum length after sanitizing', () => {
+      expect(sanitizeName('Ábcdefghij"Klmnopqrstuv', 20)).toBe("Abcdefghij'Klmnopqrs")
+      expect(sanitizeName('é'.repeat(25), 20)).toBe('e'.repeat(20))
+      expect(sanitizeName('\u{1F436}'.repeat(25), 20)).toBe('-'.repeat(20))
+    })
+
+    it('should not leave a trailing space where it truncates', () => {
+      expect(sanitizeName('Abcdefghijklmnopqrs Tuv', 20)).toBe('Abcdefghijklmnopqrs')
     })
   })
 })
