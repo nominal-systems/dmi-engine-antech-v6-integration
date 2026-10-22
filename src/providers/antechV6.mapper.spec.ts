@@ -1107,6 +1107,20 @@ describe('AntechV6Mapper', () => {
       expect(message).toEqual(expect.stringContaining(OrderStatus.SUBMITTED))
     })
 
+    // An object-literal table would answer these from its prototype instead of missing.
+    it.each(['constructor', '__proto__'])(
+      "should default the prototype key '%s' to SUBMITTED and log a warning naming it",
+      (wire) => {
+        expect(mapper.mapAntechV6OrderStatus(labOrderStatus(wire)).status).toBe(
+          OrderStatus.SUBMITTED,
+        )
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        const [message] = warnSpy.mock.calls[0]
+        expect(message).toEqual(expect.stringContaining(wire))
+        expect(message).toEqual(expect.stringContaining('ACC-1'))
+      },
+    )
+
     it('should default a missing OrderStatus to SUBMITTED and log a warning naming the order', () => {
       const withoutStatus: AntechV6LabOrderStatus = JSON.parse(
         `{"ClinicAccessionID":"ACC-2","OrderDate":"2024-03-27T06:42:58","CreatedDate":"2024-03-27T06:42:58","LabAccessionID":"LAB-2","LabTests":[],"AddOnTests":[]}`,

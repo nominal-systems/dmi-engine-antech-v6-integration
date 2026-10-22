@@ -75,10 +75,10 @@ export const parseLabId = (labId?: string): number | undefined => {
 
 /**
  * Antech V6 `OrderStatus` to DMI `OrderStatus`, keyed by the lower-cased wire string so that a
- * variation in case or spacing maps like its canonical spelling. DMI's `PARTIAL` means some tests
- * are completed and available: an order Antech has received, or is working on, has none yet and
- * stays `SUBMITTED`. A `Map` rather than an object literal, which would answer prototype keys
- * such as `'constructor'`.
+ * variation in case or surrounding whitespace maps like its canonical spelling. DMI's `PARTIAL`
+ * means some tests are completed and available: an order Antech has received, or is working on,
+ * has none yet and stays `SUBMITTED`. A `Map` rather than an object literal, which would answer
+ * prototype keys such as `'constructor'`.
  */
 const ORDER_STATUS_MAP: ReadonlyMap<string, OrderStatus> = new Map<string, OrderStatus>([
   [AntechV6OrderStatus.Draft.toLowerCase(), OrderStatus.ACCEPTED],
