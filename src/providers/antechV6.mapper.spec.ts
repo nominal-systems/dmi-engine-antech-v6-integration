@@ -564,7 +564,7 @@ describe('AntechV6Mapper', () => {
 
     it('should map the order status of an orphan result from the string Antech sends', () => {
       const orphanResult: AntechV6Result = JSON.parse(
-        `{"ID":1325,"LabAccessionID":"XXXXX","ClinicAccessionID":"","OrderStatus":"In Progress","UnitCodeResults":[],"Pet":{"Id":"","Name":"Bruce"},"Client":{"Id":"","FirstName":"","LastName":""},"Doctor":{"Id":"","FirstName":"Not Stated"}}`,
+        `{"ID":1325,"LabAccessionID":"XXXXX","ClinicAccessionID":"","OrderStatus":"Partial","UnitCodeResults":[],"Pet":{"Id":"","Name":"Bruce"},"Client":{"Id":"","FirstName":"","LastName":""},"Doctor":{"Id":"","FirstName":"Not Stated"}}`,
       )
       const result: Result = mapper.mapAntechV6Result(orphanResult)
       expect(result).toHaveProperty('order')
@@ -1051,22 +1051,44 @@ describe('AntechV6Mapper', () => {
       warnSpy.mockRestore()
     })
 
-    it.each([
+    const canonical: Array<[string, OrderStatus]> = [
       ['Draft', OrderStatus.ACCEPTED],
       ['Submitted', OrderStatus.SUBMITTED],
-      ['Received', OrderStatus.PARTIAL],
-      ['In Progress', OrderStatus.PARTIAL],
+      ['Received', OrderStatus.SUBMITTED],
+      ['In Progress', OrderStatus.SUBMITTED],
       ['Partial', OrderStatus.PARTIAL],
       ['Resulted', OrderStatus.COMPLETED],
       ['Final', OrderStatus.COMPLETED],
       ['Expired', OrderStatus.CANCELLED],
       ['Canceled', OrderStatus.CANCELLED],
-    ])("should map Antech OrderStatus '%s' to %s", (wire, expected) => {
+    ]
+
+    it.each(canonical)("should map Antech OrderStatus '%s' to %s", (wire, expected) => {
       expect(mapper.mapAntechV6OrderStatus(labOrderStatus(wire)).status).toBe(expected)
     })
 
+    // A status dropped from the table would still come out SUBMITTED through the default, but
+    // with a warning: this is what tells the two apart.
+    it.each(canonical)("should not log a warning for Antech OrderStatus '%s'", (wire) => {
+      mapper.mapAntechV6OrderStatus(labOrderStatus(wire))
+      expect(warnSpy).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['In progress', OrderStatus.SUBMITTED],
+      ['FINAL', OrderStatus.COMPLETED],
+      [' Final ', OrderStatus.COMPLETED],
+      ['canceled', OrderStatus.CANCELLED],
+    ])(
+      "should map the variation '%s' like its canonical spelling, to %s, without a warning",
+      (wire, expected) => {
+        expect(mapper.mapAntechV6OrderStatus(labOrderStatus(wire)).status).toBe(expected)
+        expect(warnSpy).not.toHaveBeenCalled()
+      },
+    )
+
     it('should map the accession and the ordered tests', () => {
-      expect(mapper.mapAntechV6OrderStatus(labOrderStatus('Received'))).toEqual({
+      expect(mapper.mapAntechV6OrderStatus(labOrderStatus('Partial'))).toEqual({
         externalId: 'ACC-1',
         status: OrderStatus.PARTIAL,
         tests: [{ code: 'SA804' }],
@@ -1092,11 +1114,6 @@ describe('AntechV6Mapper', () => {
       expect(mapper.mapAntechV6OrderStatus(withoutStatus).status).toBe(OrderStatus.SUBMITTED)
       expect(warnSpy).toHaveBeenCalledTimes(1)
       expect(warnSpy.mock.calls[0][0]).toEqual(expect.stringContaining('ACC-2'))
-    })
-
-    it('should not log a warning for a known OrderStatus', () => {
-      mapper.mapAntechV6OrderStatus(labOrderStatus('Final'))
-      expect(warnSpy).not.toHaveBeenCalled()
     })
   })
 
