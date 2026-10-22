@@ -73,6 +73,25 @@ export const parseLabId = (labId?: string): number | undefined => {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
+/**
+ * Antech V6 `OrderStatus` to DMI `OrderStatus`, keyed by the lower-cased wire string so that a
+ * variation in case or surrounding whitespace maps like its canonical spelling. DMI's `PARTIAL`
+ * means some tests are completed and available: an order Antech has received, or is working on,
+ * has none yet and stays `SUBMITTED`. A `Map` rather than an object literal, which would answer
+ * prototype keys such as `'constructor'`.
+ */
+const ORDER_STATUS_MAP: ReadonlyMap<string, OrderStatus> = new Map<string, OrderStatus>([
+  [AntechV6OrderStatus.Draft.toLowerCase(), OrderStatus.ACCEPTED],
+  [AntechV6OrderStatus.Submitted.toLowerCase(), OrderStatus.SUBMITTED],
+  [AntechV6OrderStatus.Received.toLowerCase(), OrderStatus.SUBMITTED],
+  [AntechV6OrderStatus.InProgress.toLowerCase(), OrderStatus.SUBMITTED],
+  [AntechV6OrderStatus.Partial.toLowerCase(), OrderStatus.PARTIAL],
+  [AntechV6OrderStatus.Resulted.toLowerCase(), OrderStatus.COMPLETED],
+  [AntechV6OrderStatus.Final.toLowerCase(), OrderStatus.COMPLETED],
+  [AntechV6OrderStatus.Expired.toLowerCase(), OrderStatus.CANCELLED],
+  [AntechV6OrderStatus.Canceled.toLowerCase(), OrderStatus.CANCELLED],
+])
+
 @Injectable()
 export class AntechV6Mapper {
   private readonly logger = new Logger(AntechV6Mapper.name)
@@ -127,7 +146,7 @@ export class AntechV6Mapper {
   ): Pick<Order, 'externalId' | 'status' | 'tests' | 'editable'> {
     return {
       externalId: orderStatus.ClinicAccessionID,
-      status: this.mapOrderStatus(orderStatus.OrderStatus),
+      status: this.mapOrderStatus(orderStatus.OrderStatus, orderStatus.ClinicAccessionID),
       tests: orderStatus.LabTests.map((test) => {
         return {
           code: test.Mnemonic,
@@ -531,24 +550,19 @@ export class AntechV6Mapper {
     return {}
   }
 
-  private mapOrderStatus(orderStatus: AntechV6OrderStatus): OrderStatus {
-    switch (orderStatus) {
-      case AntechV6OrderStatus.Draft:
-        return OrderStatus.ACCEPTED
-      case AntechV6OrderStatus.Submitted:
-        return OrderStatus.SUBMITTED
-      case AntechV6OrderStatus.Received:
-      case AntechV6OrderStatus.Partial:
-        return OrderStatus.PARTIAL
-      case AntechV6OrderStatus.Resulted:
-      case AntechV6OrderStatus.Final:
-        return OrderStatus.COMPLETED
-      case AntechV6OrderStatus.Expired:
-      case AntechV6OrderStatus.Canceled:
-        return OrderStatus.CANCELLED
-      default:
-        return OrderStatus.SUBMITTED
+  private mapOrderStatus(orderStatus: AntechV6OrderStatus, accessionId: string): OrderStatus {
+    const status = ORDER_STATUS_MAP.get(
+      String(orderStatus ?? '')
+        .trim()
+        .toLowerCase(),
+    )
+    if (status !== undefined) {
+      return status
     }
+    this.logger.warn(
+      `Unmapped Antech V6 order status '${String(orderStatus)}' on order ${accessionId}, defaulting to ${OrderStatus.SUBMITTED}`,
+    )
+    return OrderStatus.SUBMITTED
   }
 
   private extractClientName(client: PersonDetails): Pick<Client, 'firstName' | 'lastName'> {
@@ -570,7 +584,7 @@ export class AntechV6Mapper {
   private extractOrderFromResult(result: AntechV6Result): Order {
     return {
       externalId: result.LabAccessionID,
-      status: this.mapOrderStatus(result.OrderStatus),
+      status: this.mapOrderStatus(result.OrderStatus, result.LabAccessionID),
       patient: extractPatientFromResult(result),
       client: extractClientFromResult(result),
       veterinarian: extractVeterinarianFromResult(result),

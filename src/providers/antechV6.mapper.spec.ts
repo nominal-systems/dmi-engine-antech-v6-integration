@@ -1,8 +1,10 @@
 import { AntechV6Mapper } from './antechV6-mapper'
+import { Logger } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import {
   CreateOrderPayload,
   FileUtils,
+  OrderStatus,
   ReferenceRangeType,
   Result,
   ResultStatus,
@@ -11,6 +13,7 @@ import {
 } from '@nominal-systems/dmi-engine-common'
 import {
   AntechV6AbnormalFlag,
+  AntechV6LabOrderStatus,
   AntechV6LabResultStatus,
   AntechV6OrderStatus,
   AntechV6PetSex,
@@ -31,6 +34,10 @@ import {
   FEATURE_FLAG_PROVIDER,
   type FeatureFlagProvider,
 } from '../feature-flags/feature-flag.interface'
+
+/* A status as the wire delivers it: a plain string parsed from JSON text, never an enum member. */
+const wireStatus = (orderStatus: string): AntechV6OrderStatus =>
+  JSON.parse(JSON.stringify(orderStatus))
 
 describe('AntechV6Mapper', () => {
   let mapper: AntechV6Mapper
@@ -492,7 +499,7 @@ describe('AntechV6Mapper', () => {
         ID: 1324,
         LabAccessionID: 'XXXXX',
         ClinicAccessionID: '',
-        OrderStatus: AntechV6OrderStatus.Final,
+        OrderStatus: wireStatus('Final'),
         UnitCodeResults: [],
         Pet: {
           Id: '',
@@ -526,7 +533,7 @@ describe('AntechV6Mapper', () => {
         ID: 1324,
         LabAccessionID: 'XXXXX',
         ClinicAccessionID: '',
-        OrderStatus: AntechV6OrderStatus.Final,
+        OrderStatus: wireStatus('Final'),
         UnitCodeResults: [],
         Pet: {
           Id: '',
@@ -553,6 +560,35 @@ describe('AntechV6Mapper', () => {
           },
         }),
       )
+    })
+
+    it('should map the order status of an orphan result from the string Antech sends', () => {
+      const orphanResult: AntechV6Result = JSON.parse(
+        `{"ID":1325,"LabAccessionID":"XXXXX","ClinicAccessionID":"","OrderStatus":"Partial","UnitCodeResults":[],"Pet":{"Id":"","Name":"Bruce"},"Client":{"Id":"","FirstName":"","LastName":""},"Doctor":{"Id":"","FirstName":"Not Stated"}}`,
+      )
+      const result: Result = mapper.mapAntechV6Result(orphanResult)
+      expect(result).toHaveProperty('order')
+      expect(result.order).toEqual(
+        expect.objectContaining({
+          externalId: 'XXXXX',
+          status: OrderStatus.PARTIAL,
+        }),
+      )
+    })
+
+    it('should default an unknown OrderStatus on an orphan result and name the lab accession in the warning', () => {
+      const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined)
+      try {
+        const orphanResult: AntechV6Result = JSON.parse(
+          `{"ID":1326,"LabAccessionID":"LAB-ORPHAN","ClinicAccessionID":"","OrderStatus":"Bogus","UnitCodeResults":[],"Pet":{"Id":"","Name":"Bruce"},"Client":{"Id":"","FirstName":"","LastName":""},"Doctor":{"Id":"","FirstName":"Not Stated"}}`,
+        )
+        const result: Result = mapper.mapAntechV6Result(orphanResult)
+        expect(result.order?.status).toBe(OrderStatus.SUBMITTED)
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(warnSpy.mock.calls[0][0]).toEqual(expect.stringContaining('LAB-ORPHAN'))
+      } finally {
+        warnSpy.mockRestore()
+      }
     })
   })
 
@@ -995,6 +1031,103 @@ describe('AntechV6Mapper', () => {
       }
       const result = mapper.mapAntechV6TestCodeResult(testCodeResult, 0)
       expect(result).not.toHaveProperty('units')
+    })
+  })
+
+  describe('mapAntechV6OrderStatus()', () => {
+    // Parsed from JSON text, as the wire delivers it: OrderStatus is the string Antech sends.
+    const labOrderStatus = (orderStatus: string): AntechV6LabOrderStatus =>
+      JSON.parse(
+        `{"ClinicAccessionID":"ACC-1","OrderDate":"2024-03-27T06:42:58","CreatedDate":"2024-03-27T06:42:58","OrderStatus":${JSON.stringify(orderStatus)},"LabAccessionID":"LAB-1","LabTests":[{"CodeType":"U","CodeID":12687,"Mnemonic":"SA804","DisplayName":"Chemistry Panel w/SDMA","Price":49.51}],"AddOnTests":[]}`,
+      )
+
+    let warnSpy: jest.SpyInstance
+
+    beforeEach(() => {
+      warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined)
+    })
+
+    afterEach(() => {
+      warnSpy.mockRestore()
+    })
+
+    const canonical: Array<[string, OrderStatus]> = [
+      ['Draft', OrderStatus.ACCEPTED],
+      ['Submitted', OrderStatus.SUBMITTED],
+      ['Received', OrderStatus.SUBMITTED],
+      ['In Progress', OrderStatus.SUBMITTED],
+      ['Partial', OrderStatus.PARTIAL],
+      ['Resulted', OrderStatus.COMPLETED],
+      ['Final', OrderStatus.COMPLETED],
+      ['Expired', OrderStatus.CANCELLED],
+      ['Canceled', OrderStatus.CANCELLED],
+    ]
+
+    it.each(canonical)("should map Antech OrderStatus '%s' to %s", (wire, expected) => {
+      expect(mapper.mapAntechV6OrderStatus(labOrderStatus(wire)).status).toBe(expected)
+    })
+
+    // A status dropped from the table would still come out SUBMITTED through the default, but
+    // with a warning: this is what tells the two apart.
+    it.each(canonical)("should not log a warning for Antech OrderStatus '%s'", (wire) => {
+      mapper.mapAntechV6OrderStatus(labOrderStatus(wire))
+      expect(warnSpy).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['In progress', OrderStatus.SUBMITTED],
+      ['FINAL', OrderStatus.COMPLETED],
+      [' Final ', OrderStatus.COMPLETED],
+      ['canceled', OrderStatus.CANCELLED],
+    ])(
+      "should map the variation '%s' like its canonical spelling, to %s, without a warning",
+      (wire, expected) => {
+        expect(mapper.mapAntechV6OrderStatus(labOrderStatus(wire)).status).toBe(expected)
+        expect(warnSpy).not.toHaveBeenCalled()
+      },
+    )
+
+    it('should map the accession and the ordered tests', () => {
+      expect(mapper.mapAntechV6OrderStatus(labOrderStatus('Partial'))).toEqual({
+        externalId: 'ACC-1',
+        status: OrderStatus.PARTIAL,
+        tests: [{ code: 'SA804' }],
+        editable: false,
+      })
+    })
+
+    it('should default an unknown OrderStatus to SUBMITTED and log a warning naming it', () => {
+      expect(mapper.mapAntechV6OrderStatus(labOrderStatus('Bogus')).status).toBe(
+        OrderStatus.SUBMITTED,
+      )
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+      const [message] = warnSpy.mock.calls[0]
+      expect(message).toEqual(expect.stringContaining('Bogus'))
+      expect(message).toEqual(expect.stringContaining('ACC-1'))
+      expect(message).toEqual(expect.stringContaining(OrderStatus.SUBMITTED))
+    })
+
+    // An object-literal table would answer these from its prototype instead of missing.
+    it.each(['constructor', '__proto__'])(
+      "should default the prototype key '%s' to SUBMITTED and log a warning naming it",
+      (wire) => {
+        expect(mapper.mapAntechV6OrderStatus(labOrderStatus(wire)).status).toBe(
+          OrderStatus.SUBMITTED,
+        )
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        const [message] = warnSpy.mock.calls[0]
+        expect(message).toEqual(expect.stringContaining(wire))
+        expect(message).toEqual(expect.stringContaining('ACC-1'))
+      },
+    )
+
+    it('should default a missing OrderStatus to SUBMITTED and log a warning naming the order', () => {
+      const withoutStatus: AntechV6LabOrderStatus = JSON.parse(
+        `{"ClinicAccessionID":"ACC-2","OrderDate":"2024-03-27T06:42:58","CreatedDate":"2024-03-27T06:42:58","LabAccessionID":"LAB-2","LabTests":[],"AddOnTests":[]}`,
+      )
+      expect(mapper.mapAntechV6OrderStatus(withoutStatus).status).toBe(OrderStatus.SUBMITTED)
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+      expect(warnSpy.mock.calls[0][0]).toEqual(expect.stringContaining('ACC-2'))
     })
   })
 

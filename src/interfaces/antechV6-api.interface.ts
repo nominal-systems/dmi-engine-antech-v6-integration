@@ -36,14 +36,15 @@ export interface AntechV6LabOrderStatus {
 }
 
 export enum AntechV6OrderStatus {
-  'Draft',
-  'Expired',
-  'Canceled',
-  'Submitted',
-  'Received',
-  'Resulted',
-  'Partial',
-  'Final',
+  Draft = 'Draft',
+  Expired = 'Expired',
+  Canceled = 'Canceled',
+  Submitted = 'Submitted',
+  Received = 'Received',
+  InProgress = 'In Progress',
+  Resulted = 'Resulted',
+  Partial = 'Partial',
+  Final = 'Final',
 }
 
 export interface AntechV6LabTest {
