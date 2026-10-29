@@ -593,6 +593,23 @@ describe('AntechV6Service', () => {
       )
     })
 
+    it('sends the names fitted to Antech in the pre-order', async () => {
+      antechV6ApiServiceMock.placePreOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      await service.createOrder(
+        {
+          ...createOrderPayload,
+          client: { id: 'C1', firstName: 'Roger "Doc"', lastName: 'Doe' },
+          patient: { ...createOrderPayload.patient, name: 'Rex Jr.' },
+        } as unknown as CreateOrderPayload,
+        metadataMock,
+      )
+      expect(antechV6ApiServiceMock.placePreOrder).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ ClientFirstName: "Roger 'Doc'", PetName: 'Rex Jr-' }),
+      )
+    })
+
     it('places a pre-order when autoSubmitEnabled is true in integrationOptions and autoSubmitOrder is empty in metadata', async () => {
       antechV6ApiServiceMock.placeOrder.mockResolvedValue({
         payload: 'ok',
@@ -663,6 +680,31 @@ describe('AntechV6Service', () => {
       )
       // No submission URI on auto-submitted orders
       expect((resp as any).submissionUri).toBeUndefined()
+    })
+
+    it('sends the names fitted to Antech in the order', async () => {
+      antechV6ApiServiceMock.getTestGuide.mockResolvedValueOnce({
+        TotalCount: 1,
+        LabResults: [{ Code: 'SA804' }],
+      })
+      antechV6ApiServiceMock.placeOrder.mockResolvedValue({ Value: 'ok', Token: 'tok' })
+      await service.createOrder(
+        {
+          ...createOrderPayload,
+          client: { id: 'C1', firstName: 'Roger "Doc"', lastName: 'Doe' },
+          patient: { ...createOrderPayload.patient, name: 'Rex Jr.' },
+        } as unknown as CreateOrderPayload,
+        {
+          ...metadataMock,
+          autoSubmitOrder: true,
+          integrationOptions: { ...metadataMock.integrationOptions, autoSubmitEnabled: true },
+        } as any,
+      )
+      expect(antechV6ApiServiceMock.placeOrder).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ ClientFirstName: "Roger 'Doc'", PetName: 'Rex Jr-' }),
+      )
     })
 
     it('places a pre-order when autoSubmitOrder is true but tests are not POC', async () => {
