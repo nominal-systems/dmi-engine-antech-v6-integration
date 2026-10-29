@@ -164,6 +164,18 @@ describe('MapperUtils', () => {
       expect(sanitizeName('“Doc” ‘Jr’', 50)).toBe("'Doc' 'Jr'")
     })
 
+    it('should replace apostrophe look-alikes with single quotes', () => {
+      expect(sanitizeName('O´Brien', 50)).toBe("O'Brien")
+      expect(sanitizeName('O`Neil Oʼahu Hawaiʻi D′Arcy', 50)).toBe("O'Neil O'ahu Hawai'i D'Arcy")
+    })
+
+    it('should drop invisible format characters', () => {
+      expect(sanitizeName('Mary​Ann', 50)).toBe('MaryAnn')
+      expect(sanitizeName('Rex‎', 50)).toBe('Rex')
+      expect(sanitizeName('Pa­tricia', 50)).toBe('Patricia')
+      expect(sanitizeName('﻿Rex', 50)).toBe('Rex')
+    })
+
     it('should drop the accent from an accented letter', () => {
       expect(sanitizeName('José Ñandú', 50)).toBe('Jose Nandu')
       expect(sanitizeName('Zoë Françoise', 50)).toBe('Zoe Francoise')
@@ -190,6 +202,7 @@ describe('MapperUtils', () => {
       expect(sanitizeName('Ábcdefghij"Klmnopqrstuv', 20)).toBe("Abcdefghij'Klmnopqrs")
       expect(sanitizeName('é'.repeat(25), 20)).toBe('e'.repeat(20))
       expect(sanitizeName('\u{1F436}'.repeat(25), 20)).toBe('-'.repeat(20))
+      expect(sanitizeName('a​'.repeat(25), 20)).toBe('a'.repeat(20))
     })
 
     it('should not leave a trailing space where it truncates', () => {
