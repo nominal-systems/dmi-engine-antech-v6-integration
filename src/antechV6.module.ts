@@ -4,7 +4,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core'
 import { IntegrationContextInterceptor } from '@nominal-systems/dmi-engine-common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { AntechV6Service } from './services/antechV6.service'
-import { AntechV6ApiService } from './antechV6-api/antechV6-api.service'
+import { ACCESS_TOKEN_CACHE_OPTIONS, AntechV6ApiService } from './antechV6-api/antechV6-api.service'
 import { type DynamicModule, Module, type ModuleMetadata, type Provider } from '@nestjs/common'
 import { AntechV6ResultsProcessor } from './processors/antechV6-results.processor'
 import { AntechV6Controller } from './controllers/antechV6.controller'
@@ -17,9 +17,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 
 @Module({
   imports: [
-    CacheModule.register({
-      ttl: 12 * 60 * 60 * 1000,
-    }),
+    CacheModule.register(ACCESS_TOKEN_CACHE_OPTIONS),
     ClientsModule.registerAsync([
       {
         name: 'API_SERVICE',

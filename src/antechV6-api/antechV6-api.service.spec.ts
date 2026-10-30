@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { CACHE_MANAGER, CacheStore } from '@nestjs/cache-manager'
+import { CACHE_MANAGER, CacheModule, CacheStore } from '@nestjs/cache-manager'
 import { HttpException } from '@nestjs/common'
 import { of, throwError } from 'rxjs'
-import { AntechV6ApiService } from './antechV6-api.service'
+import { ACCESS_TOKEN_CACHE_OPTIONS, AntechV6ApiService } from './antechV6-api.service'
 import { AntechV6ApiHttpService } from './antechV6-api-http.service'
 import {
   AntechV6AccessToken,
@@ -144,6 +144,47 @@ describe('AntechV6ApiService', () => {
       jest.spyOn(httpService, 'post').mockReturnValue(throwError(() => new Error('boom')) as any)
 
       await expect((service as any).authenticate(baseUrl, credentials)).rejects.toThrow()
+    })
+  })
+
+  describe('access token cache store', () => {
+    const baseUrl = 'https://api.antechv6.com'
+    const clinicCount = 1000
+    const clinic = (n: number): AntechV6UserCredentials => ({
+      UserName: 'PIMS_USER',
+      Password: 'devtest',
+      ClinicID: String(n),
+    })
+    let cachedService: AntechV6ApiService
+
+    beforeEach(async () => {
+      // Real store registered as AntechV6Module does, so its size limit applies.
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [CacheModule.register(ACCESS_TOKEN_CACHE_OPTIONS)],
+        providers: [
+          AntechV6ApiService,
+          { provide: AntechV6ApiHttpService, useValue: { get: jest.fn(), post: jest.fn() } },
+        ],
+      }).compile()
+
+      cachedService = module.get<AntechV6ApiService>(AntechV6ApiService)
+    })
+
+    it('logs each clinic in once across two polling rounds of 1000 clinics', async () => {
+      const loginSpy = jest
+        .spyOn(cachedService as any, 'post')
+        .mockImplementation(async (...args: any[]) => {
+          const credentials = args[1] as AntechV6UserCredentials
+          return { Token: `token-${credentials.ClinicID}`, UserInfo: { ID: 123 } }
+        })
+
+      for (let round = 0; round < 2; round++) {
+        for (let n = 0; n < clinicCount; n++) {
+          await (cachedService as any).authenticate(baseUrl, clinic(n))
+        }
+      }
+
+      expect(loginSpy).toHaveBeenCalledTimes(clinicCount)
     })
   })
 

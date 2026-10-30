@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
-import { CACHE_MANAGER, CacheStore } from '@nestjs/cache-manager'
+import { CACHE_MANAGER, CacheModuleOptions, CacheStore } from '@nestjs/cache-manager'
 import {
   AntechV6AccessToken,
   AntechV6Endpoints,
@@ -21,6 +21,13 @@ import { AntechV6ApiException } from '../common/exceptions/antechV6-api.exceptio
 // The Antech v6 auth response does not indicate any expiry time, but the token
 // has been tested to be valid for more than 12 hours.
 const ACCESS_TOKEN_TTL = 12 * 60 * 60 * 1000
+
+// One token per clinic. Without `max`, @nestjs/cache-manager caps the store at 100 entries,
+// fewer than the clinics polled in PROD, so every token was evicted before its next poll.
+export const ACCESS_TOKEN_CACHE_OPTIONS: CacheModuleOptions = {
+  ttl: ACCESS_TOKEN_TTL,
+  max: 5000,
+}
 
 function isUnauthorized(error: any): boolean {
   return error?.status === 401
